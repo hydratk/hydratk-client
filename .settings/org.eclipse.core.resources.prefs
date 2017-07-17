@@ -1,0 +1,12 @@
+eclipse.preferences.version=1
+encoding//src/client.py=utf-8
+encoding//src/hydratk/config.py=utf-8
+encoding//src/hydratk/editor.py=utf-8
+encoding//src/hydratk/explorer.py=utf-8
+encoding//src/hydratk/gui.py=utf-8
+encoding//src/hydratk/logger.py=utf-8
+encoding//src/hydratk/translation/cs/messages.py=utf-8
+encoding//src/hydratk/translation/en/messages.py=utf-8
+encoding//src/hydratk/translator.py=utf-8
+encoding//src/hydratk/utils.py=utf-8
+encoding/setup.py=utf-8
