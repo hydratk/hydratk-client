@@ -11,9 +11,16 @@
 from hydratk.gui import Gui
 
 def main():
+    """Main method
+    Args:
+        none
+
+    Returns:
+        void
+
+    """
 
     htk = Gui.get_instance()
-    htk.set_gui()
     htk.mainloop()
 
 if __name__ == '__main__':

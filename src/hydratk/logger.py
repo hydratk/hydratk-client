@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
-"""Logger
+"""Logger frame
 
 .. module:: logger
    :platform: Windows
-   :synopsis: Logger
+   :synopsis: Logger frame
 .. moduleauthor:: Petr Rašek <bowman@hydratk.org>
 
 """
@@ -27,22 +27,36 @@ log_levels = {
 }
 
 class Logger(tk.LabelFrame):
+    """Class Logger
+    """
     
     _instance = None
     _instance_created = False
 
+    # references
     _root = None
     _trn = None
     _config = None
 
+    # log parameters
     _log = None
     _level = None
-    _format = None
-
+    _msg_format = None
     _logdir = None
-    _file = None
+    _logfile = None
     
     def __init__(self, root):
+        """Class constructor
+
+        Called when object is initialized
+
+        Args:
+           root (obj): root frame
+
+        Raises:
+           error: ValueError
+
+        """
 
         if (self._instance_created == False):
             raise ValueError('For creating class instance please use the get_instance method instead!')
@@ -50,19 +64,24 @@ class Logger(tk.LabelFrame):
             raise ValueError('A Class instance already exists, use get_instance method instead!')
 
         self._root = root
-        self._trn = self._root._trn
-        self._config = self._root._config
-        self._level = self._config.data['Logger']['level']
-        self._format = self._config.data['Logger']['format']
-        
-        self._logdir = self._config.data['Logger']['logdir']
-        self._file = open(path.join(self._logdir, datetime.now().strftime('%Y%m%d') + '.log'), 'a')
+        self._trn = root.trn
+        self._config = root.cfg
 
-        tk.LabelFrame.__init__(self, root._pane_right, text=self._trn.msg('htk_gui_log_label'))
-        self.set_gui()
+        tk.LabelFrame.__init__(self, root._pane_right, text=self.trn.msg('htk_gui_log_label'))
+        self._set_gui()
+        self._parse_config()
 
     @staticmethod
     def get_instance(root=None):
+        """Method gets Logger singleton instance
+
+        Args:
+            root (obj): root frame
+
+        Returns:
+            obj
+
+        """
 
         if (Logger._instance is None):
             Logger._instance_created = True
@@ -70,45 +89,157 @@ class Logger(tk.LabelFrame):
 
         return Logger._instance
 
-    def set_gui(self):
+    @property
+    def root(self):
+        """ root property getter """
+
+        return self._root
+
+    @property
+    def trn(self):
+        """ trn property getter """
+
+        return self._trn
+
+    @property
+    def config(self):
+        """ config property getter """
+
+        return self._config
+
+    @property
+    def log(self):
+        """ log property getter """
+
+        return self._log
+
+    @property
+    def level(self):
+        """ level property getter """
+
+        return self._level
+
+    @property
+    def msg_format(self):
+        """ msg_format property getter """
+
+        return self._msg_format
+
+    @property
+    def logdir(self):
+        """ logdir property getter """
+
+        return self._logdir
+
+    @property
+    def logfile(self):
+        """ logfile property getter """
+
+        return self._logfile
+
+    def _parse_config(self):
+        """Method parses configuration
+
+        Args:
+            none
+
+        Returns:
+            void
+
+        """
+
+        self._level = log_levels[self.config.data['Logger']['level']]
+        self._msg_format = self.config.data['Logger']['format']
+
+        self._logdir = self.config.data['Logger']['logdir']
+        self._logfile = open(path.join(self._logdir, datetime.now().strftime('%Y%m%d') + '.log'), 'a')
+
+    def _set_gui(self):
+        """Method sets graphical interface
+
+        Args:
+            none
+
+        Returns:
+            void
+
+        """
 
         self._log = ScrolledText(self, state=tk.DISABLED)
         self._log.pack(expand=True, fill=tk.BOTH)
         self._log.focus_set()
 
-    def autoscroll(self, sbar, first, last):
+    def write_msg(self, msg, level=3):
+        """Method writes to log (GUI and file)
 
-        first, last = float(first), float(last)
-        if (first <= 0 and last >= 1):
-            sbar.grid_remove()
-        else:
-            sbar.grid()
-        sbar.set(first, last)
+        Args:
+            msg (str): message
+            level (int): level, 1-ERROR, 2-WARN, 3-INFO, 4-DEBUG
 
-    def write_msg(self, msg, level='INFO'):
+        Returns:
+            void
 
-        if (log_levels[self._level] >= log_levels[level]):
-            msg = self._format.format(timestamp=datetime.now().strftime('%Y-%m-%d %H:%M:%S'), level=level, message=msg)
+        """
+
+        if (self._level >= level):
+            level = list(log_levels.keys())[list(log_levels.values()).index(level)]
+            msg = self._msg_format.format(timestamp=datetime.now().strftime('%Y-%m-%d %H:%M:%S'), level=level, message=msg)
             self._log.configure(state=tk.NORMAL)
             self._log.insert(tk.END, msg + '\n')
             self._log.see('end')
             self._log.configure(state=tk.DISABLED)
 
-            self._file.write(msg + '\n')
-            self._file.flush()
+            self._logfile.write(msg + '\n')
+            self._logfile.flush()
 
     def debug(self, msg):
+        """Method writes DEBUG message
 
-        self.write_msg(msg, 'DEBUG')
+        Args:
+            msg (str): message
+
+        Returns:
+            void
+
+        """
+
+        self.write_msg(msg, 4)
 
     def info(self, msg):
+        """Method writes INFO message
 
-        self.write_msg(msg, 'INFO')
+        Args:
+            msg (str): message
+
+        Returns:
+            void
+
+        """
+
+        self.write_msg(msg, 3)
 
     def warn(self, msg):
+        """Method writes WARN message
 
-        self.write_msg(msg, 'WARN')
+        Args:
+            msg (str): message
+
+        Returns:
+            void
+
+        """
+
+        self.write_msg(msg, 2)
 
     def error(self, msg):
+        """Method writes ERROR message
 
-        self.write_msg(msg, 'ERROR')
+        Args:
+            msg (str): message
+
+        Returns:
+            void
+
+        """
+
+        self.write_msg(msg, 1)

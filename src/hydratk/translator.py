@@ -11,6 +11,8 @@
 from importlib import import_module
 
 class Translator(object):
+    """Class Translator
+    """
 
     _instance_created = False
     _instance = None
@@ -46,11 +48,20 @@ class Translator(object):
         self.register_messages(self._msg_mod.msg)
 
     @staticmethod
-    def get_instance(language=None):
+    def get_instance(lang=None):
+        """Method gets Translator singleton instance
+
+        Args:
+            lang (str): language en|cs
+
+        Returns:
+            obj
+
+        """
 
         if (Translator._instance is None):
             Translator._instance_created = True
-            Translator._instance = Translator(language)
+            Translator._instance = Translator(lang)
 
         return Translator._instance
 
@@ -73,7 +84,7 @@ class Translator(object):
            messages (dict): langtexts
 
         Returns:
-           bool: True
+           bool
 
         Raises:
            error: ValueError
