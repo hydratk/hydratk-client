@@ -14,8 +14,10 @@ if (sys.version_info[0] == 2):
     reload(sys)
     sys.setdefaultencoding('UTF8')
     import Tkinter as tk
+    import Tix as tix
 else:
     import tkinter as tk
+    from tk import tix
 
 import traceback
 import tkMessageBox
@@ -27,7 +29,7 @@ from hydratk.explorer import Explorer
 from hydratk.editor import Editor
 from hydratk.logger import Logger
 
-class Gui(tk.Tk):
+class Gui(tix.Tk):
     """Class Gui
     """
 
@@ -59,6 +61,7 @@ class Gui(tk.Tk):
     # toolbar
     _tool_bar = None
     _tools = {}
+    _balloons = {}
     _images = {}
     _imgdir = None
 
@@ -84,7 +87,7 @@ class Gui(tk.Tk):
         self._config = Config.get_instance()
         self._trn = Translator.get_instance(self._config._data['Core']['language'])
 
-        self._instance = tk.Tk.__init__(self)
+        self._instance = tix.Tk.__init__(self)
         self._set_gui()
 
     @staticmethod
@@ -275,12 +278,16 @@ class Gui(tk.Tk):
         self._menu_edit.add_command(label=self.trn.msg('htk_gui_menu_edit_delete'), accelerator='Delete', command=self.editor.delete, state=tk.DISABLED)
         self._menu_edit.add_command(label=self.trn.msg('htk_gui_menu_edit_select_all'), accelerator='Ctrl+A', command=self.editor.select_all, state=tk.DISABLED)
         self._menu_edit.add_command(label=self.trn.msg('htk_gui_menu_edit_goto'), accelerator='Ctrl+G', command=self.editor.win_goto, state=tk.DISABLED)
+        self._menu_edit.add_command(label=self.trn.msg('htk_gui_menu_edit_find'), accelerator='Ctrl+F', command=self.editor.win_find, state=tk.DISABLED)
+        self._menu_edit.add_command(label=self.trn.msg('htk_gui_menu_edit_replace'), accelerator='Ctrl+R', command=self.editor.win_replace, state=tk.DISABLED)
 
         # shorcuts
         self.bind('<Control-z>', self.editor.undo)
         self.bind('<Control-y>', self.editor.redo)
         self.bind('<Control-a>', self.editor.select_all)
         self.bind('<Control-g>', self.editor.win_goto)
+        self.bind('<Control-f>', self.editor.win_find)
+        self.bind('<Control-r>', self.editor.win_replace)
 
     def _set_menu_view(self):
         """Method sets view menu
@@ -299,6 +306,8 @@ class Gui(tk.Tk):
         # menu items
         self._menu_view.add_checkbutton(label=self.trn.msg('htk_gui_menu_view_show_line_number'), variable=self.editor._show_line_number, command=self.editor.show_line_number)
         self._menu_view.add_checkbutton(label=self.trn.msg('htk_gui_menu_view_show_info_bar'), variable=self.editor._show_info_bar, command=self.editor.show_info_bar)
+        self._menu_view.add_command(label=self.trn.msg('htk_gui_menu_view_increase_font'), accelerator='Ctrl+MouseUp', command=self.editor.increase_font, state=tk.DISABLED)
+        self._menu_view.add_command(label=self.trn.msg('htk_gui_menu_view_decrease_font'), accelerator='Ctrl+MouseDown', command=self.editor.decrease_font, state=tk.DISABLED)
 
     def _set_menu_help(self):
         """Method sets help menu
@@ -325,60 +334,42 @@ class Gui(tk.Tk):
 
         """
         
-        self._images['new'] = tk.PhotoImage(file=path.join(self._imgdir, 'new.gif'))
-        self._images['open'] = tk.PhotoImage(file=path.join(self._imgdir, 'open.gif')),
-        self._images['save'] = tk.PhotoImage(file=path.join(self._imgdir, 'save.gif')),
-        self._images['undo'] = tk.PhotoImage(file=path.join(self._imgdir, 'undo.gif')),
-        self._images['redo'] = tk.PhotoImage(file=path.join(self._imgdir, 'redo.gif')),
-        self._images['cut'] = tk.PhotoImage(file=path.join(self._imgdir, 'cut.gif')),
-        self._images['copy'] = tk.PhotoImage(file=path.join(self._imgdir, 'copy.gif')),
-        self._images['paste'] = tk.PhotoImage(file=path.join(self._imgdir, 'paste.gif')),
-        self._images['delete'] = tk.PhotoImage(file=path.join(self._imgdir, 'delete.gif'))
+        self._set_tool('new', 'new.gif', 'htk_gui_menu_file_new', self.editor.new_file)
+        self._set_tool('open', 'open.gif', 'htk_gui_menu_file_open', self.editor.open_file)
+        self._set_tool('save', 'save.gif', 'htk_gui_menu_file_save', self.editor.save_file, False)
+        self._set_tool('undo', 'undo.gif', 'htk_gui_menu_edit_undo', self.editor.undo, False)
+        self._set_tool('redo', 'redo.gif', 'htk_gui_menu_edit_redo', self.editor.redo, False)
+        self._set_tool('cut', 'cut.gif', 'htk_gui_menu_edit_cut', self.editor.cut, False)
+        self._set_tool('copy', 'copy.gif', 'htk_gui_menu_edit_copy', self.editor.copy, False)
+        self._set_tool('paste', 'paste.gif', 'htk_gui_menu_edit_paste', self.editor.paste, False)
+        self._set_tool('delete', 'delete.gif', 'htk_gui_menu_edit_delete', self.editor.delete, False)
+        self._set_tool('find', 'find.gif', 'htk_gui_menu_edit_find', self.editor.win_find, False)
 
-        btn = tk.Button(self._tool_bar, command=self.editor.new_file, image=self._images['new'], relief=tk.FLAT)
-        btn.image = self._images['new']
-        btn.pack(side=tk.LEFT)
-        self._tools['new'] = btn
+    def _set_tool(self, key, image, tooltip, command, enable=True):
+        """Method sets tool button
 
-        btn = tk.Button(self._tool_bar, command=self.editor.open_file, image=self._images['open'], relief=tk.FLAT)
-        btn.image = self._images['open']
-        btn.pack(side=tk.LEFT)
-        self._tools['open'] = btn
+        Args:
+            key (str): tool key
+            image (str): image file
+            tooltip (str): langtext
+            command (callback): command
+            enable (bool): enable tool
 
-        btn = tk.Button(self._tool_bar, command=self.editor.save_file, state=tk.DISABLED, image=self._images['save'], relief=tk.FLAT)
-        btn.image = self._images['save']
-        btn.pack(side=tk.LEFT)
-        self._tools['save'] = btn
+        Returns:
+            void
 
-        btn = tk.Button(self._tool_bar, command=self.editor.undo, state=tk.DISABLED, image=self._images['undo'], relief=tk.FLAT)
-        btn.image = self._images['undo']
-        btn.pack(side=tk.LEFT)
-        self._tools['undo'] = btn
+        """
 
-        btn = tk.Button(self._tool_bar, command=self.editor.redo, state=tk.DISABLED, image=self._images['redo'], relief=tk.FLAT)
-        btn.image = self._images['redo']
+        self._images[key] = tk.PhotoImage(file=path.join(self._imgdir, image))
+        state = tk.NORMAL if (enable) else tk.DISABLED
+        btn = tk.Button(self._tool_bar, command=command, image=self._images[key], relief=tk.FLAT, state=state)
+        btn.image = self._images[key]
         btn.pack(side=tk.LEFT)
-        self._tools['redo'] = btn
+        self._tools[key] = btn
 
-        btn = tk.Button(self._tool_bar, command=self.editor.cut, state=tk.DISABLED, image=self._images['cut'], relief=tk.FLAT)
-        btn.image = self._images['cut']
-        btn.pack(side=tk.LEFT)
-        self._tools['cut'] = btn
-
-        btn = tk.Button(self._tool_bar, command=self.editor.copy, state=tk.DISABLED, image=self._images['copy'], relief=tk.FLAT)
-        btn.image = self._images['copy']
-        btn.pack(side=tk.LEFT)
-        self._tools['copy'] = btn
-
-        btn = tk.Button(self._tool_bar, command=self.editor.paste, state=tk.DISABLED, image=self._images['paste'], relief=tk.FLAT)
-        btn.image = self._images['paste']
-        btn.pack(side=tk.LEFT)
-        self._tools['paste'] = btn
-
-        btn = tk.Button(self._tool_bar, command=self.editor.delete, state=tk.DISABLED, image=self._images['delete'], relief=tk.FLAT)
-        btn.image = self._images['delete']
-        btn.pack(side=tk.LEFT)
-        self._tools['delete'] = btn
+        balloon = tix.Balloon(self._tool_bar, initwait=100)
+        balloon.bind_widget(btn, balloonmsg=self.trn.msg(tooltip))
+        self._balloons[key] = balloon
 
     def _set_pane_left(self):
         """Method sets left pane

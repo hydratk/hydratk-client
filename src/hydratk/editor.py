@@ -43,6 +43,11 @@ class Editor(tk.LabelFrame):
     _show_line_number = None
     _show_info_bar = None
 
+    # font
+    _font_family = None
+    _font_size = None
+    _font_style = None
+
     def __init__(self, root):
         """Class constructor
 
@@ -150,6 +155,10 @@ class Editor(tk.LabelFrame):
 
         self._show_line_number = tk.BooleanVar(value=True) if (self.config._data['View']['show_line_number'] == 1) else tk.BooleanVar(value=False)
         self._show_info_bar = tk.BooleanVar(value=True) if (self.config._data['View']['show_info_bar'] == 1) else tk.BooleanVar(value=False)
+
+        self._font_family = self._config._data['View']['font']['family']
+        self._font_size = self._config._data['View']['font']['size']
+        self._font_style = self._config._data['View']['font']['style']
 
     def _set_gui(self):
         """Method sets graphical interface
@@ -462,9 +471,10 @@ class Editor(tk.LabelFrame):
             btn.pack(side=tk.LEFT, padx=3)
 
             win.bind('<Return>', lambda f: self.goto(entry.get(), win))
+            win.bind('<Escape>', lambda f: win.destroy())
 
     def goto(self, line, win=None):
-        """Method highlights given line
+        """Method goes to given line
 
         Args:
             line (int): line number
@@ -477,11 +487,160 @@ class Editor(tk.LabelFrame):
 
         if (len(line) > 0):
             tab = self.nb.get_current_tab()
-            tab.text.mark_set(tk.INSERT, '%s.1' % line)
-            tab.text.see(tk.INSERT)
+            tab.goto(line)
 
         if (win is not None):
             win.destroy()
+
+    def win_find(self, event=None):
+        """Method displays Find window
+
+        Args:
+            event (obj): event
+
+        Returns:
+            void
+
+        """
+
+        tab = self.nb.get_current_tab()
+        if (tab is not None):
+            win = tk.Toplevel(self._root)
+            win.title(self.trn.msg('htk_gui_editor_find_title'))
+            win.transient(self._root)
+            win.resizable(False, False)
+            win.geometry('+%d+%d' % (self._root.winfo_screenwidth() / 2, self._root.winfo_screenheight() / 2))
+
+            tk.Label(win, text=self.trn.msg('htk_gui_editor_find_text')).grid(row=0, column=0, sticky='e')
+            entry = tk.Entry(win, width=50)
+            entry.grid(row=0, column=1, padx=3, sticky='e')
+            entry.focus_set()
+
+            find_all = tk.BooleanVar(value=True)
+            tk.Checkbutton(win, text=self.trn.msg('htk_gui_editor_find_find_all'), variable=find_all).grid(row=1, column=1, pady=3, sticky='w')
+            ignore_case = tk.BooleanVar(value=True)
+            tk.Checkbutton(win, text=self.trn.msg('htk_gui_editor_find_ignore_case'), variable=ignore_case).grid(row=2, column=1, sticky='w')
+
+            btn = tk.Button(win, text='OK', command=lambda: self.find(entry.get(), find_all.get(), ignore_case.get(), win))
+            btn.grid(row=0, column=2, padx=3, sticky='e')
+
+            win.bind('<Return>', lambda f: self.find(entry.get(), find_all.get(), ignore_case.get(), win))
+            win.bind('<Escape>', lambda f: win.destroy())
+
+    def find(self, find_str, find_all, ignore_case, win=None):
+        """Method finds given string and highlights it
+
+        Args:
+            find_str (str): string to find
+            find_all (bool): find all occurrences, otherwise only next one
+            ignore_case (bool): ignore case
+            win (obj): window reference
+
+        Returns:
+            void
+
+        """
+
+        if (len(find_str) > 0):
+            tab = self.nb.get_current_tab()
+            tab.find(find_str=find_str, find_all=find_all, ignore_case=ignore_case)
+
+        if (win is not None):
+            win.destroy()
+
+    def win_replace(self, event=None):
+        """Method displays Replace window
+
+        Args:
+            event (obj): event
+
+        Returns:
+            void
+
+        """
+
+        tab = self.nb.get_current_tab()
+        if (tab is not None):
+            win = tk.Toplevel(self._root)
+            win.title(self.trn.msg('htk_gui_editor_replace_title'))
+            win.transient(self._root)
+            win.resizable(False, False)
+            win.geometry('+%d+%d' % (self._root.winfo_screenwidth() / 2, self._root.winfo_screenheight() / 2))
+
+            tk.Label(win, text=self.trn.msg('htk_gui_editor_replace_find')).grid(row=0, column=0, sticky='e')
+            find_entry = tk.Entry(win, width=50)
+            find_entry.grid(row=0, column=1, padx=3, sticky='e')
+            find_entry.focus_set()
+
+            tk.Label(win, text=self.trn.msg('htk_gui_editor_replace_replace')).grid(row=1, column=0, pady=3, sticky='e')
+            replace_entry = tk.Entry(win, width=50)
+            replace_entry.grid(row=1, column=1, padx=3, sticky='e')
+
+            replace_all = tk.BooleanVar(value=True)
+            tk.Checkbutton(win, text=self.trn.msg('htk_gui_editor_replace_replace_all'), variable=replace_all).grid(row=2, column=1, pady=3, sticky='w')
+            ignore_case = tk.BooleanVar(value=True)
+            tk.Checkbutton(win, text=self.trn.msg('htk_gui_editor_replace_ignore_case'), variable=ignore_case).grid(row=3, column=1, sticky='w')
+
+            btn = tk.Button(win, text='OK', command=lambda: self.replace(find_entry.get(), replace_entry.get(), replace_all.get(), ignore_case.get(), win))
+            btn.grid(row=0, column=2, padx=3, sticky='e')
+
+            win.bind('<Return>', lambda f: self.replace(find_entry.get(), replace_entry.get(), replace_all.get(), ignore_case.get(), win))
+            win.bind('<Escape>', lambda f: win.destroy())
+            
+    def replace(self, find_str, replace_str, replace_all, ignore_case, win=None):
+        """Method finds given string and replaces it
+
+        Args:
+            find_str (str): string to find
+            replace_str (str): string to replace
+            replace_all (bool): replace all occurrences, otherwise only next one
+            ignore_case (bool): ignore case
+            win (obj): window reference
+
+        Returns:
+            void
+
+        """
+
+        if (len(find_str) > 0):
+            tab = self.nb.get_current_tab()
+            tab.replace(find_str, replace_str, replace_all, ignore_case)
+
+        if (win is not None):
+            win.destroy()
+            return 'break'
+
+    def increase_font(self):
+        """Method increases font size
+
+        Args:
+            none
+
+        Returns:
+            void
+
+        """
+        
+        if (self._font_size < 50):
+            self._font_size += 1
+            for tab in self.nb._tabs:
+                tab.set_font(self._font_family, self._font_size, self._font_style)
+        
+    def decrease_font(self):
+        """Method decreases font size
+
+        Args:
+            none
+
+        Returns:
+            void
+
+        """
+
+        if (self._font_size > 1.0):
+            self._font_size -= 1
+            for tab in self.nb._tabs:
+                tab.set_font(self._font_family, self._font_size, self._font_style)
 
 class CustomNotebook(ttk.Notebook):
     """Class CustomNotebook
@@ -736,6 +895,12 @@ class CustomNotebook(ttk.Notebook):
         menu.entryconfig(5, state=state)
         menu.entryconfig(6, state=state)
         menu.entryconfig(7, state=state)
+        menu.entryconfig(8, state=state)
+        menu.entryconfig(9, state=state)
+
+        menu = self.parent.root._menu_view
+        menu.entryconfig(2, state=state)
+        menu.entryconfig(3, state=state)
 
         tools = self.parent.root.tools
         tools['save'].config(state=state)
@@ -745,6 +910,7 @@ class CustomNotebook(ttk.Notebook):
         tools['copy'].config(state=state)
         tools['paste'].config(state=state)
         tools['delete'].config(state=state)
+        tools['find'].config(state=state)
 
     def on_release(self, event=None):
         """Method handles tab close button
@@ -811,6 +977,8 @@ class FileTab(tk.Frame):
     _vbar = None
     _hbar = None
     _menu = None
+
+    _last_find_str = ''
 
     def __init__(self, parent, name, path=None, content=None):
         """Class constructor
@@ -881,12 +1049,13 @@ class FileTab(tk.Frame):
         self._hbar = ttk.Scrollbar(self, orient=tk.HORIZONTAL)
 
         # line number bar
-        self._ln_bar = tk.Text(self, width=4, padx=3, takefocus=0, state=tk.DISABLED, yscrollcommand=self._vbar.set)
+        self._ln_bar = tk.Text(self, width=5, padx=3, takefocus=0, state=tk.DISABLED, yscrollcommand=self._vbar.set)
         self._ln_bar.pack(side=tk.LEFT, fill=tk.Y)
         self._ln_bar.grid(in_=self, row=0, column=0, sticky=tk.NSEW)
 
         # text area
         self._text = tk.Text(self, wrap=tk.NONE, xscrollcommand=self._hbar.set, yscrollcommand=self._vbar.set)
+        self.set_font(self.editor._font_family, self.editor._font_size, self.editor._font_style)
         self._text.pack(expand=True, side=tk.LEFT, fill=tk.BOTH)
         self._text.grid(in_=self, row=0, column=1, sticky=tk.NSEW)
 
@@ -909,6 +1078,7 @@ class FileTab(tk.Frame):
         if (content != None):
             self._text.insert(tk.END, content)
             self._text.edit_modified(False)
+            self._text.mark_set(tk.INSERT, 1.0)
             self.update_line_numbers()
             self.update_info_bar()
 
@@ -921,6 +1091,8 @@ class FileTab(tk.Frame):
         self._vbar.configure(command=self.on_vsb)
         self._ln_bar.bind('<MouseWheel>', self.on_mouse_wheel)
         self._text.bind('<MouseWheel>', self.on_mouse_wheel)
+        self._text.bind('<Control-MouseWheel>', self.change_font_size)
+        self._text.bind('<F3>', self.find)
 
         self._set_menu()
 
@@ -943,6 +1115,9 @@ class FileTab(tk.Frame):
         self._menu.add_command(label=self.editor.trn.msg('htk_gui_editor_menu_paste'), accelerator='Ctrl+V', command=self.editor.paste)
         self._menu.add_command(label=self.editor.trn.msg('htk_gui_editor_menu_delete'), accelerator='Delete', command=self.editor.delete)
         self._menu.add_command(label=self.editor.trn.msg('htk_gui_editor_menu_select_all'), accelerator='Ctrl+A', command=self.editor.select_all)
+        self._menu.add_command(label=self.editor.trn.msg('htk_gui_editor_menu_goto'), accelerator='Ctrl+G', command=self.editor.win_goto)
+        self._menu.add_command(label=self.editor.trn.msg('htk_gui_editor_menu_find'), accelerator='Ctrl+F', command=self.editor.win_find)
+        self._menu.add_command(label=self.editor.trn.msg('htk_gui_editor_menu_replace'), accelerator='Ctrl+R', command=self.editor.win_replace)
 
         self._text.bind('<Button-3>', self.context_menu)
 
@@ -958,6 +1133,22 @@ class FileTab(tk.Frame):
         """
 
         self._menu.post(event.x_root, event.y_root)
+
+    def set_font(self, family, size, style):
+        """Method sets font
+
+        Args:
+            family (str): font family
+            size (int): font size
+            style (str): font style
+
+        Returns:
+            void
+
+        """
+
+        self._text.configure(font=(family, size, style))
+        self._ln_bar.configure(font=(family, size, style))
 
     def _get_line_numbers(self):
         """Method calculates line numbers for current tab
@@ -1020,7 +1211,7 @@ class FileTab(tk.Frame):
             self._info_bar.config(text='')
             
     def highlight_line(self, event=None):
-        """Method highlits current line
+        """Method highlights current line
 
         Args:
             event (obj): event
@@ -1031,9 +1222,9 @@ class FileTab(tk.Frame):
         """
         
         row, col = self._text.index(tk.INSERT).split('.')
-        self._text.tag_remove("highlight", 1.0, "end")
-        self._text.tag_add("highlight", row + '.0', row + '.150')
-        self._text.tag_configure("highlight", background="bisque")
+        self._text.tag_remove('highlight', 1.0, 'end')
+        self._text.tag_add('highlight', row + '.0', row + '.150')
+        self._text.tag_configure('highlight', background='bisque')
 
     def on_key(self, event=None):
         """Method handles key event
@@ -1050,6 +1241,9 @@ class FileTab(tk.Frame):
         self.update_info_bar(event)
         self.highlight_line(event)
 
+        if (event.keysym in ['Up', 'Down']):
+            self.text.tag_remove('match', 1.0, tk.END)
+
     def on_mouse_click(self, event=None):
         """Method handles mouse click event
 
@@ -1063,6 +1257,7 @@ class FileTab(tk.Frame):
 
         self.update_info_bar(event)
         self.highlight_line(event)
+        self.text.tag_remove('match', 1.0, tk.END)
 
     def on_vsb(self, *args):
         """Method handles scrollbar event
@@ -1092,3 +1287,130 @@ class FileTab(tk.Frame):
         self._ln_bar.yview_scroll(-1 * (event.delta / 120), 'units')
         self._text.yview_scroll(-1 * (event.delta / 120), 'units')
         return 'break'
+
+    def change_font_size(self, event=None):
+        """Method changes font size
+
+        Args:
+            event (obj): event
+
+        Returns:
+            void
+
+        """
+
+        if (event.delta > 0):
+            self.editor.increase_font()
+        else:
+            self.editor.decrease_font()
+
+    def goto(self, line):
+        """Method goes to given line
+
+        Args:
+            line (int): line number
+
+        Returns:
+            void
+
+        """
+
+        self._text.mark_set(tk.INSERT, '%s.1' % line)
+        self._text.see(tk.INSERT)
+
+    def find(self, event=None, find_str=None, find_all=False, ignore_case=False):
+        """Method finds given string and highlights it
+
+        Args:
+            event (obj): event
+            find_str (str): string to find
+            find_all (bool): find all occurrences, otherwise only next one
+            ignore_case (bool): ignore case
+
+        Returns:
+            void
+
+        """
+
+        if (event != None):
+            if (len(self._last_find_str) > 0):
+                find_str = self._last_find_str
+            else:
+                return
+
+        self._text.tag_remove('match', 1.0, tk.END)
+        first_match = True
+
+        if (find_all):
+            idx1 = 1.0
+        else:
+            row, col = self._text.index(tk.INSERT).split('.')
+            idx1 = '{0}.{1}'.format(row, int(col) + 1)
+
+        while True:
+            idx1 = self._text.search(find_str, idx1, stopindex=tk.END, nocase=ignore_case)
+            if (not idx1):
+                if (event != None):
+                    idx1 = self._text.search(find_str, 1.0, stopindex=tk.END, nocase=ignore_case)
+                    if (not idx1):
+                        break
+                else:
+                    break
+            idx2 = '{0}+{1}c'.format(idx1, len(find_str))
+            self._text.tag_add('match', idx1, idx2)
+
+            if (first_match):
+                self._last_find_str = find_str
+                self._text.mark_set(tk.INSERT, idx1)
+                self._text.see(tk.INSERT)
+                first_match = False
+                if (not find_all):
+                    break
+
+            idx1 = idx2
+        self._text.tag_config('match', foreground='red', background='yellow')
+
+    def replace(self, find_str, replace_str, replace_all, ignore_case):
+        """Method finds given string and replaces it
+
+        Args:
+            find_str (str): string to find
+            replace_str (str): string to replace
+            replace_all (bool): replace all occurrences, otherwise only next one
+            ignore_case (bool): ignore case
+
+        Returns:
+            void
+
+        """
+
+        self._text.tag_remove('match', 1.0, tk.END)
+        first_match = True
+
+        if (replace_all):
+            idx1 = 1.0
+        else:
+            row, col = self._text.index(tk.INSERT).split('.')
+            idx1 = '{0}.{1}'.format(row, int(col) + 1)
+
+        while True:
+            idx1 = self._text.search(find_str, idx1, stopindex=tk.END, nocase=ignore_case)
+            if (not idx1):
+                break
+
+            idx2 = '{0}+{1}c'.format(idx1, len(find_str))
+            self._text.delete(idx1, idx2)
+            self._text.insert(idx1, replace_str)
+            idx2 = '{0}+{1}c'.format(idx1, len(replace_str))
+            self._text.tag_add('match', idx1, idx2)
+
+            if (first_match):
+                self._last_find_str = replace_str
+                self._text.mark_set(tk.INSERT, idx1)
+                self._text.see(tk.INSERT)
+                first_match = False
+                if (not replace_all):
+                    break
+
+            idx1 = idx2
+        self._text.tag_config('match', foreground='red', background='yellow')
