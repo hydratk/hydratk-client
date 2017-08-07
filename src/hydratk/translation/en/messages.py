@@ -88,10 +88,12 @@ msg = {
     'htk_gui_editor_find_text' : "Find:",
     'htk_gui_editor_find_find_all': "Find all",
     'htk_gui_editor_find_ignore_case': "Ignore case",
+    'htk_gui_editor_find_regexp': "Regular expression",
     'htk_gui_editor_replace_title' : "Replace",
     'htk_gui_editor_replace_find' : "Find:",
     'htk_gui_editor_replace_replace' : "Replace:",
     'htk_gui_editor_replace_replace_all': "Replace all",
     'htk_gui_editor_replace_ignore_case': "Ignore case",
+    'htk_gui_editor_replace_regexp': "Regular expression",
     'htk_gui_log_label' : "Log",
 }

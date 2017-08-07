@@ -88,10 +88,12 @@ msg = {
     'htk_gui_editor_find_text' : "Najít:",
     'htk_gui_editor_find_find_all': "Najít vše",
     'htk_gui_editor_find_ignore_case': "Ignorovat velikost písmen",
+    'htk_gui_editor_find_regexp': "Regulární výraz",
     'htk_gui_editor_replace_title' : "Nahradit",
     'htk_gui_editor_replace_find' : "Najít:",
     'htk_gui_editor_replace_replace' : "Nahradit:",
     'htk_gui_editor_replace_replace_all': "Nahradit vše",
     'htk_gui_editor_replace_ignore_case': "Ignorovat velikost písmen",
+    'htk_gui_editor_replace_regexp': "Regulární výraz",
     'htk_gui_log_label' : "Log",
 }

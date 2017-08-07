@@ -28,6 +28,8 @@ from hydratk.translator import Translator
 from hydratk.explorer import Explorer
 from hydratk.editor import Editor
 from hydratk.logger import Logger
+from hydratk.colorizer import Colorizer
+from hydratk.formatter import Formatter
 
 class Gui(tix.Tk):
     """Class Gui
@@ -43,6 +45,8 @@ class Gui(tix.Tk):
     _yoda_tree = None
     _editor = None
     _logger = None
+    _colorizer = None
+    _formatter = None
 
     # frames
     _frame_main = None
@@ -137,6 +141,18 @@ class Gui(tix.Tk):
         """ logger property getter """
 
         return self._logger
+
+    @property
+    def colorizer(self):
+        """ colorizer property getter """
+
+        return self._colorizer
+
+    @property
+    def formatter(self):
+        """ formatter property getter """
+
+        return self._formatter
 
     @property
     def tools(self):
@@ -443,6 +459,8 @@ class Gui(tix.Tk):
         """
 
         self.editor = Editor.get_instance(self)
+        self.colorizer = Colorizer.get_instance(self)
+        self.formatter = Formatter.get_instance(self)
         self._pane_right.add(self.editor)
 
     def _set_logger(self):
