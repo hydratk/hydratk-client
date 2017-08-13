@@ -8,15 +8,10 @@
 
 """
 
-from sys import version_info
-
-if (version_info[0] == 2):
-    import Tkinter as tk
-else:
-    import tkinter as tk
-
 import __builtin__
 import keyword
+
+from hydratk.tkimport import tk
 
 class Colorizer(object):
     """Class Colorizer
@@ -96,9 +91,9 @@ class Colorizer(object):
 
         """
 
-        self._patterns['keyword'] = {'color' : self._config._data['Core']['color']['keyword']}
-        self._patterns['string'] = {'color' : self._config._data['Core']['color']['string']}
-        self._patterns['yoda'] = {'color' : self._config._data['Core']['color']['yoda']}
+        self._patterns['keyword'] = {'color' : self.config.data['Core']['color']['keyword']}
+        self._patterns['string'] = {'color' : self.config.data['Core']['color']['string']}
+        self._patterns['yoda'] = {'color' : self.config.data['Core']['color']['yoda']}
 
     def _make_patterns(self):
         """Method makes patterns for colorized strings
@@ -143,11 +138,12 @@ class Colorizer(object):
             stop (str): stop index
 
         Returns:
-            void
+            bool: yoda tag found
 
         """
 
         cnt = tk.IntVar()
+        yoda_found = False
         for pattern in ['keyword', 'yoda', 'string']:
             text.tag_remove(pattern, start, stop)
             idx1 = start
@@ -161,7 +157,12 @@ class Colorizer(object):
 
                 if (not idx1):
                     break
+                elif (pattern == 'yoda'):
+                    yoda_found = True
+
                 idx2 = '{0}+{1}c'.format(idx1, cnt.get())
                 text.tag_add(pattern, idx1, idx2)
                 idx1 = idx2
             text.tag_config(pattern, foreground=self._patterns[pattern]['color'])
+
+        return yoda_found

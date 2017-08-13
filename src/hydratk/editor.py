@@ -8,19 +8,9 @@
 
 """
 
-from sys import version_info
-
-if (version_info[0] == 2):
-    import Tkinter as tk
-    import ttk
-else:
-    import tkinter as tk
-    from tkinter import ttk
-
-import tkFileDialog
-import tkMessageBox
 import os
 
+from hydratk.tkimport import tk, ttk, tkmsg, tkfd
 from hydratk.notebook import CustomNotebook
 from hydratk.utils import fix_path
 
@@ -37,18 +27,17 @@ class Editor(tk.LabelFrame):
     _config = None
     _logger = None
     _explorer = None
+    _yoda_tree = None
     _colorizer = None
     _formatter = None
 
     # gui elements
     _nb = None
-    _show_line_number = None
-    _show_info_bar = None
+    _var_show_line_number = None
+    _var_show_info_bar = None
 
     # font
-    _font_family = None
-    _font_size = None
-    _font_style = None
+    _font = None
 
     def __init__(self, root):
         """Class constructor
@@ -125,6 +114,12 @@ class Editor(tk.LabelFrame):
         return self._explorer
 
     @property
+    def yoda_tree(self):
+        """ yoda_tree property getter """
+
+        return self._yoda_tree
+
+    @property
     def colorizer(self):
         """ colorizer property getter """
 
@@ -142,6 +137,24 @@ class Editor(tk.LabelFrame):
 
         return self._nb
 
+    @property
+    def var_show_line_number(self):
+        """ var_show_line_number property getter """
+
+        return self._var_show_line_number
+
+    @property
+    def var_show_info_bar(self):
+        """ var_show_info_bar property getter """
+
+        return self._var_show_info_bar
+
+    @property
+    def font(self):
+        """ font property getter """
+
+        return self._font
+
     def set_late_ref(self):
         """Method sets references to frames initialized later
 
@@ -155,6 +168,7 @@ class Editor(tk.LabelFrame):
 
         self._logger = self.root.logger
         self._explorer = self.root.explorer
+        self._yoda_tree = self.root.yoda_tree
         self._colorizer = self.root.colorizer
         self._formatter = self.root.formatter
 
@@ -169,12 +183,14 @@ class Editor(tk.LabelFrame):
 
         """
 
-        self._show_line_number = tk.BooleanVar(value=True) if (self.config._data['Core']['show_line_number'] == 1) else tk.BooleanVar(value=False)
-        self._show_info_bar = tk.BooleanVar(value=True) if (self.config._data['Core']['show_info_bar'] == 1) else tk.BooleanVar(value=False)
+        self._var_show_line_number = tk.BooleanVar(value=True) if (self.config.data['Core']['show_line_number'] == 1) else tk.BooleanVar(value=False)
+        self._var_show_info_bar = tk.BooleanVar(value=True) if (self.config.data['Core']['show_info_bar'] == 1) else tk.BooleanVar(value=False)
 
-        self._font_family = self._config._data['Core']['font']['family']
-        self._font_size = self._config._data['Core']['font']['size']
-        self._font_style = self._config._data['Core']['font']['style']
+        self._font = {
+                      'family' : self.config.data['Core']['font']['family'],
+                      'size'   : self.config.data['Core']['font']['size'],
+                      'style'  : self.config.data['Core']['font']['style']
+                     }
 
     def _set_gui(self):
         """Method sets graphical interface
@@ -220,7 +236,7 @@ class Editor(tk.LabelFrame):
         """
 
         if (path is None):
-            path = tkFileDialog.askopenfilename(filetypes=[(self.trn.msg('htk_gui_editor_filetypes'), '*.*')])
+            path = tkfd.askopenfilename(filetypes=[(self.trn.msg('htk_gui_editor_filetypes'), '*.*')])
             if (len(path) == 0):
                 return
 
@@ -229,7 +245,9 @@ class Editor(tk.LabelFrame):
         res, idx = self.nb.is_tab_present(path)
         if (not res):
             with open(path, 'r') as f:
-                self.nb.add_tab(path=path, content=f.read(), text=name)
+                content = f.read()
+                self.nb.add_tab(path=path, content=content, text=name)
+                self.yoda_tree.add_test(path, content)
                 self.logger.debug(self.trn.msg('htk_core_file_opened', path))
         else:
             self.nb.select(idx)
@@ -247,16 +265,18 @@ class Editor(tk.LabelFrame):
 
         """
 
-        path = tkFileDialog.asksaveasfilename(filetypes=[(self.trn.msg('htk_gui_editor_filetypes'), '*.*')])
+        path = tkfd.asksaveasfilename(filetypes=[(self.trn.msg('htk_gui_editor_filetypes'), '*.*')])
         if (len(path) == 0):
             return
 
         with open(path, 'w') as f:
-            f.write(self.nb.get_current_content())
+            content = self.nb.get_current_content()
+            f.write(content)
             self.logger.debug(self.trn.msg('htk_core_file_saved', path))
             name = os.path.split(path)[1]
             self.nb.set_current_tab(name, path, False)
             self.explorer.refresh(path=path)
+            self.yoda_tree.add_test(path, content)
             
     def save_file(self, event=None, path=None, idx=None):
         """Method saves file
@@ -302,6 +322,8 @@ class Editor(tk.LabelFrame):
             if (tab is not None):
                 tab.text.edit_undo()
                 tab.update_line_numbers()
+                tab.colorize()
+                return 'break'
         except tk.TclError:
             pass
 
@@ -321,6 +343,8 @@ class Editor(tk.LabelFrame):
             if (tab is not None):
                 tab.text.edit_redo()
                 tab.update_line_numbers()
+                tab.colorize()
+                return 'break'
         except tk.TclError:
             pass
 
@@ -342,6 +366,7 @@ class Editor(tk.LabelFrame):
             tab = self.nb.get_current_tab()
             tab.text.delete(tk.SEL_FIRST, tk.SEL_LAST)
             tab.update_line_numbers()
+            self.refresh_yoda_tree()
 
     def copy(self, event=None):
         """Method copies marked text and stores it in clipboard
@@ -373,7 +398,7 @@ class Editor(tk.LabelFrame):
         tab = self.nb.get_current_tab()
         if (tab is not None):
             content = self.root.clipboard_get()
-            start = tab._text.index(tk.INSERT)
+            start = tab.text.index(tk.INSERT)
             stop = '{0}+{1}c'.format(start, len(content))
             tab.text.insert(tk.INSERT, content)
             tab.update_line_numbers()
@@ -396,6 +421,7 @@ class Editor(tk.LabelFrame):
             tab = self.nb.get_current_tab()
             tab.text.delete(tk.SEL_FIRST, tk.SEL_LAST)
             tab.update_line_numbers()
+            self.refresh_yoda_tree()
 
     def select_all(self, event=None):
         """Method marks tab text content
@@ -425,11 +451,11 @@ class Editor(tk.LabelFrame):
 
         """
 
-        for i in range(0, len(self.nb._tabs)):
-            tab = self.nb._tabs[i]
+        for i in range(0, len(self.nb.tab_refs)):
+            tab = self.nb.tab_refs[i]
             if (tab.text.edit_modified()):
-                res = tkMessageBox.askyesno(self.trn.msg('htk_gui_editor_close_save_title'),
-                                            self.trn.msg('htk_gui_editor_close_save_question', tab.name))
+                res = tkmsg.askyesno(self.trn.msg('htk_gui_editor_close_save_title'),
+                                     self.trn.msg('htk_gui_editor_close_save_question', tab.name))
                 if (res):
                     self.save_file(path=tab.path, idx=i)
 
@@ -444,10 +470,10 @@ class Editor(tk.LabelFrame):
 
         """
 
-        for tab in self.nb._tabs:
+        for tab in self.nb.tab_refs:
             tab.update_line_numbers()
 
-        self.config.data['View']['show_line_number'] = 1 if (self._show_line_number.get()) else 0
+        self.config.data['View']['show_line_number'] = 1 if (self._var_show_line_number.get()) else 0
 
     def show_info_bar(self, event=None):
         """Method enables/disables showing of info bar
@@ -460,10 +486,10 @@ class Editor(tk.LabelFrame):
 
         """
         
-        for tab in self.nb._tabs:
+        for tab in self.nb.tab_refs:
             tab.update_info_bar()
 
-        self.config.data['View']['show_info_bar'] = 1 if (self._show_info_bar.get()) else 0
+        self.config.data['View']['show_info_bar'] = 1 if (self._var_show_info_bar.get()) else 0
         
     def win_goto(self, event=None):
         """Method displays Goto window
@@ -478,23 +504,23 @@ class Editor(tk.LabelFrame):
 
         tab = self.nb.get_current_tab()
         if (tab is not None):
-            win = tk.Toplevel(self._root)
+            win = tk.Toplevel(self.root)
             win.title(self.trn.msg('htk_gui_editor_goto_title'))
-            win.transient(self._root)
+            win.transient(self.root)
             win.resizable(False, False)
-            win.geometry('+%d+%d' % (self._root.winfo_screenwidth() / 2, self._root.winfo_screenheight() / 2))
+            win.geometry('+%d+%d' % (self.root.winfo_screenwidth() / 2, self.root.winfo_screenheight() / 2))
+            win.tk.call('wm', 'iconphoto', win._w, self.root.images['logo'])
 
             tk.Label(win, text=self.trn.msg('htk_gui_editor_goto_text')).pack(side=tk.LEFT, padx=3)
             entry = tk.Entry(win, width=15)
             entry.pack(side=tk.LEFT, padx=3)
             entry.focus_set()
-            btn = tk.Button(win, text='OK', command=lambda: self.goto(entry.get(), win))
+            btn = tk.Button(win, text='OK', command=lambda: self._goto(entry.get(), win))
             btn.pack(side=tk.LEFT, padx=3)
 
-            win.bind('<Return>', lambda f: self.goto(entry.get(), win))
             win.bind('<Escape>', lambda f: win.destroy())
 
-    def goto(self, line, win=None):
+    def _goto(self, line, win=None):
         """Method goes to given line
 
         Args:
@@ -526,11 +552,12 @@ class Editor(tk.LabelFrame):
 
         tab = self.nb.get_current_tab()
         if (tab is not None):
-            win = tk.Toplevel(self._root)
+            win = tk.Toplevel(self.root)
             win.title(self.trn.msg('htk_gui_editor_find_title'))
-            win.transient(self._root)
+            win.transient(self.root)
             win.resizable(False, False)
-            win.geometry('+%d+%d' % (self._root.winfo_screenwidth() / 2, self._root.winfo_screenheight() / 2))
+            win.geometry('+%d+%d' % (self.root.winfo_screenwidth() / 2, self.root.winfo_screenheight() / 2))
+            win.tk.call('wm', 'iconphoto', win._w, self.root.images['logo'])
 
             tk.Label(win, text=self.trn.msg('htk_gui_editor_find_text')).grid(row=0, column=0, sticky='e')
             entry = tk.Entry(win, width=50)
@@ -544,13 +571,12 @@ class Editor(tk.LabelFrame):
             regexp = tk.BooleanVar()
             tk.Checkbutton(win, text=self.trn.msg('htk_gui_editor_find_regexp'), variable=regexp).grid(row=3, column=1, sticky='w')
 
-            btn = tk.Button(win, text='OK', command=lambda: self.find(entry.get(), find_all.get(), ignore_case.get(), regexp.get(), win))
+            btn = tk.Button(win, text='OK', command=lambda: self._find(entry.get(), find_all.get(), ignore_case.get(), regexp.get(), win))
             btn.grid(row=0, column=2, padx=3, sticky='e')
 
-            win.bind('<Return>', lambda f: self.find(entry.get(), find_all.get(), ignore_case.get(), regexp.get(), win))
             win.bind('<Escape>', lambda f: win.destroy())
 
-    def find(self, find_str, find_all, ignore_case, regexp, win=None):
+    def _find(self, find_str, find_all, ignore_case, regexp, win=None):
         """Method finds given string and highlights it
 
         Args:
@@ -585,11 +611,12 @@ class Editor(tk.LabelFrame):
 
         tab = self.nb.get_current_tab()
         if (tab is not None):
-            win = tk.Toplevel(self._root)
+            win = tk.Toplevel(self.root)
             win.title(self.trn.msg('htk_gui_editor_replace_title'))
-            win.transient(self._root)
+            win.transient(self.root)
             win.resizable(False, False)
-            win.geometry('+%d+%d' % (self._root.winfo_screenwidth() / 2, self._root.winfo_screenheight() / 2))
+            win.geometry('+%d+%d' % (self.root.winfo_screenwidth() / 2, self.root.winfo_screenheight() / 2))
+            win.tk.call('wm', 'iconphoto', win._w, self.root.images['logo'])
 
             tk.Label(win, text=self.trn.msg('htk_gui_editor_replace_find')).grid(row=0, column=0, sticky='e')
             find_entry = tk.Entry(win, width=50)
@@ -607,13 +634,12 @@ class Editor(tk.LabelFrame):
             regexp = tk.BooleanVar()
             tk.Checkbutton(win, text=self.trn.msg('htk_gui_editor_replace_regexp'), variable=regexp).grid(row=4, column=1, sticky='w')
 
-            btn = tk.Button(win, text='OK', command=lambda: self.replace(find_entry.get(), replace_entry.get(), replace_all.get(), ignore_case.get(), regexp.get(), win))
+            btn = tk.Button(win, text='OK', command=lambda: self._replace(find_entry.get(), replace_entry.get(), replace_all.get(), ignore_case.get(), regexp.get(), win))
             btn.grid(row=0, column=2, padx=3, sticky='e')
 
-            win.bind('<Return>', lambda f: self.replace(find_entry.get(), replace_entry.get(), replace_all.get(), ignore_case.get(), regexp.get(), win))
             win.bind('<Escape>', lambda f: win.destroy())
             
-    def replace(self, find_str, replace_str, replace_all, ignore_case, regexp, win=None):
+    def _replace(self, find_str, replace_str, replace_all, ignore_case, regexp, win=None):
         """Method finds given string and replaces it
 
         Args:
@@ -632,10 +658,10 @@ class Editor(tk.LabelFrame):
         if (len(find_str) > 0):
             tab = self.nb.get_current_tab()
             tab.replace(find_str, replace_str, replace_all, ignore_case, regexp)
+            self.refresh_yoda_tree(tab)
 
         if (win is not None):
             win.destroy()
-            return 'break'
 
     def increase_font(self):
         """Method increases font size
@@ -648,10 +674,10 @@ class Editor(tk.LabelFrame):
 
         """
         
-        if (self._font_size < 50):
-            self._font_size += 1
-            for tab in self.nb._tabs:
-                tab.set_font(self._font_family, self._font_size, self._font_style)
+        if (self._font['size'] < 50):
+            self._font['size'] += 1
+            for tab in self.nb.tab_refs:
+                tab.set_font(self._font['family'], self._font['size'], self._font['style'])
         
     def decrease_font(self):
         """Method decreases font size
@@ -664,7 +690,39 @@ class Editor(tk.LabelFrame):
 
         """
 
-        if (self._font_size > 1.0):
-            self._font_size -= 1
-            for tab in self.nb._tabs:
-                tab.set_font(self._font_family, self._font_size, self._font_style)
+        if (self._font['size'] > 1.0):
+            self._font['size'] -= 1
+            for tab in self.nb.tab_refs:
+                tab.set_font(self._font['family'], self._font['size'], self._font['style'])
+
+    def on_tab_changed(self, event=None):
+        """Method handles tab changed event
+
+        Args:
+            event (obj): event
+
+        Returns:
+            void
+
+        """
+
+        tab = self.nb.get_current_tab()
+        if (tab != None):
+            self.yoda_tree.add_test(tab.path)
+        else:
+            self.yoda_tree.clear_tree()
+
+    def refresh_yoda_tree(self, tab=None):
+        """Method refreshes yoda tree
+
+        Args:
+            tab (obj): tab
+
+        Returns:
+            void
+
+        """
+        
+        if (tab == None):
+            tab = self.nb.get_current_tab()
+        self.yoda_tree.refresh(tab.path, tab.text.get('1.0', 'end-1c'))

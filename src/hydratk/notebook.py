@@ -8,18 +8,9 @@
 
 """
 
-from sys import version_info
-
-if (version_info[0] == 2):
-    import Tkinter as tk
-    import ttk
-else:
-    import tkinter as tk
-    from tkinter import ttk
-
-import tkMessageBox
 import os
 
+from hydratk.tkimport import tk, ttk, tkmsg
 from hydratk.filetab import FileTab
 
 class CustomNotebook(ttk.Notebook):
@@ -30,7 +21,7 @@ class CustomNotebook(ttk.Notebook):
     _parent = None
 
     # tabs
-    _tabs = []
+    _tab_refs = []
     _new_cnt = 0
 
     def __init__(self, parent, *args, **kwargs):
@@ -59,6 +50,12 @@ class CustomNotebook(ttk.Notebook):
         """ parent property getter """
 
         return self._parent
+
+    @property
+    def tab_refs(self):
+        """ parent property getter """
+
+        return self._tab_refs
 
     @property
     def new_cnt(self):
@@ -118,8 +115,9 @@ class CustomNotebook(ttk.Notebook):
         """
 
         self.enable_traversal()
-        self.bind('<ButtonRelease-1>', self.on_release)
+        self.bind('<ButtonRelease-1>', self._on_release)
         self.bind('<Control-F4>', self.close_tab)
+        self.bind('<<NotebookTabChanged>>', self.parent.on_tab_changed)
 
     def is_tab_present(self, path):
         """Method checks if tab with given file path is present
@@ -133,8 +131,8 @@ class CustomNotebook(ttk.Notebook):
         """
 
         res, idx = False, None
-        for i in range(0, len(self._tabs)):
-            if (self._tabs[i].path == path):
+        for i in range(0, len(self._tab_refs)):
+            if (self._tab_refs[i].path == path):
                 res, idx = True, i
 
         return res, idx
@@ -153,14 +151,14 @@ class CustomNotebook(ttk.Notebook):
         """
 
         tab = FileTab(self, kwargs['text'], path, content)
-        self._tabs.append(tab)
+        self._tab_refs.append(tab)
         self.add(tab, **kwargs)
-        self.select(len(self._tabs) - 1)
+        self.select(len(self._tab_refs) - 1)
 
-        if (len(self._tabs) == 1):
-            self.set_tab_related_controls(True)
+        if (len(self._tab_refs) == 1):
+            self._set_tab_related_controls(True)
 
-    def get_current_index(self):
+    def _get_current_index(self):
         """Method gets index of current tab
 
         Args:
@@ -185,7 +183,7 @@ class CustomNotebook(ttk.Notebook):
         """
 
         try:
-            return self._tabs[self.get_current_index()]
+            return self._tab_refs[self._get_current_index()]
         except tk.TclError:
             return None
 
@@ -214,7 +212,7 @@ class CustomNotebook(ttk.Notebook):
 
         """
 
-        return self._tabs[idx].text.get('1.0', 'end-1c')
+        return self._tab_refs[idx].text.get('1.0', 'end-1c')
 
     def get_marked_content(self):
         """Method gets marked content
@@ -243,13 +241,13 @@ class CustomNotebook(ttk.Notebook):
 
         """
 
-        idx = self.get_current_index()
+        idx = self._get_current_index()
         self.tab(idx, text=name)
-        self._tabs[idx].name = name
-        self._tabs[idx].path = path
-        self._tabs[idx].text.edit_modified(modified)
+        self._tab_refs[idx].name = name
+        self._tab_refs[idx].path = path
+        self._tab_refs[idx].text.edit_modified(modified)
 
-    def set_tab_related_controls(self, enable):
+    def _set_tab_related_controls(self, enable):
         """Method sets controls enabled by tab presence
 
         Args:
@@ -262,11 +260,11 @@ class CustomNotebook(ttk.Notebook):
 
         state = tk.NORMAL if (enable) else tk.DISABLED
 
-        menu = self.parent.root._menu_file
+        menu = self.parent.root.menu_file
         menu.entryconfig(2, state=state)
         menu.entryconfig(3, state=state)
 
-        menu = self.parent.root._menu_edit
+        menu = self.parent.root.menu_edit
         menu.entryconfig(0, state=state)
         menu.entryconfig(1, state=state)
         menu.entryconfig(2, state=state)
@@ -278,7 +276,7 @@ class CustomNotebook(ttk.Notebook):
         menu.entryconfig(8, state=state)
         menu.entryconfig(9, state=state)
 
-        menu = self.parent.root._menu_view
+        menu = self.parent.root.menu_view
         menu.entryconfig(2, state=state)
         menu.entryconfig(3, state=state)
 
@@ -292,7 +290,7 @@ class CustomNotebook(ttk.Notebook):
         tools['delete'].config(state=state)
         tools['find'].config(state=state)
 
-    def on_release(self, event=None):
+    def _on_release(self, event=None):
         """Method handles tab close button
 
         Args:
@@ -322,18 +320,18 @@ class CustomNotebook(ttk.Notebook):
         """
 
         if (index is None):
-            index = self.get_current_index()
+            index = self._get_current_index()
 
-        tab = self._tabs[index]
+        tab = self._tab_refs[index]
         if (tab.text.edit_modified()):
-            res = tkMessageBox.askyesno(self.parent.trn.msg('htk_gui_editor_close_save_title'),
-                                        self.parent.trn.msg('htk_gui_editor_close_save_question', tab.name))
+            res = tkmsg.askyesno(self.parent.trn.msg('htk_gui_editor_close_save_title'),
+                                 self.parent.trn.msg('htk_gui_editor_close_save_question', tab.name))
             if (res):
-                self.parent.save_file(path=tab._path)
+                self.parent.save_file(path=tab.path)
 
         self.forget(index)
-        self.event_generate('<<NotebookTabClosed>>')
-        del self._tabs[index]
+        self.parent.yoda_tree.delete_test(tab.path)
+        del self._tab_refs[index]
 
-        if (len(self._tabs) == 0):
-            self.set_tab_related_controls(False)
+        if (len(self._tab_refs) == 0):
+            self._set_tab_related_controls(False)

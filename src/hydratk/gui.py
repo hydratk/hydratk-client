@@ -8,28 +8,20 @@
 
 """
 
-import sys
-
-if (sys.version_info[0] == 2):
-    reload(sys)
-    sys.setdefaultencoding('UTF8')
-    import Tkinter as tk
-    import Tix as tix
-else:
-    import tkinter as tk
-    from tk import tix
-
 import traceback
-import tkMessageBox
 from os import path
 
+from hydratk.tkimport import tk, tix, tkmsg
 from hydratk.config import Config
 from hydratk.translator import Translator
 from hydratk.explorer import Explorer
+from hydratk.yoda_tree import YodaTree
 from hydratk.editor import Editor
 from hydratk.logger import Logger
+from hydratk.yoda_tree import YodaTree
 from hydratk.colorizer import Colorizer
 from hydratk.formatter import Formatter
+from hydratk.help import Help
 
 class Gui(tix.Tk):
     """Class Gui
@@ -47,6 +39,7 @@ class Gui(tix.Tk):
     _logger = None
     _colorizer = None
     _formatter = None
+    _help = None
 
     # frames
     _frame_main = None
@@ -155,6 +148,12 @@ class Gui(tix.Tk):
         return self._formatter
 
     @property
+    def help(self):
+        """ help property getter """
+
+        return self._help
+
+    @property
     def tools(self):
         """ tools property getter """
 
@@ -172,6 +171,36 @@ class Gui(tix.Tk):
 
         return self._images
 
+    @property
+    def pane_left(self):
+        """ pane_left property getter """
+
+        return self._pane_left
+
+    @property
+    def pane_right(self):
+        """ pane_right property getter """
+
+        return self._pane_right
+
+    @property
+    def menu_file(self):
+        """ menu_file property getter """
+
+        return self._menu_file
+
+    @property
+    def menu_edit(self):
+        """ menu_edit property getter """
+
+        return self._menu_edit
+
+    @property
+    def menu_view(self):
+        """ menu_view property getter """
+
+        return self._menu_view
+
     def _set_gui(self):
         """Method sets graphical interface
 
@@ -186,6 +215,7 @@ class Gui(tix.Tk):
         self._set_window()
         self._set_pane_left()
         self._set_pane_right()
+        self._set_help()
         self._set_frame_ref()
         self._set_menu()
         self._set_toolbar()
@@ -208,7 +238,7 @@ class Gui(tix.Tk):
         self._images['logo'] = tk.PhotoImage(file=path.join(self._imgdir, 'logo.gif'))
         self.tk.call('wm', 'iconphoto', self._w, self._images['logo'])
         self.wm_state('zoomed')
-        self.protocol('WM_DELETE_WINDOW', self.exit)
+        self.protocol('WM_DELETE_WINDOW', self._exit)
 
         self._menu = tk.Menu(self)
         self.config(menu=self._menu)
@@ -257,19 +287,24 @@ class Gui(tix.Tk):
         self._menu_file_new.add_command(label=self.trn.msg('htk_gui_menu_file_new_file'), accelerator='Ctrl+N', command=self.editor.new_file)
         self._menu_file_new.add_command(label=self.trn.msg('htk_gui_menu_file_new_directory'), command=self.explorer.new_directory)
         self._menu_file_new.add_command(label=self.trn.msg('htk_gui_menu_file_new_project'), command=self.explorer.new_project)
+        self._menu_file_new.add_command(label=self.trn.msg('htk_gui_menu_file_new_helper'), command=self.explorer.new_helper)
+        self._menu_file_new.add_command(label=self.trn.msg('htk_gui_menu_file_new_library'), command=self.explorer.new_library)
+        self._menu_file_new.add_command(label=self.trn.msg('htk_gui_menu_file_new_test'), command=self.explorer.new_test)
+        self._menu_file_new.add_command(label=self.trn.msg('htk_gui_menu_file_new_archive'), command=self.explorer.new_archive)
+        self._menu_file_new.add_command(label=self.trn.msg('htk_gui_menu_file_new_draft'), command=self.explorer.new_draft)
 
         # menu items
         self._menu_file.add_command(label=self.trn.msg('htk_gui_menu_file_open'), accelerator='Ctrl+O', command=self.editor.open_file)
         self._menu_file.add_command(label=self.trn.msg('htk_gui_menu_file_save_as'), command=self.editor.save_as_file, state=tk.DISABLED)
         self._menu_file.add_command(label=self.trn.msg('htk_gui_menu_file_save'), accelerator='Ctrl+S', command=self.editor.save_file, state=tk.DISABLED)
         self._menu_file.add_separator()
-        self._menu_file.add_command(label=self.trn.msg('htk_gui_menu_file_exit'), accelerator='Ctrl+Q', command=self.exit)
+        self._menu_file.add_command(label=self.trn.msg('htk_gui_menu_file_exit'), accelerator='Ctrl+Q', command=self._exit)
 
         # shortcuts
         self.bind('<Control-n>', self.editor.new_file)
         self.bind('<Control-o>', self.editor.open_file)
         self.bind('<Control-s>', self.editor.save_file)
-        self.bind('<Control-q>', self.exit)
+        self.bind('<Control-q>', self._exit)
 
     def _set_menu_edit(self):
         """Method sets edit menu
@@ -298,8 +333,6 @@ class Gui(tix.Tk):
         self._menu_edit.add_command(label=self.trn.msg('htk_gui_menu_edit_replace'), accelerator='Ctrl+R', command=self.editor.win_replace, state=tk.DISABLED)
 
         # shorcuts
-        self.bind('<Control-z>', self.editor.undo)
-        self.bind('<Control-y>', self.editor.redo)
         self.bind('<Control-a>', self.editor.select_all)
         self.bind('<Control-g>', self.editor.win_goto)
         self.bind('<Control-f>', self.editor.win_find)
@@ -320,8 +353,8 @@ class Gui(tix.Tk):
         self._menu.add_cascade(label=self.trn.msg('htk_gui_menu_view'), menu=self._menu_view)
 
         # menu items
-        self._menu_view.add_checkbutton(label=self.trn.msg('htk_gui_menu_view_show_line_number'), variable=self.editor._show_line_number, command=self.editor.show_line_number)
-        self._menu_view.add_checkbutton(label=self.trn.msg('htk_gui_menu_view_show_info_bar'), variable=self.editor._show_info_bar, command=self.editor.show_info_bar)
+        self._menu_view.add_checkbutton(label=self.trn.msg('htk_gui_menu_view_show_line_number'), variable=self.editor.var_show_line_number, command=self.editor.show_line_number)
+        self._menu_view.add_checkbutton(label=self.trn.msg('htk_gui_menu_view_show_info_bar'), variable=self.editor.var_show_info_bar, command=self.editor.show_info_bar)
         self._menu_view.add_command(label=self.trn.msg('htk_gui_menu_view_increase_font'), accelerator='Ctrl+MouseUp', command=self.editor.increase_font, state=tk.DISABLED)
         self._menu_view.add_command(label=self.trn.msg('htk_gui_menu_view_decrease_font'), accelerator='Ctrl+MouseDown', command=self.editor.decrease_font, state=tk.DISABLED)
 
@@ -335,9 +368,10 @@ class Gui(tix.Tk):
             void
 
         """
-
+ 
         self._menu_help = tk.Menu(self._menu, tearoff=False)
         self._menu.add_cascade(label=self.trn.msg('htk_gui_menu_help'), menu=self._menu_help)
+        self._menu_help.add_command(label=self.trn.msg('htk_gui_menu_help_about'), command=self.help.win_about)
 
     def _set_toolbar(self):
         """Method sets toolbar
@@ -444,7 +478,7 @@ class Gui(tix.Tk):
 
         """
 
-        self.yoda_tree = tk.LabelFrame(self._pane_left, text='Yoda tree')
+        self.yoda_tree = YodaTree.get_instance(self)
         self._pane_left.add(self.yoda_tree)
 
     def _set_editor(self):
@@ -477,6 +511,19 @@ class Gui(tix.Tk):
         self.logger = Logger.get_instance(self)
         self._pane_right.add(self.logger)
         
+    def _set_help(self):
+        """Method sets help
+
+        Args:
+            none
+
+        Returns:
+            void
+
+        """
+
+        self.help = Help.get_instance(self)
+
     def _set_frame_ref(self):
         """Method sets frame references
 
@@ -490,8 +537,9 @@ class Gui(tix.Tk):
         
         self.explorer.set_late_ref()
         self.editor.set_late_ref()
+        self.yoda_tree.set_late_ref()
 
-    def exit(self, event=None):
+    def _exit(self, event=None):
         """Method stops application
 
         Args:
@@ -502,7 +550,7 @@ class Gui(tix.Tk):
 
         """
 
-        res = tkMessageBox.askyesno(self.trn.msg('htk_gui_exit_title'), self.trn.msg('htk_gui_exit_question'))
+        res = tkmsg.askyesno(self.trn.msg('htk_gui_exit_title'), self.trn.msg('htk_gui_exit_question'))
         if (res):
             self.editor.save_tabs()
             self.logger.info(self.trn.msg('htk_core_stopped'))

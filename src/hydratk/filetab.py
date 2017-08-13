@@ -8,14 +8,7 @@
 
 """
 
-from sys import version_info
-
-if (version_info[0] == 2):
-    import Tkinter as tk
-    import ttk
-else:
-    import tkinter as tk
-    from tkinter import ttk
+from hydratk.tkimport import tk, ttk
 
 class FileTab(tk.Frame):
     """Class FileTab
@@ -54,9 +47,9 @@ class FileTab(tk.Frame):
         """
 
         self._parent = parent
-        self._editor = self._parent.parent
-        self._colorizer = self._editor.colorizer
-        self._formatter = self._editor.formatter
+        self._editor = parent.parent
+        self._colorizer = parent.parent.colorizer
+        self._formatter = parent.parent.formatter
 
         tk.Frame.__init__(self)
         self._name = name
@@ -129,7 +122,7 @@ class FileTab(tk.Frame):
 
         # text area
         self._text = tk.Text(self, wrap=tk.NONE, xscrollcommand=self._hbar.set, yscrollcommand=self._vbar.set)
-        self.set_font(self.editor._font_family, self.editor._font_size, self.editor._font_style)
+        self.set_font(self.editor.font['family'], self.editor.font['size'], self.editor.font['style'])
         self._text.pack(expand=True, side=tk.LEFT, fill=tk.BOTH)
         self._text.grid(in_=self, row=0, column=1, sticky=tk.NSEW)
 
@@ -142,7 +135,7 @@ class FileTab(tk.Frame):
         self._hbar.grid(in_=self, row=1, column=1, sticky=tk.EW)
 
         # info bar
-        info_text = '1 : 1' if (self._editor._show_info_bar.get()) else ''
+        info_text = '1 : 1' if (self.editor.var_show_info_bar.get()) else ''
         self._info_bar = tk.Label(self._text, text=info_text)
         self._info_bar.pack(side=tk.RIGHT, anchor=tk.SE)
 
@@ -161,14 +154,16 @@ class FileTab(tk.Frame):
         self._text.configure(undo=True)
         self._text.bind('<Control-v>', self.editor.paste)
         self._text.bind('<Control-F4>', self.parent.close_tab)
-        self._text.bind('<Any-KeyPress>', self.on_key_press)
-        self._text.bind('<Any-KeyRelease>', self.on_key_release)
-        self._text.bind('<ButtonRelease-1>', self.on_mouse_click)
-        self._vbar.configure(command=self.on_vsb)
-        self._ln_bar.bind('<MouseWheel>', self.on_mouse_wheel)
-        self._text.bind('<MouseWheel>', self.on_mouse_wheel)
-        self._text.bind('<Control-MouseWheel>', self.change_font_size)
+        self._text.bind('<Any-KeyPress>', self._on_key_press)
+        self._text.bind('<Any-KeyRelease>', self._on_key_release)
+        self._text.bind('<ButtonRelease-1>', self._on_mouse_click)
+        self._vbar.configure(command=self._on_vsb)
+        self._ln_bar.bind('<MouseWheel>', self._on_mouse_wheel)
+        self._text.bind('<MouseWheel>', self._on_mouse_wheel)
+        self._text.bind('<Control-MouseWheel>', self._change_font_size)
         self._text.bind('<F3>', self.find)
+        self._text.bind('<Control-z>', self.editor.undo)
+        self._text.bind('<Control-y>', self.editor.redo)
 
         self._set_menu()
 
@@ -195,9 +190,9 @@ class FileTab(tk.Frame):
         self._menu.add_command(label=self.editor.trn.msg('htk_gui_editor_menu_find'), accelerator='Ctrl+F', command=self.editor.win_find)
         self._menu.add_command(label=self.editor.trn.msg('htk_gui_editor_menu_replace'), accelerator='Ctrl+R', command=self.editor.win_replace)
 
-        self._text.bind('<Button-3>', self.context_menu)
+        self._text.bind('<Button-3>', self._context_menu)
 
-    def context_menu(self, event=None):
+    def _context_menu(self, event=None):
         """Method sets context menu
 
         Args:
@@ -256,7 +251,7 @@ class FileTab(tk.Frame):
 
         """
 
-        if (self.editor._show_line_number.get()):
+        if (self.editor.var_show_line_number.get()):
             line_numbers = self._get_line_numbers()
             self._ln_bar.config(state=tk.NORMAL)
             self._ln_bar.delete('1.0', 'end')
@@ -268,41 +263,46 @@ class FileTab(tk.Frame):
             self._ln_bar.delete('1.0', 'end')
             self._ln_bar.config(state=tk.DISABLED)
 
-    def update_info_bar(self, event=None):
+    def update_info_bar(self, event=None, index=None):
         """Method updates info bar after event
 
         Args:
             event (obj): event
+            index (str): index
 
         Returns:
             void
 
         """
 
-        if (self.editor._show_info_bar.get()):
-            row, col = self._text.index(tk.INSERT).split('.')
+        if (self.editor.var_show_info_bar.get()):
+            row, col = self._text.index(tk.INSERT).split('.') if (index == None) else index.split('.')
             row, col = str(int(row)), str(int(col) + 1)
             self._info_bar.config(text='{0} : {1}'.format(row, col))
         else:
             self._info_bar.config(text='')
 
-    def highlight_line(self, event=None):
+    def highlight_line(self, event=None, row=None):
         """Method highlights current line
 
         Args:
             event (obj): event
+            row (str): row
 
         Returns:
             void
 
         """
 
-        row, col = self._text.index(tk.INSERT).split('.')
+        if (event != None):
+            row, col = self._text.index(tk.INSERT).split('.')
+
         self._text.tag_remove('highlight', 1.0, 'end')
         self._text.tag_add('highlight', row + '.0', row + '.150')
-        self._text.tag_configure('highlight', background='#E0FFFF')
+        self._text.tag_configure('highlight', background='#AFEEEE')
+        self._text.see(row + '.0')
 
-    def on_key_press(self, event=None):
+    def _on_key_press(self, event=None):
         """Method handles key press
 
         Args:
@@ -317,7 +317,7 @@ class FileTab(tk.Frame):
         self.update_info_bar(event)
         self.highlight_line(event)
 
-    def on_key_release(self, event=None):
+    def _on_key_release(self, event=None):
         """Method handles key release
 
         Args:
@@ -334,15 +334,19 @@ class FileTab(tk.Frame):
 
         # recolorize
         row = self._text.index(tk.INSERT).split('.')[0]
-        self.colorize('{0}.0'.format(int(row) - 1), '{0}.0'.format(int(row) + 1))
+        self.colorize('{0}.0'.format(int(row)), '{0}.0'.format(int(row) + 1))
 
         # remove highlight
         self._text.tag_remove('match', 1.0, tk.END)
 
         # format text
-        self.format_text(event)
+        self._format_text(event)
 
-    def on_mouse_click(self, event=None):
+        # refresh yoda tree
+        if (event.keysym == 'BackSpace'):
+            self.editor.refresh_yoda_tree(self)
+
+    def _on_mouse_click(self, event=None):
         """Method handles mouse click event
 
         Args:
@@ -357,7 +361,7 @@ class FileTab(tk.Frame):
         self.highlight_line(event)
         self.text.tag_remove('match', 1.0, tk.END)
 
-    def on_vsb(self, *args):
+    def _on_vsb(self, *args):
         """Method handles scrollbar event
 
         Args:
@@ -371,7 +375,7 @@ class FileTab(tk.Frame):
         self._ln_bar.yview(*args)
         self._text.yview(*args)
 
-    def on_mouse_wheel(self, event=None):
+    def _on_mouse_wheel(self, event=None):
         """Method handles mouse wheel event
 
         Args:
@@ -386,7 +390,7 @@ class FileTab(tk.Frame):
         self._text.yview_scroll(-1 * (event.delta / 120), 'units')
         return 'break'
 
-    def change_font_size(self, event=None):
+    def _change_font_size(self, event=None):
         """Method changes font size
 
         Args:
@@ -414,7 +418,6 @@ class FileTab(tk.Frame):
         """
 
         self._text.mark_set(tk.INSERT, '%s.1' % line)
-        self._text.see(tk.INSERT)
 
     def find(self, event=None, find_str=None, find_all=False, ignore_case=False, regexp=False):
         """Method finds given string and highlights it
@@ -533,9 +536,11 @@ class FileTab(tk.Frame):
 
         """
 
-        self.colorizer.colorize(self._text, start, stop)
+        yoda_found = self.colorizer.colorize(self._text, start, stop)
+        if (yoda_found):
+            self.editor.refresh_yoda_tree(self)
 
-    def format_text(self, event=None):
+    def _format_text(self, event=None):
         """Method formats text
 
         Args:

@@ -8,12 +8,7 @@
 
 """
 
-from sys import version_info
-
-if (version_info[0] == 2):
-    import Tkinter as tk
-else:
-    import tkinter as tk
+from hydratk.tkimport import tk
 
 class Formatter(object):
     """Class Formatter
@@ -28,7 +23,7 @@ class Formatter(object):
 
     # format
     _patterns = {}
-    _ammend_keys = {}
+    _amend_keys = {}
 
     def __init__(self, root):
         """Class constructor
@@ -95,9 +90,9 @@ class Formatter(object):
 
         """
 
-        self._patterns['python_inc'] = {'indent' : self._config._data['Core']['format']['indent_python']}
-        self._patterns['python_dec'] = {'indent' :-self._config._data['Core']['format']['indent_python']}
-        self._patterns['yoda'] = {'indent' : self._config._data['Core']['format']['indent_yoda']}
+        self._patterns['python_inc'] = {'indent' : self.config.data['Core']['format']['indent_python']}
+        self._patterns['python_dec'] = {'indent' :-self.config.data['Core']['format']['indent_python']}
+        self._patterns['yoda'] = {'indent' : self.config.data['Core']['format']['indent_yoda']}
 
     def _make_patterns(self):
         """Method makes patterns for text formatting
@@ -129,12 +124,12 @@ class Formatter(object):
                ]
         self._patterns['yoda']['pattern'] = r'\y(' + '|'.join(tags) + r')\y\s*:\s*\|?'
         
-        # keys to be ammended
-        self._ammend_keys = {
-                             '(' : ')',
-                             '{' : '}',
-                             '[' : ']'
-                            }
+        # keys to be amended
+        self._amend_keys = {
+                            '(' : ')',
+                            '{' : '}',
+                            '[' : ']'
+                           }
 
     def format_text(self, event, text):
         """Method formats text
@@ -149,12 +144,12 @@ class Formatter(object):
         """
 
         if (event.keysym == 'Return'):
-            self.indent(text)
-        elif (event.char in self._ammend_keys):
-            self.ammend_key(event.char, text)
+            self._indent(text)
+        elif (event.char in self._amend_keys):
+            self._amend_key(event.char, text)
             
-    def ammend_key(self, key, text):
-        """Method ammends predefined key
+    def _amend_key(self, key, text):
+        """Method amends predefined key
 
         Args:
             key (str): key
@@ -165,9 +160,9 @@ class Formatter(object):
 
         """
 
-        text.insert(tk.INSERT, self._ammend_keys[key])
+        text.insert(tk.INSERT, self._amend_keys[key])
 
-    def indent(self, text):
+    def _indent(self, text):
         """Method sets indent
 
         Args:

@@ -8,23 +8,11 @@
 
 """
 
-from sys import version_info
-
-if (version_info[0] == 2):
-    import Tkinter as tk
-else:
-    import tkinter as tk
-
-from ScrolledText import ScrolledText
 from datetime import datetime
 from os import path
+from utils import fix_path
 
-log_levels = {
-  'ERROR': 1,
-  'WARN': 2,
-  'INFO': 3,
-  'DEBUG': 4
-}
+from hydratk.tkimport import tk, tkst
 
 class Logger(tk.LabelFrame):
     """Class Logger
@@ -40,6 +28,12 @@ class Logger(tk.LabelFrame):
 
     # log parameters
     _log = None
+    _log_levels = {
+                   'ERROR': 1,
+                   'WARN': 2,
+                   'INFO': 3,
+                   'DEBUG': 4
+    }
     _level = None
     _msg_format = None
     _logdir = None
@@ -67,7 +61,7 @@ class Logger(tk.LabelFrame):
         self._trn = root.trn
         self._config = root.cfg
 
-        tk.LabelFrame.__init__(self, root._pane_right, text=self.trn.msg('htk_gui_log_label'))
+        tk.LabelFrame.__init__(self, root.pane_right, text=self.trn.msg('htk_gui_log_label'))
         self._set_gui()
         self._parse_config()
 
@@ -108,30 +102,6 @@ class Logger(tk.LabelFrame):
         return self._config
 
     @property
-    def log(self):
-        """ log property getter """
-
-        return self._log
-
-    @property
-    def level(self):
-        """ level property getter """
-
-        return self._level
-
-    @property
-    def msg_format(self):
-        """ msg_format property getter """
-
-        return self._msg_format
-
-    @property
-    def logdir(self):
-        """ logdir property getter """
-
-        return self._logdir
-
-    @property
     def logfile(self):
         """ logfile property getter """
 
@@ -148,11 +118,11 @@ class Logger(tk.LabelFrame):
 
         """
 
-        self._level = log_levels[self.config.data['Logger']['level']]
+        self._level = self._log_levels[self.config.data['Logger']['level']]
         self._msg_format = self.config.data['Logger']['format']
 
-        self._logdir = self.config.data['Logger']['logdir']
-        self._logfile = open(path.join(self._logdir, datetime.now().strftime('%Y%m%d') + '.log'), 'a')
+        self._logdir = '../var/log' if (self.config.data['Logger']['logdir'] == 'default') else self.config.data['Logger']['logdir']
+        self._logfile = open(fix_path(path.join(self._logdir, datetime.now().strftime('%Y%m%d') + '.log')), 'a')
 
     def _set_gui(self):
         """Method sets graphical interface
@@ -165,11 +135,12 @@ class Logger(tk.LabelFrame):
 
         """
 
-        self._log = ScrolledText(self, state=tk.DISABLED)
+        self._log = tkst(self, state=tk.DISABLED)
         self._log.pack(expand=True, fill=tk.BOTH)
+        self._log.tag_config('error', foreground='#FF0000')
         self._log.focus_set()
 
-    def write_msg(self, msg, level=3):
+    def _write_msg(self, msg, level=3):
         """Method writes to log (GUI and file)
 
         Args:
@@ -182,10 +153,15 @@ class Logger(tk.LabelFrame):
         """
 
         if (self._level >= level):
-            level = list(log_levels.keys())[list(log_levels.values()).index(level)]
+            level = list(self._log_levels.keys())[list(self._log_levels.values()).index(level)]
             msg = self._msg_format.format(timestamp=datetime.now().strftime('%Y-%m-%d %H:%M:%S'), level=level, message=msg)
             self._log.configure(state=tk.NORMAL)
             self._log.insert(tk.END, msg + '\n')
+            
+            if (level in ['ERROR', 'WARN']):
+                idx = self._log.index(tk.INSERT)
+                self._log.tag_add('error', '{0}-{1}c'.format(idx, len(msg) + 1), idx)
+
             self._log.see('end')
             self._log.configure(state=tk.DISABLED)
 
@@ -203,7 +179,7 @@ class Logger(tk.LabelFrame):
 
         """
 
-        self.write_msg(msg, 4)
+        self._write_msg(msg, 4)
 
     def info(self, msg):
         """Method writes INFO message
@@ -216,7 +192,7 @@ class Logger(tk.LabelFrame):
 
         """
 
-        self.write_msg(msg, 3)
+        self._write_msg(msg, 3)
 
     def warn(self, msg):
         """Method writes WARN message
@@ -229,7 +205,7 @@ class Logger(tk.LabelFrame):
 
         """
 
-        self.write_msg(msg, 2)
+        self._write_msg(msg, 2)
 
     def error(self, msg):
         """Method writes ERROR message
@@ -242,4 +218,4 @@ class Logger(tk.LabelFrame):
 
         """
 
-        self.write_msg(msg, 1)
+        self._write_msg(msg, 1)

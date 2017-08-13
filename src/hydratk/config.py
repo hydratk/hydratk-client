@@ -39,7 +39,7 @@ class Config(object):
         if (self._instance is not None):
             raise ValueError('A Class instance already exists, use get_instance method instead!')
 
-        self.load()
+        self._load()
 
     @staticmethod
     def get_instance():
@@ -65,13 +65,7 @@ class Config(object):
 
         return self._data
 
-    @property
-    def cfg_path(self):
-        """ path property getter """
-
-        return self._path
-
-    def load(self):
+    def _load(self):
         """Method loads configuration from file
 
         Args:

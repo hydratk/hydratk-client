@@ -42,10 +42,10 @@ class Translator(object):
         if (language not in ['en', 'cs']):
             raise ValueError('Not supported language %s' % language)
 
-        self.set_language(language)
+        self._set_language(language)
         msg_package = 'hydratk.translation.' + self._language + '.messages'
         self._msg_mod = import_module(msg_package)
-        self.register_messages(self._msg_mod.msg)
+        self._register_messages(self._msg_mod.msg)
 
     @staticmethod
     def get_instance(lang=None):
@@ -65,19 +65,7 @@ class Translator(object):
 
         return Translator._instance
 
-    @property
-    def msg_mod(self):
-        """ msg_mod property getter, setter """
-
-        return self._msg_mod
-
-    @msg_mod.setter
-    def msg_mod(self, msg_module):
-        """ msg_mod property setter """
-
-        self._msg_mod = msg_module
-
-    def register_messages(self, messages):
+    def _register_messages(self, messages):
         """Methods registers langtexts
 
         Args:
@@ -97,11 +85,10 @@ class Translator(object):
             else:
                 raise ValueError('Invalid messages type, dictionary expected')
         else:
-            raise ValueError(
-                'Cannot assign an empty messages, dictionary expected')
+            raise ValueError('Cannot assign an empty messages, dictionary expected')
         return True
 
-    def set_language(self, lang):
+    def _set_language(self, lang):
         """Methods sets language
 
         Args:
@@ -113,19 +100,6 @@ class Translator(object):
         """
 
         self._language = lang
-
-    def get_language(self):
-        """Methods gets language
-
-        Args:
-           none
-
-        Returns:
-           str: language
-
-        """
-
-        return self._language
 
     def msg(self, key, *args):
         """Methods resolves langtext according to debug level

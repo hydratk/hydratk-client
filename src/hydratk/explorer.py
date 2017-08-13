@@ -8,21 +8,12 @@
 
 """
 
-from sys import version_info
-
-if (version_info[0] == 2):
-    import Tkinter as tk
-    import ttk
-else:
-    import tkinter as tk
-    from tkinter import ttk
-
-import tkFileDialog
-import tkMessageBox
 import os
 from shutil import rmtree, copy
 
+from hydratk.tkimport import tk, ttk, tkmsg, tkfd
 from hydratk.utils import fix_path
+import hydratk.template as tmpl
 
 class Explorer(tk.LabelFrame):
     """Class Explorer
@@ -37,6 +28,7 @@ class Explorer(tk.LabelFrame):
     _config = None
     _editor = None
     _logger = None
+    _yoda_tree = None
 
     # project parameters
     _projects = None
@@ -71,7 +63,7 @@ class Explorer(tk.LabelFrame):
         self._trn = root.trn
         self._config = root.cfg
 
-        tk.LabelFrame.__init__(self, root._pane_left, text=self.trn.msg('htk_gui_explorer_label'))
+        tk.LabelFrame.__init__(self, root.pane_left, text=self.trn.msg('htk_gui_explorer_label'))
         self._set_gui()
         self._parse_config()
 
@@ -124,16 +116,10 @@ class Explorer(tk.LabelFrame):
         return self._logger
 
     @property
-    def projects(self):
-        """ projects property getter """
+    def yoda_tree(self):
+        """ yoda_tree property getter """
 
-        return self._projects
-
-    @property
-    def tree(self):
-        """ tree property getter """
-
-        return self._tree
+        return self._yoda_tree
 
     def set_late_ref(self):
         """Method sets references to frames initialized later
@@ -148,8 +134,9 @@ class Explorer(tk.LabelFrame):
 
         self._editor = self.root.editor
         self._logger = self.root.logger
+        self._yoda_tree = self.root.yoda_tree
 
-        self._menu_new.entryconfig(0, command=self._editor.new_file)
+        self._menu_new.entryconfig(0, command=self.editor.new_file)
 
     def _parse_config(self):
         """Method parses configuration
@@ -162,8 +149,10 @@ class Explorer(tk.LabelFrame):
 
         """
 
-        self._projects = self._config.data['Projects'] if ('Projects' in self._config.data and self._config.data['Projects'] != None) else {}
-        self.populate_projects()
+        self._projects = self.config.data['Projects'] if ('Projects' in self.config.data and self.config.data['Projects'] != None) else {}
+
+        for name, cfg in self._projects.items():
+            self._populate_project(name, cfg)
 
     def _set_gui(self):
         """Method sets graphical interface
@@ -180,7 +169,7 @@ class Explorer(tk.LabelFrame):
         self.columnconfigure(0, weight=1)
 
         # treeview
-        self._tree = ttk.Treeview(self, columns=('path', 'type'), show='tree', displaycolumns=(), height=20,
+        self._tree = ttk.Treeview(self, columns=('path', 'type'), show='tree', displaycolumns=(), height=20, selectmode='browse',
                                   xscrollcommand=lambda f, l: self._autoscroll(self._hsb, f, l),
                                   yscrollcommand=lambda f, l: self._autoscroll(self._vsb, f, l))
         self._tree.pack()
@@ -201,10 +190,10 @@ class Explorer(tk.LabelFrame):
 
         # events
         self._tree.bind('<<TreeviewOpen>>', self._update_tree)
-        self._tree.bind('<Double-1>', self.open)
-        self._tree.bind('<Control-c>', self.copy)
-        self._tree.bind('<Control-v>', self.paste)
-        self._tree.bind('<Delete>', self.delete)
+        self._tree.bind('<Double-1>', self._open)
+        self._tree.bind('<Control-c>', self._copy)
+        self._tree.bind('<Control-v>', self._paste)
+        self._tree.bind('<Delete>', self._delete)
         self._tree.bind('<F5>', self.refresh)
 
         self._set_menu()
@@ -226,10 +215,16 @@ class Explorer(tk.LabelFrame):
         self._menu_new.add_command(label=self.trn.msg('htk_gui_explorer_menu_new_file'), accelerator='Ctrl+N')
         self._menu_new.add_command(label=self.trn.msg('htk_gui_explorer_menu_new_directory'), command=self.new_directory)
         self._menu_new.add_command(label=self.trn.msg('htk_gui_explorer_menu_new_project'), command=self.new_project)
-        self._menu.add_command(label=self.trn.msg('htk_gui_explorer_menu_open'), accelerator='Ctrl+O', command=self.open)
-        self._menu.add_command(label=self.trn.msg('htk_gui_explorer_menu_copy'), accelerator='Ctrl+C', command=self.copy)
-        self._menu.add_command(label=self.trn.msg('htk_gui_explorer_menu_paste'), accelerator='Ctrl+V', command=self.paste)
-        self._menu.add_command(label=self.trn.msg('htk_gui_explorer_menu_delete'), accelerato='Delete', command=self.delete)
+        self._menu_new.add_command(label=self.trn.msg('htk_gui_explorer_menu_new_helper'), command=self.new_helper)
+        self._menu_new.add_command(label=self.trn.msg('htk_gui_explorer_menu_new_library'), command=self.new_library)
+        self._menu_new.add_command(label=self.trn.msg('htk_gui_explorer_menu_new_test'), command=self.new_test)
+        self._menu_new.add_command(label=self.trn.msg('htk_gui_explorer_menu_new_archive'), command=self.new_archive)
+        self._menu_new.add_command(label=self.trn.msg('htk_gui_explorer_menu_new_draft'), command=self.new_draft)
+
+        self._menu.add_command(label=self.trn.msg('htk_gui_explorer_menu_open'), accelerator='Ctrl+O', command=self._open)
+        self._menu.add_command(label=self.trn.msg('htk_gui_explorer_menu_copy'), accelerator='Ctrl+C', command=self._copy)
+        self._menu.add_command(label=self.trn.msg('htk_gui_explorer_menu_paste'), accelerator='Ctrl+V', command=self._paste)
+        self._menu.add_command(label=self.trn.msg('htk_gui_explorer_menu_delete'), accelerato='Delete', command=self._delete)
         self._menu.add_command(label=self.trn.msg('htk_gui_explorer_menu_refresh'), accelerator='F5', command=self.refresh)
 
         self._tree.bind('<Button-3>', self._context_menu)
@@ -266,22 +261,8 @@ class Explorer(tk.LabelFrame):
         """
 
         self._menu.post(event.x_root, event.y_root)
-    
-    def populate_projects(self):
-        """Method populates all projects
 
-        Args:
-            none
-
-        Returns:
-            void
-
-        """
-
-        for name, cfg in self._projects.items():
-            self.populate_project(name, cfg)
-
-    def populate_project(self, name, cfg):
+    def _populate_project(self, name, cfg):
         """Method populates given project
 
         Args:
@@ -364,17 +345,26 @@ class Explorer(tk.LabelFrame):
 
         """
         
-        dirpath = tkFileDialog.askdirectory()
+        dirpath = tkfd.askdirectory()
         proj_name = os.path.split(dirpath)[1]
         if (len(proj_name) == 0 or proj_name in self._projects):
             return
 
+        # initial directory structure
+        if (len(os.listdir(dirpath)) == 0):
+            for d in tmpl.proj_dir_struct:
+                os.makedirs(d.format(proj_root=dirpath))
+                
+            for f in tmpl.proj_files:
+                with open(f.format(proj_root=dirpath), 'w') as fl:
+                    fl.write(tmpl.init_content)
+
         self._projects[proj_name] = {'path': dirpath}
         node = self._tree.insert('', 'end', text=proj_name, values=(dirpath, 'directory'))
         self._populate_tree(node)
-        self._logger.info(self.trn.msg('htk_core_project_created', proj_name))
-        self._config.data['Projects'] = self._projects
-        self._config.save()
+        self.logger.info(self.trn.msg('htk_core_project_created', proj_name))
+        self.config.data['Projects'] = self._projects
+        self.config.save()
         
     def new_directory(self):
         """Method creates new directory
@@ -389,14 +379,117 @@ class Explorer(tk.LabelFrame):
 
         """
 
-        path = tkFileDialog.askdirectory()
+        path = tkfd.askdirectory()
         if (len(path) == 0):
             return
 
-        self._logger.debug(self.trn.msg('htk_core_directory_created', path))
+        self.logger.debug(self.trn.msg('htk_core_directory_created', path))
         self.refresh(path=path)
 
-    def open(self, event=None):
+    def _new_template_file(self, filetype, extension, template, langtext):
+        """Method creates new file from template
+
+        Args:
+            filetype (str): filetype displayed in dialog
+            extension (str): file extension
+            template (str): content template
+            langtext (str): langtext for logger
+
+        Returns:
+            void
+
+        """
+
+        item = self._tree.selection()
+        initialdir = None
+        if (len(item) > 0):
+            item = self._tree.item(item)
+            initialdir = item['values'][0] if (item['values'][1] == 'directory') else os.path.split(item['values'][0])[0]
+
+        path = tkfd.asksaveasfilename(initialdir=initialdir, filetypes=[(filetype, '*' + extension)])
+        if (len(path) == 0):
+            return
+
+        path = fix_path(path)
+        if (extension not in path):
+            path += extension
+
+        name = os.path.split(path)[1]
+        content = template.format(name=name.split('.')[0], path=name)
+        with open(path, 'w') as f:
+            f.write(content)
+
+        self.editor.nb.add_tab(path=path, content=content, text=name)
+        self.yoda_tree.add_test(path, content)
+        self.logger.debug(self.trn.msg(langtext, path))
+        self.refresh(path=path)
+
+    def new_helper(self):
+        """Method creates new helper
+
+        Args:
+            none
+
+        Returns:
+            void
+
+        """
+
+        self._new_template_file('Python', '.py', tmpl.helper_content, 'htk_core_helper_created')
+
+    def new_library(self):
+        """Method creates new library
+
+        Args:
+            none
+
+        Returns:
+            void
+
+        """
+
+        self._new_template_file('Python', '.py', tmpl.library_content, 'htk_core_library_created')
+
+    def new_test(self):
+        """Method creates new test
+
+        Args:
+            none
+
+        Returns:
+            void
+
+        """
+
+        self._new_template_file('Jedi', '.jedi', tmpl.test_content, 'htk_core_test_created')
+
+    def new_archive(self):
+        """Method creates new archive
+
+        Args:
+            none
+
+        Returns:
+            void
+
+        """
+
+        self._new_template_file('Yoda', '.yoda', tmpl.archive_content, 'htk_core_archive_created')
+
+    def new_draft(self):
+        """Method creates new draft
+
+        Args:
+            none
+
+        Returns:
+            void
+
+        """
+
+        self._new_template_file('Padawan', '.padawan', tmpl.draft_content, 'htk_core_draft_created')
+
+    def _open(self, event=None):
         """Method opens file from explorer tree
 
         Args:
@@ -413,9 +506,9 @@ class Explorer(tk.LabelFrame):
 
         item = self._tree.item(item)
         if (item['values'][1] == 'file'):
-            self._editor.open_file(path=item['values'][0])
+            self.editor.open_file(path=item['values'][0])
             
-    def copy(self, event=None):
+    def _copy(self, event=None):
         """Method copies file or directory from explorer tree
 
         Args:
@@ -431,10 +524,10 @@ class Explorer(tk.LabelFrame):
             return
 
         item = self._tree.item(item)
-        self._root.clipboard_clear()
-        self._root.clipboard_append(item['values'][0])
+        self.root.clipboard_clear()
+        self.root.clipboard_append(item['values'][0])
 
-    def paste(self, event=None):
+    def _paste(self, event=None):
         """Method pastes file or directory from explorer tree
 
         Args:
@@ -452,12 +545,12 @@ class Explorer(tk.LabelFrame):
         item = self._tree.item(item)
         path, item_type = item['values']
         if (item_type == 'directory'):
-            src = self._root.clipboard_get()
-            copy(self._root.clipboard_get(), path)
-            self._logger.debug(self.trn.msg('htk_core_copied', src, path))
+            src = self.root.clipboard_get()
+            copy(self.root.clipboard_get(), path)
+            self.logger.debug(self.trn.msg('htk_core_copied', src, path))
             self.refresh(path=path)
 
-    def delete(self, event=None):
+    def _delete(self, event=None):
         """Method deletes file or directory from explorer tree
 
         Deletion must be confirmed via popup window
@@ -489,22 +582,27 @@ class Explorer(tk.LabelFrame):
                 i += 1
             question = 'htk_gui_explorer_delete_project' if (is_project) else 'htk_gui_explorer_delete_directory'
         
-        res = tkMessageBox.askyesno(self.trn.msg('htk_gui_explorer_delete'), self.trn.msg(question, path))
+        res = tkmsg.askyesno(self.trn.msg('htk_gui_explorer_delete'), self.trn.msg(question, path))
         if (res):
             if (item_type == 'file'):
                 os.remove(path)
-                self._logger.debug(self.trn.msg('htk_core_file_deleted', path))
+                self.logger.debug(self.trn.msg('htk_core_file_deleted', path))
                 self.refresh(path)
+
+                res, index = self.editor.nb.is_tab_present(path)
+                if (res):
+                    self.editor.nb.close_tab(index=index)
+                    
             else:
                 rmtree(path)
                 if (is_project):
-                    self._logger.info(self.trn.msg('htk_core_project_deleted', proj_name))
+                    self.logger.info(self.trn.msg('htk_core_project_deleted', proj_name))
                     self._tree.delete(self._tree.get_children()[i])
                     del self._projects[proj_name]
-                    self._config.data['Projects'] = self._projects
-                    self._config.save()
+                    self.config.data['Projects'] = self._projects
+                    self.config.save()
                 else:
-                    self._logger.debug(self.trn.msg('htk_core_directory_deleted', path))
+                    self.logger.debug(self.trn.msg('htk_core_directory_deleted', path))
                     self.refresh(path)
 
     def refresh(self, event=None, path=None):
