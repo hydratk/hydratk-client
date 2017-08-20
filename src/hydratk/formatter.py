@@ -54,7 +54,7 @@ class Formatter(object):
         """Method gets Formatter singleton instance
 
         Args:
-            oot (obj): root frame
+            root (obj): root frame
 
         Returns:
             obj

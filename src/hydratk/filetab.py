@@ -19,11 +19,13 @@ class FileTab(tk.Frame):
     _editor = None
     _colorizer = None
     _formatter = None
+    _autocompleter = None
 
     # tab parameters
     _name = None
     _path = None
     _last_find_str = ''
+    _disable_format = False
 
     # gui elements
     _text = None
@@ -50,6 +52,7 @@ class FileTab(tk.Frame):
         self._editor = parent.parent
         self._colorizer = parent.parent.colorizer
         self._formatter = parent.parent.formatter
+        self._autocompleter = parent.parent.autocompleter
 
         tk.Frame.__init__(self)
         self._name = name
@@ -79,6 +82,12 @@ class FileTab(tk.Frame):
         """ formatter property getter """
 
         return self._formatter
+
+    @property
+    def autocompleter(self):
+        """ autocompleter property getter """
+
+        return self._autocompleter
 
     @property
     def text(self):
@@ -164,6 +173,7 @@ class FileTab(tk.Frame):
         self._text.bind('<F3>', self.find)
         self._text.bind('<Control-z>', self.editor.undo)
         self._text.bind('<Control-y>', self.editor.redo)
+        self._text.bind('<Tab>', self._show_autocomplete)
 
         self._set_menu()
 
@@ -551,4 +561,34 @@ class FileTab(tk.Frame):
 
         """
 
-        self.formatter.format_text(event, self._text)
+        if (not self._disable_format):
+            self.formatter.format_text(event, self._text)
+        else:
+            self._disable_format = False
+
+    def _show_autocomplete(self, event=None):
+        """Method shows code autocomplete
+
+        Args:
+            event (obj): event
+
+        Returns:
+            void
+
+        """      
+        
+        self.autocompleter.show_completion(self)
+        return 'break'
+
+    def disable_format(self):
+        """Method disables automatic format
+
+        Args:
+            none
+
+        Returns:
+            void
+
+        """
+
+        self._disable_format = True

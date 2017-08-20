@@ -55,7 +55,7 @@ class Colorizer(object):
         """Method gets Colorizer singleton instance
 
         Args:
-            oot (obj): root frame
+            root (obj): root frame
 
         Returns:
             obj

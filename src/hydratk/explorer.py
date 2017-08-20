@@ -359,11 +359,12 @@ class Explorer(tk.LabelFrame):
                 with open(f.format(proj_root=dirpath), 'w') as fl:
                     fl.write(tmpl.init_content)
 
-        self._projects[proj_name] = {'path': dirpath}
+        self._projects[proj_name] = {'path': dirpath, 'pythonpath': [dirpath + '/lib/yodalib', dirpath + '/helpers/yodahelpers']}
         node = self._tree.insert('', 'end', text=proj_name, values=(dirpath, 'directory'))
         self._populate_tree(node)
         self.logger.info(self.trn.msg('htk_core_project_created', proj_name))
         self.config.data['Projects'] = self._projects
+        self.root.autocompleter.update_pythonpath()
         self.config.save()
         
     def new_directory(self):

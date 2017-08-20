@@ -30,6 +30,7 @@ class Editor(tk.LabelFrame):
     _yoda_tree = None
     _colorizer = None
     _formatter = None
+    _autocompleter = None
 
     # gui elements
     _nb = None
@@ -132,6 +133,12 @@ class Editor(tk.LabelFrame):
         return self._formatter
 
     @property
+    def autocompleter(self):
+        """ autocompleter property getter """
+
+        return self._autocompleter
+
+    @property
     def nb(self):
         """ nb property getter """
 
@@ -171,6 +178,7 @@ class Editor(tk.LabelFrame):
         self._yoda_tree = self.root.yoda_tree
         self._colorizer = self.root.colorizer
         self._formatter = self.root.formatter
+        self._autocompleter = self.root.autocompleter
 
     def _parse_config(self):
         """Method parses configuration

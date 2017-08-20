@@ -21,6 +21,7 @@ from hydratk.logger import Logger
 from hydratk.yoda_tree import YodaTree
 from hydratk.colorizer import Colorizer
 from hydratk.formatter import Formatter
+from hydratk.autocompleter import AutoCompleter
 from hydratk.help import Help
 
 class Gui(tix.Tk):
@@ -39,6 +40,7 @@ class Gui(tix.Tk):
     _logger = None
     _colorizer = None
     _formatter = None
+    _autocompleter = None
     _help = None
 
     # frames
@@ -146,6 +148,12 @@ class Gui(tix.Tk):
         """ formatter property getter """
 
         return self._formatter
+    
+    @property
+    def autocomplete(self):
+        """ autocomplete property getter """
+
+        return self._autocomplete   
 
     @property
     def help(self):
@@ -495,6 +503,7 @@ class Gui(tix.Tk):
         self.editor = Editor.get_instance(self)
         self.colorizer = Colorizer.get_instance(self)
         self.formatter = Formatter.get_instance(self)
+        self.autocompleter = AutoCompleter.get_instance(self)
         self._pane_right.add(self.editor)
 
     def _set_logger(self):
