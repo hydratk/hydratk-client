@@ -30,6 +30,9 @@ msg = {
     'htk_core_directory_deleted' : "Directory {0} deleted",
     'htk_core_copied' : "{0} copied to {1}",
     'htk_core_invalid_yaml' : "File {0} has invalid YAML content",
+    'htk_core_syntax_check_start' : "Checking syntax of {0}",
+    'htk_core_syntax_check_success' : "Syntax check successful",
+    'htk_core_syntax_check_error' : "Error found within syntax check: {0}",
 
     'htk_gui_menu_file' : "File",
     'htk_gui_menu_file_new' : "New",
@@ -56,6 +59,8 @@ msg = {
     'htk_gui_menu_edit_goto' : "Goto",
     'htk_gui_menu_edit_find' : "Find",
     'htk_gui_menu_edit_replace' : "Replace",
+    'htk_gui_menu_source' : "Source",
+    'htk_gui_menu_source_syntax_check' : "Syntax check",
     'htk_gui_menu_view' : "View",
     'htk_gui_menu_view_show_line_number' : "Line numbers",
     'htk_gui_menu_view_show_info_bar' : "Info bar",
@@ -124,6 +129,7 @@ msg = {
     'htk_gui_yoda_tree_menu_add_events' : "Add events",
 
     'htk_gui_log_label' : "Log",
+    'htk_gui_log_menu_clear' : "Clear",
 
     'htk_gui_help_about_title' : "About HydraTK client"
 }

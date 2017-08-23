@@ -120,7 +120,7 @@ class Formatter(object):
         # yoda
         tags = [
                 'TEST-SCENARIO-\d+', 'TEST-CASE-\d+', 'TEST-CONDITION-\d+', 'PRE-REQ', 'POST-REQ',
-                'TEST', 'VALIDATE', 'EVENTS', 'BEFORE_START', 'BEFORE_FINISH'
+                'TEST', 'VALIDATE', 'EVENTS', 'BEFORE_START', 'AFTER_FINISH'
                ]
         self._patterns['yoda']['pattern'] = r'\y(' + '|'.join(tags) + r')\y\s*:\s*\|?'
         

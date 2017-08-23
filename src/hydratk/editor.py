@@ -31,6 +31,7 @@ class Editor(tk.LabelFrame):
     _colorizer = None
     _formatter = None
     _autocompleter = None
+    _syntaxchecker = None
 
     # gui elements
     _nb = None
@@ -139,6 +140,12 @@ class Editor(tk.LabelFrame):
         return self._autocompleter
 
     @property
+    def syntaxchecker(self):
+        """ syntaxchecker property getter """
+
+        return self._syntaxchecker
+
+    @property
     def nb(self):
         """ nb property getter """
 
@@ -179,6 +186,7 @@ class Editor(tk.LabelFrame):
         self._colorizer = self.root.colorizer
         self._formatter = self.root.formatter
         self._autocompleter = self.root.autocompleter
+        self._syntaxchecker = self.root.syntaxchecker
 
     def _parse_config(self):
         """Method parses configuration
@@ -734,3 +742,25 @@ class Editor(tk.LabelFrame):
         if (tab == None):
             tab = self.nb.get_current_tab()
         self.yoda_tree.refresh(tab.path, tab.text.get('1.0', 'end-1c'))
+
+    def syntax_check(self, event=None):
+        """Method checks syntax
+
+        Args:
+            event (obj): event
+
+        Returns:
+            void
+
+        """
+
+        tab = self.nb.get_current_tab()
+        path = tab.path
+        if (tab != None and path != None):
+            self.logger.info(self.trn.msg('htk_core_syntax_check_start', path))
+            res, error = self.syntaxchecker.check(path, tab)
+
+            if (res):
+                self.logger.info(self.trn.msg('htk_core_syntax_check_success'))
+            else:
+                self.logger.warn(self.trn.msg('htk_core_syntax_check_error', error))

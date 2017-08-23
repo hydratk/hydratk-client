@@ -169,7 +169,7 @@ class CustomNotebook(ttk.Notebook):
 
         """
 
-        return self.index(self.select())
+        return self.index(self.select()) if (len(self._tab_refs) > 0) else None
 
     def get_current_tab(self):
         """Method gets current tab
@@ -183,7 +183,8 @@ class CustomNotebook(ttk.Notebook):
         """
 
         try:
-            return self._tab_refs[self._get_current_index()]
+            idx = self._get_current_index()
+            return self._tab_refs[idx] if (idx != None) else None
         except tk.TclError:
             return None
 
@@ -225,8 +226,11 @@ class CustomNotebook(ttk.Notebook):
 
         """
 
-        tab = self.get_current_tab()
-        return tab.text.get(tk.SEL_FIRST, tk.SEL_LAST) if (tab is not None) else None
+        try:
+            tab = self.get_current_tab()
+            return tab.text.get(tk.SEL_FIRST, tk.SEL_LAST) if (tab is not None) else None
+        except tk.TclError:
+            return None
 
     def set_current_tab(self, name, path, modified):
         """Method sets various tab parameters
@@ -267,18 +271,21 @@ class CustomNotebook(ttk.Notebook):
         menu = self.parent.root.menu_edit
         menu.entryconfig(0, state=state)
         menu.entryconfig(1, state=state)
-        menu.entryconfig(2, state=state)
         menu.entryconfig(3, state=state)
         menu.entryconfig(4, state=state)
         menu.entryconfig(5, state=state)
         menu.entryconfig(6, state=state)
         menu.entryconfig(7, state=state)
-        menu.entryconfig(8, state=state)
         menu.entryconfig(9, state=state)
+        menu.entryconfig(10, state=state)
+        menu.entryconfig(11, state=state)
+
+        menu = self.parent.root.menu_source
+        menu.entryconfig(0, state=state)
 
         menu = self.parent.root.menu_view
-        menu.entryconfig(2, state=state)
         menu.entryconfig(3, state=state)
+        menu.entryconfig(4, state=state)
 
         tools = self.parent.root.tools
         tools['save'].config(state=state)
@@ -335,3 +342,4 @@ class CustomNotebook(ttk.Notebook):
 
         if (len(self._tab_refs) == 0):
             self._set_tab_related_controls(False)
+            self.parent.yoda_tree.clear_tree()

@@ -12,6 +12,7 @@ from hydratk.gui import Gui
 
 def main():
     """Main method
+    
     Args:
         none
 

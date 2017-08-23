@@ -26,8 +26,11 @@ class Logger(tk.LabelFrame):
     _trn = None
     _config = None
 
-    # log parameters
+    # gui elements
     _log = None
+    _menu = None
+
+    # log parameters
     _log_levels = {
                    'ERROR': 1,
                    'WARN': 2,
@@ -139,6 +142,36 @@ class Logger(tk.LabelFrame):
         self._log.pack(expand=True, fill=tk.BOTH)
         self._log.tag_config('error', foreground='#FF0000')
         self._log.focus_set()
+        self._set_menu()
+
+    def _set_menu(self):
+        """Method sets menu
+
+        Args:
+            none
+
+        Returns:
+            void
+
+        """
+
+        self._menu = tk.Menu(self._log, tearoff=False)
+        self._menu.add_command(label=self.trn.msg('htk_gui_log_menu_clear'), command=self._clear)
+
+        self._log.bind('<Button-3>', self._context_menu)
+
+    def _context_menu(self, event=None):
+        """Method sets context menu
+
+        Args:
+            event (obj): event
+
+        Returns:
+            void
+
+        """
+
+        self._menu.post(event.x_root, event.y_root)
 
     def _write_msg(self, msg, level=3):
         """Method writes to log (GUI and file)
@@ -156,7 +189,7 @@ class Logger(tk.LabelFrame):
             level = list(self._log_levels.keys())[list(self._log_levels.values()).index(level)]
             msg = self._msg_format.format(timestamp=datetime.now().strftime('%Y-%m-%d %H:%M:%S'), level=level, message=msg)
             self._log.configure(state=tk.NORMAL)
-            self._log.insert(tk.END, msg + '\n')
+            self._log.insert(tk.INSERT, msg + '\n')
             
             if (level in ['ERROR', 'WARN']):
                 idx = self._log.index(tk.INSERT)
@@ -219,3 +252,18 @@ class Logger(tk.LabelFrame):
         """
 
         self._write_msg(msg, 1)
+
+    def _clear(self, event=None):
+        """Method clears log
+
+        Args:
+            event (obj): event
+
+        Returns:
+            void
+
+        """
+
+        self._log.configure(state=tk.NORMAL)
+        self._log.delete('1.0', 'end')
+        self._log.configure(state=tk.DISABLED)

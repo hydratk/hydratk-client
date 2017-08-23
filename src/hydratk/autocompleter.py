@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
-"""Code automatic completion
+"""Automatic code completion
 
 .. module:: autocompleter
    :platform: Windows
-   :synopsis: Code automatic completion
+   :synopsis: Automatic code completion
 .. moduleauthor:: Petr Rašek <bowman@hydratk.org>
 
 """
@@ -132,7 +132,7 @@ class AutoCompleter(object):
         """
         
         self._win = tk.Toplevel(self.root)
-        self._win.title('Autocomplete')
+        self._win.title('')
         self._win.geometry('+%d+%d' % (self.root.winfo_screenwidth() / 3, self.root.winfo_screenheight() / 3))
         self._win.tk.call('wm', 'iconphoto', self._win._w, self.root.images['logo'])
 

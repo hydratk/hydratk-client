@@ -259,6 +259,23 @@ class YodaTree(tk.LabelFrame):
         self._populate_tree('', content)
         self._current_test = path
 
+    def get_test(self, path):
+        """Method gets test
+
+        Args:
+            path (str): file path
+
+        Returns:
+            dict
+
+        """
+
+        test = None
+        if (path in self._tests):
+            test = self._tests[path]
+
+        return test
+
     def delete_test(self, path):
         """Method deletes test
 
@@ -310,7 +327,8 @@ class YodaTree(tk.LabelFrame):
         if (parent == ''):
             self.clear_tree()
 
-        for key in sorted(content.keys()):
+        keys = sorted(content.keys(), key=lambda k: int(k.split('-')[-1]) if ('TEST-' in k.upper()) else 0)
+        for key in keys:
             display = self._display_item(key)
             if (display[0]):
                 value = content[key]

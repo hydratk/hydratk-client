@@ -73,6 +73,7 @@ test_content = '''Test-Scenario-1:
 
       Validate: |
         # validation code
+        assert True
 '''
 
 archive_content = '''# {name} '''
@@ -103,6 +104,7 @@ draft_content = '''Test-Scenario-1:
 
       Validate: |
         # validation code
+        assert True
 '''
 
 condition = '''    Test-Condition-{tco_id}:
@@ -115,6 +117,7 @@ condition = '''    Test-Condition-{tco_id}:
 
       Validate: |
         # validation code
+        assert True
 '''
 
 case = '''  Test-Case-{tca_id}:
@@ -146,6 +149,7 @@ postreq = '''  Post-Req: |
 events = '''{indent}Events:
 {indent}  before_start: |
 {indent}    # before code
+
 {indent}  after_finish: |
 {indent}    # after code
 '''

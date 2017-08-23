@@ -30,6 +30,9 @@ msg = {
     'htk_core_directory_deleted' : "Adresář {0} smazán",
     'htk_core_copied' : "{0} zkopírováno do {1}",
     'htk_core_invalid_yaml' : "Soubor {0} má nevalidní YAML obsah",
+    'htk_core_syntax_check_start' : "Kontroluji syntaxi {0}",
+    'htk_core_syntax_check_success' : "Kontrola syntaxe byla úspěšná",
+    'htk_core_syntax_check_error' : "Při kontrole syntaxe se vyskytla chyba: {0}",
 
     'htk_gui_menu_file' : "Soubor",
     'htk_gui_menu_file_new' : "Nový",
@@ -56,6 +59,8 @@ msg = {
     'htk_gui_menu_edit_goto' : "Přejít",
     'htk_gui_menu_edit_find' : "Najít",
     'htk_gui_menu_edit_replace' : "Nahradit",
+    'htk_gui_menu_source' : "Zdroj",
+    'htk_gui_menu_source_syntax_check' : "Kontrola syntaxe",
     'htk_gui_menu_view' : "Zobrazení",
     'htk_gui_menu_view_show_line_number' : "Čísla řádků",
     'htk_gui_menu_view_show_info_bar' : "Informační řádek",
@@ -124,6 +129,7 @@ msg = {
     'htk_gui_yoda_tree_menu_add_events' : "Přidat události",
 
     'htk_gui_log_label' : "Log",
+    'htk_gui_log_menu_clear' : "Vyčistit",
 
     'htk_gui_help_about_title' : "O aplikaci HydraTK client"
 }

@@ -22,6 +22,7 @@ from hydratk.yoda_tree import YodaTree
 from hydratk.colorizer import Colorizer
 from hydratk.formatter import Formatter
 from hydratk.autocompleter import AutoCompleter
+from hydratk.syntaxchecker import SyntaxChecker
 from hydratk.help import Help
 
 class Gui(tix.Tk):
@@ -41,6 +42,7 @@ class Gui(tix.Tk):
     _colorizer = None
     _formatter = None
     _autocompleter = None
+    _syntaxchecker = None
     _help = None
 
     # frames
@@ -53,8 +55,9 @@ class Gui(tix.Tk):
     _menu = None
     _menu_file = None
     _menu_file_new = None
-    _menu_view = None
     _menu_edit = None
+    _menu_source = None
+    _menu_view = None
     _menu_help = None
 
     # toolbar
@@ -150,10 +153,16 @@ class Gui(tix.Tk):
         return self._formatter
     
     @property
-    def autocomplete(self):
-        """ autocomplete property getter """
+    def autocompleter(self):
+        """ autocompleter property getter """
 
-        return self._autocomplete   
+        return self._autocompleter
+
+    @property
+    def syntaxchecker(self):
+        """ syntaxchecker property getter """
+
+        return self._syntaxchecker
 
     @property
     def help(self):
@@ -202,6 +211,12 @@ class Gui(tix.Tk):
         """ menu_edit property getter """
 
         return self._menu_edit
+
+    @property
+    def menu_source(self):
+        """ menu_source property getter """
+
+        return self._menu_source
 
     @property
     def menu_view(self):
@@ -272,6 +287,7 @@ class Gui(tix.Tk):
 
         self._set_menu_file()
         self._set_menu_edit()
+        self._set_menu_source()
         self._set_menu_view()
         self._set_menu_help()
 
@@ -331,11 +347,13 @@ class Gui(tix.Tk):
         # menu items
         self._menu_edit.add_command(label=self.trn.msg('htk_gui_menu_edit_undo'), accelerator='Ctrl+Z', command=self.editor.undo, state=tk.DISABLED)
         self._menu_edit.add_command(label=self.trn.msg('htk_gui_menu_edit_redo'), accelerator='Ctrl+Y', command=self.editor.redo, state=tk.DISABLED)
+        self._menu_edit.add_separator()
         self._menu_edit.add_command(label=self.trn.msg('htk_gui_menu_edit_cut'), accelerator='Ctrl+X', command=self.editor.cut, state=tk.DISABLED)
         self._menu_edit.add_command(label=self.trn.msg('htk_gui_menu_edit_copy'), accelerator='Ctrl+C', command=self.editor.copy, state=tk.DISABLED)
         self._menu_edit.add_command(label=self.trn.msg('htk_gui_menu_edit_paste'), accelerator='Ctrl+V', command=self.editor.paste, state=tk.DISABLED)
         self._menu_edit.add_command(label=self.trn.msg('htk_gui_menu_edit_delete'), accelerator='Delete', command=self.editor.delete, state=tk.DISABLED)
         self._menu_edit.add_command(label=self.trn.msg('htk_gui_menu_edit_select_all'), accelerator='Ctrl+A', command=self.editor.select_all, state=tk.DISABLED)
+        self._menu_edit.add_separator()
         self._menu_edit.add_command(label=self.trn.msg('htk_gui_menu_edit_goto'), accelerator='Ctrl+G', command=self.editor.win_goto, state=tk.DISABLED)
         self._menu_edit.add_command(label=self.trn.msg('htk_gui_menu_edit_find'), accelerator='Ctrl+F', command=self.editor.win_find, state=tk.DISABLED)
         self._menu_edit.add_command(label=self.trn.msg('htk_gui_menu_edit_replace'), accelerator='Ctrl+R', command=self.editor.win_replace, state=tk.DISABLED)
@@ -345,6 +363,23 @@ class Gui(tix.Tk):
         self.bind('<Control-g>', self.editor.win_goto)
         self.bind('<Control-f>', self.editor.win_find)
         self.bind('<Control-r>', self.editor.win_replace)
+
+    def _set_menu_source(self):
+        """Method sets source menu
+
+        Args:
+            none
+
+        Returns:
+            void
+
+        """
+
+        self._menu_source = tk.Menu(self._menu, tearoff=False)
+        self._menu.add_cascade(label=self.trn.msg('htk_gui_menu_source'), menu=self._menu_source)
+
+        # menu items
+        self._menu_source.add_command(label=self.trn.msg('htk_gui_menu_source_syntax_check'), command=self.editor.syntax_check, state=tk.DISABLED)
 
     def _set_menu_view(self):
         """Method sets view menu
@@ -363,6 +398,7 @@ class Gui(tix.Tk):
         # menu items
         self._menu_view.add_checkbutton(label=self.trn.msg('htk_gui_menu_view_show_line_number'), variable=self.editor.var_show_line_number, command=self.editor.show_line_number)
         self._menu_view.add_checkbutton(label=self.trn.msg('htk_gui_menu_view_show_info_bar'), variable=self.editor.var_show_info_bar, command=self.editor.show_info_bar)
+        self._menu_view.add_separator()
         self._menu_view.add_command(label=self.trn.msg('htk_gui_menu_view_increase_font'), accelerator='Ctrl+MouseUp', command=self.editor.increase_font, state=tk.DISABLED)
         self._menu_view.add_command(label=self.trn.msg('htk_gui_menu_view_decrease_font'), accelerator='Ctrl+MouseDown', command=self.editor.decrease_font, state=tk.DISABLED)
 
@@ -504,6 +540,7 @@ class Gui(tix.Tk):
         self.colorizer = Colorizer.get_instance(self)
         self.formatter = Formatter.get_instance(self)
         self.autocompleter = AutoCompleter.get_instance(self)
+        self.syntaxchecker = SyntaxChecker.get_instance(self)
         self._pane_right.add(self.editor)
 
     def _set_logger(self):
