@@ -63,7 +63,7 @@ if (not os.path.exists(var_dir)):
 
 st_setup(
     name='hydratk-client',
-    version='0.1.0.dev0',
+    version='0.1.0.dev1',
     description='GUI client for HydraTK',
     long_description=readme,
     author='Petr Rašek, HydraTK team',
