@@ -2,13 +2,13 @@
 """Main HydraTK client module
 
 .. module:: client
-   :platform: Windows
+   :platform: Windows, Unix
    :synopsis: Main HydraTK client module
 .. moduleauthor:: Petr Rašek <bowman@hydratk.org>
 
 """
 
-from hydratk.gui import Gui
+from hydratk.extensions.client.core.gui import Gui
 
 def main():
     """Main method

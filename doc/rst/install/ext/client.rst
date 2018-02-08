@@ -105,7 +105,7 @@ Application installs following (paths depend on your OS configuration)
 * htkclient command in /usr/local/bin/htkclient (htkclient.exe in Windows)
 * modules in /usr/local/lib/python2.7/dist-packages/hydratk-client-0.1.0-py2.7.egg
 * configuration file in /etc/hydratk/hydratk-client.conf
-* log direcctory in /var/local/hydratk/client/log   
+* log directory in /var/local/hydratk/client/log   
      
 Run
 ^^^

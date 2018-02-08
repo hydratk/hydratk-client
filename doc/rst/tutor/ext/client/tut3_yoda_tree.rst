@@ -40,7 +40,7 @@ Available actions are offered in context menu (right click on requested tag).
 
   .. image:: fig/yoda_tree_04_add_events.png
   
-Use menu item Source/Syntax check to check test content.
+Use menu item Plugin/Syntax check to check test content.
 Found errors are written to log.
 
   .. image:: fig/yoda_tree_05_syntax_check_ok.png

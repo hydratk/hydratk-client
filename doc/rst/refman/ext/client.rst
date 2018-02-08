@@ -5,122 +5,134 @@ Client
 
 This section contains source code documentation of Client extension.
    
-.. _refman_ext_client_autocompleter:
+core
+^^^^   
+   
+.. _refman_ext_client_core_autocompleter:
 
-autocompleter
-^^^^^^^^^^^^^
+* autocompleter
 
-.. automodule:: hydratk.autocompleter
+.. automodule:: hydratk.extensions.client.core.autocompleter
    :member-order: bysource   
    
-.. _refman_ext_client_config:   
+.. _refman_ext_client_core_colorizer:   
    
-config
-^^^^^^
+* colorizer
 
-.. automodule:: hydratk.config
+.. automodule:: hydratk.extensions.client.core.colorizer
+   :member-order: bysource      
+   
+.. _refman_ext_client_core_config:   
+   
+* config
+
+.. automodule:: hydratk.extensions.client.core.config
    :member-order: bysource   
    
-.. _refman_ext_client_editor:   
+.. _refman_ext_client_core_editor:   
    
-editor
-^^^^^^
+* editor
 
-.. automodule:: hydratk.editor
+.. automodule:: hydratk.extensions.client.core.editor
    :member-order: bysource   
    
-.. _refman_ext_client_explorer:   
+.. _refman_ext_client_core_explorer:   
    
-explorer
-^^^^^^^^
+* explorer
 
-.. automodule:: hydratk.explorer
+.. automodule:: hydratk.extensions.client.core.explorer
    :member-order: bysource   
    
-.. _refman_ext_client_filetab:   
+.. _refman_ext_client_core_filetab:   
    
-filetab
-^^^^^^^
+* filetab
 
-.. automodule:: hydratk.filetab
+.. automodule:: hydratk.extensions.client.core.filetab
    :member-order: bysource   
    
-.. _refman_ext_client_formatter:   
+.. _refman_ext_client_core_formatter:   
    
-formatter
-^^^^^^^^^
+* formatter
 
-.. automodule:: hydratk.formatter
+.. automodule:: hydratk.extensions.client.core.formatter
    :member-order: bysource   
    
-.. _refman_ext_client_gui:   
+.. _refman_ext_client_core_gui:   
    
-gui
-^^^
+* gui
 
-.. automodule:: hydratk.gui
+.. automodule:: hydratk.extensions.client.core.gui
    :member-order: bysource   
    
-.. _refman_ext_client_help:   
+.. _refman_ext_client_core_help:   
    
-help
-^^^^
+* help
 
-.. automodule:: hydratk.help
+.. automodule:: hydratk.extensions.client.core.help
    :member-order: bysource   
    
-.. _refman_ext_client_logger:   
+.. _refman_ext_client_core_logger:   
    
-logger
-^^^^^^
+* logger
 
-.. automodule:: hydratk.logger
+.. automodule:: hydratk.extensions.client.core.logger
    :member-order: bysource   
    
-.. _refman_ext_client_notebook:   
+.. _refman_ext_client_core_notebook:   
    
-notebook
-^^^^^^^^
+* notebook
 
-.. automodule:: hydratk.notebook
+.. automodule:: hydratk.extensions.client.core.notebook
    :member-order: bysource     
    
-.. _refman_ext_client_syntaxchecker:   
+.. _refman_ext_client_core_plugin:   
    
-syntaxchecker
-^^^^^^^^^^^^^
+* plugin
 
-.. automodule:: hydratk.syntaxchecker
+.. automodule:: hydratk.extensions.client.core.plugin
+   :member-order: bysource   
+   
+.. _refman_ext_client_core_pluginmanager:   
+   
+* pluginmanager
+
+.. automodule:: hydratk.extensions.client.core.pluginmanager
+   :member-order: bysource        
+   
+.. _refman_ext_client_core_tooltip:   
+   
+* tooltip
+
+.. automodule:: hydratk.extensions.client.core.tooltip
    :member-order: bysource    
    
-.. _refman_ext_client_tooltip:   
+.. _refman_ext_client_core_translator:   
    
-tooltip
+* translator
+
+.. automodule:: hydratk.extensions.client.core.translator
+   :member-order: bysource    
+   
+.. _refman_ext_client_core_utils:   
+   
+* utils
+
+.. automodule:: hydratk.extensions.client.core.utils
+   :member-order: bysource    
+   
+.. _refman_ext_client_core_yoda_tree:   
+   
+* yoda_tree
+
+.. automodule:: hydratk.extensions.client.core.yoda_tree
+   :member-order: bysource       
+   
+plugins
 ^^^^^^^
 
-.. automodule:: hydratk.tooltip
-   :member-order: bysource    
+.. _refman_ext_client_plugins_syntaxchecker:   
    
-.. _refman_ext_client_translator:   
-   
-translator
-^^^^^^^^^^
+* syntaxchecker
 
-.. automodule:: hydratk.translator
-   :member-order: bysource    
-   
-.. _refman_ext_client_utils:   
-   
-utils
-^^^^^
-
-.. automodule:: hydratk.utils
-   :member-order: bysource    
-   
-.. _refman_ext_client_yoda_tree:   
-   
-yoda_tree
-^^^^^^^^^
-
-.. automodule:: hydratk.yoda_tree
+.. automodule:: hydratk.extensions.client.plugins.syntaxchecker.syntaxchecker
    :member-order: bysource                                            

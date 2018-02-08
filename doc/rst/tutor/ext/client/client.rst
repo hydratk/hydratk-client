@@ -11,3 +11,4 @@ GUI client for HydraTK.
    tut1_explorer
    tut2_editor
    tut3_yoda_tree
+   tut4_plugins
