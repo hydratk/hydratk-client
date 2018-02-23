@@ -8,7 +8,7 @@
 
 """
 
-from hydratk.extensions.client.core.tkimport import tk, ttk
+from hydratk.extensions.client.core.tkimport import tk
 
 class PluginManager(object):
     """Class PluginManager
@@ -101,7 +101,7 @@ class PluginManager(object):
         win.title(self.trn.msg('htk_gui_plugin_manager_title'))
         win.transient(self.root)
         win.resizable(False, False)
-        win.geometry('+%d+%d' % (self.root.winfo_screenwidth() / 2, self.root.winfo_screenheight() / 2))
+        win.geometry('+%d+%d' % (self.root.winfo_screenwidth() / 3, self.root.winfo_screenheight() / 3))
         win.tk.call('wm', 'iconphoto', win._w, self.root.images['logo'])
         win.focus_set()
 

@@ -122,10 +122,11 @@ class Logger(tk.LabelFrame):
 
         """
 
-        self._level = self._log_levels[self.config.data['Logger']['level']]
-        self._msg_format = self.config.data['Logger']['format']
+        cfg = self.config.data['Core']['logger']
+        self._level = self._log_levels[cfg['level']]
+        self._msg_format = cfg['format']
 
-        self._logdir = path.join(prefix, 'var/local/hydratk/client/log') if (self.config.data['Logger']['logdir'] == 'default') else self.config.data['Logger']['logdir']
+        self._logdir = path.join(prefix, 'var/local/hydratk/client/log') if (cfg['logdir'] == 'default') else cfg['logdir']
         self._logfile = open(fix_path(path.join(self._logdir, datetime.now().strftime('%Y%m%d') + '.log')), 'a')
 
     def _set_gui(self):

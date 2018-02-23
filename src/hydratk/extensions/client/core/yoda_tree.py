@@ -133,11 +133,11 @@ class YodaTree(tk.LabelFrame):
         """
 
         tags = []
-        for key in self.config.data['Core']['yoda']['hidden_tags'].split(','):
+        for key in self.config.data['Core']['yodatree']['hidden_tags'].split(','):
             tags.append(key.upper())
         self._hidden_tags = tags
 
-        self._indent = self._config.data['Core']['format']['indent_yoda']
+        self._indent = self._config.data['Core']['editor']['format']['indent_yoda']
 
     def _set_gui(self):
         """Method sets graphical interface

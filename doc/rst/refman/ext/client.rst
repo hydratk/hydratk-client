@@ -135,4 +135,11 @@ plugins
 * syntaxchecker
 
 .. automodule:: hydratk.extensions.client.plugins.syntaxchecker.syntaxchecker
-   :member-order: bysource                                            
+   :member-order: bysource
+   
+.. _refman_ext_client_plugins_gitclient:   
+   
+* gitclient
+
+.. automodule:: hydratk.extensions.client.plugins.gitclient.gitclient
+   :member-order: bysource                                                   

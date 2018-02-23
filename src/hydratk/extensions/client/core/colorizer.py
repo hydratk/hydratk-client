@@ -88,9 +88,10 @@ class Colorizer(object):
 
         """
 
-        self._patterns['keyword'] = {'color' : self.config.data['Core']['color']['keyword']}
-        self._patterns['string'] = {'color' : self.config.data['Core']['color']['string']}
-        self._patterns['yoda'] = {'color' : self.config.data['Core']['color']['yoda']}
+        cfg = self.config.data['Core']['editor']['color']
+        self._patterns['keyword'] = {'color' : cfg['keyword']}
+        self._patterns['string'] = {'color' : cfg['string']}
+        self._patterns['yoda'] = {'color' : cfg['yoda']}
 
     def _make_patterns(self):
         """Method makes patterns for colorized strings

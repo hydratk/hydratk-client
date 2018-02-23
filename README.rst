@@ -6,9 +6,10 @@ README for HydraTK GUI client
 | Features:
 
 * Project explorer
-* Editor for Python and Jedi files - syntax highlighting, text formatting, code autocomplete, syntax check
+* Editor for Python and Jedi files - syntax highlighting, text formatting, code autocomplete
 * Jedi test files design
 * Multi-language support
+* Plugins: SyntaxChecker, GitClient
 
 OS and Python versions support
 ==============================

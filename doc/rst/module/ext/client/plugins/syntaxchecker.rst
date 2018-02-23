@@ -12,9 +12,6 @@ Class for SyntaxChecker.
 
 **Attributes** :
 
-* _instance - instance reference
-* _instance_created - bool, True if created
-
 **Methods** :
 
 * _init_plugin

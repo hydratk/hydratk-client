@@ -57,10 +57,13 @@ These modules will be installed automatically, if not installed yet (for Python 
   .. note::
   
      Tkinter (GUI framework) must be installed. It is already packed with Python distributions for Windows.
-     Some Linux distributions don't have it packed. In that case follow instructions for your OS. 
+     Some Linux distributions don't have it packed. In that case follow instructions for your OS.
+     Plugin GitClient requires git executable which is not installed automatically.
+     See https://git-scm.com/download/win for Windows or Linux repositories.  
 
 * pyyaml
-* jedi  
+* jedi
+* GitPython  
      
 Installation
 ^^^^^^^^^^^^

@@ -34,6 +34,7 @@ class Explorer(tk.LabelFrame):
 
     # project parameters
     _projects = None
+    _show_hidden = None
     
     # gui elements
     _tree = None
@@ -153,6 +154,7 @@ class Explorer(tk.LabelFrame):
         """
 
         self._projects = self.config.data['Projects'] if ('Projects' in self.config.data and self.config.data['Projects'] != None) else {}
+        self._show_hidden = self.config.data['Core']['explorer']['show_hidden']
 
         for name, cfg in self._projects.items():
             self._populate_project(name, cfg)
@@ -313,13 +315,14 @@ class Explorer(tk.LabelFrame):
                     ptype = 'file'
 
                 fname = os.path.split(p)[1]
-                id = self._tree.insert(node, 'end', text=fname, values=(fix_path(p), ptype))
+                if (self._show_hidden or fname[0] != '.'):
+                    id = self._tree.insert(node, 'end', text=fname, values=(fix_path(p), ptype))
 
-                if (ptype == 'directory'):
-                    self._tree.insert(id, 'end')
-                    self._tree.item(id, text=fname)
-                elif (ptype == 'file'):
-                    self._tree.set(id)
+                    if (ptype == 'directory'):
+                        self._tree.insert(id, 'end')
+                        self._tree.item(id, text=fname)
+                    elif (ptype == 'file'):
+                        self._tree.set(id)
         else:
             self.refresh(path)
 

@@ -19,9 +19,6 @@ class Plugin(plugin.Plugin):
     """Class Plugin
     """
 
-    _instance = None
-    _instance_created = False
-
     def _init_plugin(self):
         """Method initializes plugin
 
@@ -50,7 +47,7 @@ class Plugin(plugin.Plugin):
 
         """
 
-        self._set_menu_item('plugin', self.trn.msg('htk_syntaxchecker_menu'), self._check_syntax)
+        self._set_menu_item('plugin', 'htk_syntaxchecker_menu', self._check_syntax)
 
     def _check_syntax(self, event=None):
         """Method checks syntax

@@ -83,9 +83,10 @@ class Formatter(object):
 
         """
 
-        self._patterns['python_inc'] = {'indent' : self.config.data['Core']['format']['indent_python']}
-        self._patterns['python_dec'] = {'indent' :-self.config.data['Core']['format']['indent_python']}
-        self._patterns['yoda'] = {'indent' : self.config.data['Core']['format']['indent_yoda']}
+        cfg = self.config.data['Core']['editor']['format']
+        self._patterns['python_inc'] = {'indent' : cfg['indent_python']}
+        self._patterns['python_dec'] = {'indent' :-cfg['indent_python']}
+        self._patterns['yoda'] = {'indent' : cfg['indent_yoda']}
 
     def _make_patterns(self):
         """Method makes patterns for text formatting

@@ -161,13 +161,14 @@ class Editor(tk.LabelFrame):
 
         """
 
-        self._var_show_line_number = tk.BooleanVar(value=True) if (self.config.data['Core']['show_line_number'] == 1) else tk.BooleanVar(value=False)
-        self._var_show_info_bar = tk.BooleanVar(value=True) if (self.config.data['Core']['show_info_bar'] == 1) else tk.BooleanVar(value=False)
+        cfg = self.config.data['Core']['editor']
+        self._var_show_line_number = tk.BooleanVar(value=True) if (cfg['view']['show_line_number'] == 1) else tk.BooleanVar(value=False)
+        self._var_show_info_bar = tk.BooleanVar(value=True) if (cfg['view']['show_info_bar'] == 1) else tk.BooleanVar(value=False)
 
         self._font = {
-                      'family' : self.config.data['Core']['font']['family'],
-                      'size'   : self.config.data['Core']['font']['size'],
-                      'style'  : self.config.data['Core']['font']['style']
+                      'family' : cfg['font']['family'],
+                      'size'   : cfg['font']['size'],
+                      'style'  : cfg['font']['style']
                      }
 
     def _set_gui(self):
@@ -451,8 +452,7 @@ class Editor(tk.LabelFrame):
         for tab in self.nb.tab_refs:
             tab.update_line_numbers()
 
-        self.config.data['Core']['show_line_number'] = 1 if (self._var_show_line_number.get()) else 0
-        self.config.save()
+        self.config.data['Core']['editor']['view']['show_line_number'] = 1 if (self._var_show_line_number.get()) else 0
 
     def show_info_bar(self, event=None):
         """Method enables/disables showing of info bar
@@ -468,8 +468,7 @@ class Editor(tk.LabelFrame):
         for tab in self.nb.tab_refs:
             tab.update_info_bar()
 
-        self.config.data['Core']['show_info_bar'] = 1 if (self._var_show_info_bar.get()) else 0
-        self.config.save()
+        self.config.data['Core']['editor']['view']['show_info_bar'] = 1 if (self._var_show_info_bar.get()) else 0
         
     def win_goto(self, event=None):
         """Method displays Goto window

@@ -43,7 +43,8 @@ packages = st_find_packages('src')
 
 requires = [
     'pyyaml>=3.11',
-    'jedi>=0.10.2'
+    'jedi>=0.10.2',
+    'GitPython>=2.1.8'
 ]
 
 entry_points = {
