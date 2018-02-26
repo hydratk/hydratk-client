@@ -127,7 +127,7 @@ All rights reserved."""
 
         """
 
-        open('http://hydratk.org/rst/tutor/client.html')
+        open('http://hydratk.org/rst/tutor/ext/client/client.html')
 
     def web_doc(self):
         """Method opens web documentation
@@ -140,4 +140,4 @@ All rights reserved."""
 
         """
 
-        open('http://hydratk.org/rst/modules/client.html')
+        open('http://hydratk.org/rst/module/ext/client/client.html')
