@@ -1,0 +1,264 @@
+Test-Scenario-1:
+  Id: ts_01
+  Path: hydratk/extensions/client/core/formatter/01_methods_ut.jedi
+  Name: ts_props
+  Desc: Test property methods
+  Author: Petr Rasek <bowman@hydratk.org>
+  Version: 0.1
+  
+  Pre-Req: |
+    from yodalib.hydratk.extensions.client.gui_client import GuiClient
+    from yodahelpers.hydratk.extensions.client.core.formatter import get_instance, get_property
+  
+  Test-Case-1:
+    Id: tc_01
+    Name: tc_getters
+    Desc: Getter methods
+    
+    Test-Condition-1: 
+      Id: tco_01
+      Name: tco_config
+      Desc: Getter config
+      
+      Test: |
+        c = GuiClient.get_instance()
+        code = "prop, attr = get_property(get_instance(), name, True)"
+        c.write_msg(code, [get_instance, get_property], input={'name': 'config'}, output=['prop', 'attr']) 
+      
+      Validate: |  
+        prop, attr = c.read_msg('prop', 'attr')
+        this.test_result = prop
+        assert (prop == attr), 'prop != {0}'.format(attr)
+        
+Test-Scenario-2:
+  Id: ts_02
+  Path: hydratk/extensions/client/core/formatter/01_methods_ut.jedi
+  Name: ts_make_patterns
+  Desc: Test _make_patterns methods
+  Author: Petr Rasek <bowman@hydratk.org>
+  Version: 0.1
+  
+  Pre-Req: |
+    from yodalib.hydratk.extensions.client.gui_client import GuiClient
+    from yodahelpers.hydratk.extensions.client.core.formatter import get_instance, get_attr
+  
+  Test-Case-1:
+    Id: tc_01
+    Name: tc_make_patterns
+    Desc: Make patterns
+    
+    Test-Condition-1: 
+      Id: tco_01
+      Name: tco_make
+      Desc: Make
+      
+      Test: |
+        c = GuiClient.get_instance()
+        code = "inst = get_instance(); inst._make_patterns(); attr = get_attr(inst, name)"
+        c.write_msg(code, [get_instance, get_attr], input={'name': '_patterns'}, output=['attr']) 
+      
+      Validate: |  
+        attr = sorted(c.read_msg('attr'))
+        this.test_result = str(attr)
+        exp = ['python_dec', 'python_inc', 'yoda']
+        assert (attr == exp), 'attr != {0}'.format(exp)
+        
+Test-Scenario-3:
+  Id: ts_03
+  Path: hydratk/extensions/client/core/formatter/01_methods_ut.jedi
+  Name: ts_amend_key
+  Desc: Test _amend_key method
+  Author: Petr Rasek <bowman@hydratk.org>
+  Version: 0.1
+  
+  Pre-Req: |
+    from yodalib.hydratk.extensions.client.gui_client import GuiClient
+    from yodahelpers.hydratk.extensions.client.core.editor import get_tab_cnt, close_tabs, get_tab_content
+    from yodahelpers.hydratk.extensions.client.core.formatter import amend_key
+  
+  Test-Case-1:
+    Id: tc_01
+    Name: tc_amend_key
+    Desc: Amend key
+        
+    Test-Condition-1: 
+      Id: tco_01
+      Name: tco_new_file
+      Desc: New file
+      
+      Test: |
+        c = GuiClient.get_instance()
+        code = "self.root.editor.new_file(); cnt = get_tab_cnt()"        
+        c.write_msg(code, [get_tab_cnt], output=['cnt'])
+        
+      Validate: |
+        cnt = c.read_msg('cnt')
+        this.test_result = cnt
+        assert (cnt == 1), 'tab not added'              
+    
+    Test-Condition-2: 
+      Id: tco_02
+      Name: tco_amend
+      Desc: Amend
+      
+      Test: |
+        code = "amend_key(key); cont = get_tab_content()"
+        c.write_msg(code, [amend_key, get_tab_content], input={'key': '['}, output=['cont'])
+        
+      Validate: |
+        cont = c.read_msg('cont')
+        this.test_result = cont                  
+        assert (cont == ']'), 'cont != ]'                                    
+        
+    Test-Condition-3: 
+      Id: tco_03
+      Name: tco_close
+      Desc: Close tabs 
+      
+      Test: |
+        code = "close_tabs(); cnt = get_tab_cnt()"
+        c.write_msg(code, [close_tabs, get_tab_cnt], output=['cnt'])
+      
+      Validate: |                                                                                                         
+        cnt = c.read_msg('cnt')
+        this.test_result = cnt
+        assert (cnt == 0), 'tab not closed'
+        
+Test-Scenario-4:
+  Id: ts_04
+  Path: hydratk/extensions/client/core/formatter/01_methods_ut.jedi
+  Name: ts_indent
+  Desc: Test _indent method
+  Author: Petr Rasek <bowman@hydratk.org>
+  Version: 0.1
+  
+  Pre-Req: |
+    from yodalib.hydratk.extensions.client.gui_client import GuiClient
+    from yodahelpers.hydratk.extensions.client.core.editor import get_tab_cnt, close_tabs, get_tab_content
+    from yodahelpers.hydratk.extensions.client.core.formatter import indent
+  
+  Test-Case-1:
+    Id: tc_01
+    Name: tc_indent
+    Desc: Indent
+        
+    Test-Condition-1: 
+      Id: tco_01
+      Name: tco_new_file
+      Desc: New file
+      
+      Test: |
+        c = GuiClient.get_instance()
+        code = "self.root.editor.new_file(); cnt = get_tab_cnt()"        
+        c.write_msg(code, [get_tab_cnt], output=['cnt'])
+        
+      Validate: |
+        cnt = c.read_msg('cnt')
+        this.test_result = cnt
+        assert (cnt == 1), 'tab not added'              
+    
+    Test-Condition-2: 
+      Id: tco_02
+      Name: tco_python
+      Desc: Python code
+      
+      Test: |
+        code = "indent(text); cont = get_tab_content()"
+        text = "def xxx():\n"
+        c.write_msg(code, [indent, get_tab_content], input={'text': text}, output=['cont'])
+        
+      Validate: |
+        cont = c.read_msg('cont')
+        this.test_result = cont 
+        exp = text + ' '*4                 
+        assert (cont == exp), 'Indent not performed'
+        
+    Test-Condition-3: 
+      Id: tco_03
+      Name: tco_python_2
+      Desc: Python code with 2nd indent
+      
+      Test: |
+        code = "self.root.editor.select_all(); self.root.editor.delete(); indent(text); cont = get_tab_content()"
+        text = "def xxx():\n    if (True):\n"
+        c.write_msg(code, [indent, get_tab_content], input={'text': text}, output=['cont'])
+        
+      Validate: |
+        cont = c.read_msg('cont')
+        this.test_result = cont 
+        exp = text + ' '*8                 
+        assert (cont == exp), 'Indent not performed'
+        
+    Test-Condition-4: 
+      Id: tco_04
+      Name: tco_yoda_scenario
+      Desc: Yoda scenario
+      
+      Test: |
+        text = "Test-Scenario-1:\n"
+        c.write_msg(code, [indent, get_tab_content], input={'text': text}, output=['cont'])
+        
+      Validate: |
+        cont = c.read_msg('cont')
+        this.test_result = cont 
+        exp = text + ' '*2                 
+        assert (cont == exp), 'Indent not performed'
+        
+    Test-Condition-5: 
+      Id: tco_05
+      Name: tco_yoda_case
+      Desc: Yoda case
+      
+      Test: |
+        text += "  Test-Case-1:\n"
+        c.write_msg(code, [indent, get_tab_content], input={'text': text}, output=['cont'])
+        
+      Validate: |
+        cont = c.read_msg('cont')
+        this.test_result = cont 
+        exp = text + ' '*4                 
+        assert (cont == exp), 'Indent not performed'
+        
+    Test-Condition-6: 
+      Id: tco_06
+      Name: tco_yoda_condition
+      Desc: Yoda condition
+      
+      Test: |
+        text += "    Test-Condition-1:\n"
+        c.write_msg(code, [indent, get_tab_content], input={'text': text}, output=['cont'])
+        
+      Validate: |
+        cont = c.read_msg('cont')
+        this.test_result = cont 
+        exp = text + ' '*6                 
+        assert (cont == exp), 'Indent not performed'
+        
+    Test-Condition-7: 
+      Id: tco_07
+      Name: tco_yoda_validate
+      Desc: Yoda validate
+      
+      Test: |
+        text += "      Validate: |\n"
+        c.write_msg(code, [indent, get_tab_content], input={'text': text}, output=['cont'])
+        
+      Validate: |
+        cont = c.read_msg('cont')
+        this.test_result = cont 
+        exp = text + ' '*8                 
+        assert (cont == exp), 'Indent not performed'                                                                               
+        
+    Test-Condition-8: 
+      Id: tco_08
+      Name: tco_close
+      Desc: Close tabs 
+      
+      Test: |
+        code = "close_tabs(); cnt = get_tab_cnt()"
+        c.write_msg(code, [close_tabs, get_tab_cnt], output=['cnt'])
+      
+      Validate: |                                                                                                         
+        cnt = c.read_msg('cnt')
+        this.test_result = cnt
+        assert (cnt == 0), 'tab not closed'                         

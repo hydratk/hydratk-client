@@ -1,0 +1,107 @@
+Test-Scenario-1:
+  Id: ts_01
+  Path: hydratk/extensions/client/core/pluginmanager/01_methods_ut.jedi
+  Name: ts_props
+  Desc: Test property methods
+  Author: Petr Rasek <bowman@hydratk.org>
+  Version: 0.1
+  
+  Pre-Req: |
+    from yodalib.hydratk.extensions.client.gui_client import GuiClient
+    from yodahelpers.hydratk.extensions.client.core.pluginmanager import get_property
+  
+  Test-Case-1:
+    Id: tc_01
+    Name: tc_getters
+    Desc: Getter methods
+    
+    Test-Condition-1: 
+      Id: tco_01
+      Name: tco_root
+      Desc: Getter root
+      
+      Test: |
+        c = GuiClient.get_instance()
+        code = "prop, attr = get_property(name, True)"
+        c.write_msg(code, [get_property], input={'name': 'root'}, output=['prop', 'attr']) 
+      
+      Validate: |  
+        prop, attr = c.read_msg('prop', 'attr')
+        this.test_result = prop
+        assert (prop == attr), 'prop != {0}'.format(attr)
+        
+    Test-Condition-2: 
+      Id: tco_02
+      Name: tco_trn
+      Desc: Getter trn
+      
+      Test: |
+        c.write_msg(code, [get_property], input={'name': 'trn'}, output=['prop', 'attr']) 
+      
+      Validate: |  
+        prop, attr = c.read_msg('prop', 'attr')
+        this.test_result = prop
+        assert (prop == attr), 'prop != {0}'.format(attr)
+        
+    Test-Condition-3: 
+      Id: tco_03
+      Name: tco_config
+      Desc: Getter config
+      
+      Test: |
+        c.write_msg(code, [get_property], input={'name': 'config'}, output=['prop', 'attr']) 
+      
+      Validate: |  
+        prop, attr = c.read_msg('prop', 'attr')
+        this.test_result = prop
+        assert (prop == attr), 'prop != {0}'.format(attr)
+        
+Test-Scenario-2:
+  Id: ts_02
+  Path: hydratk/extensions/client/core/pluginmanager/01_methods_ut.jedi
+  Name: ts_show_manager
+  Desc: Test show_manager method
+  Author: Petr Rasek <bowman@hydratk.org>
+  Version: 0.1
+  
+  Pre-Req: |
+    from yodalib.hydratk.extensions.client.gui_client import GuiClient
+    from yodahelpers.hydratk.extensions.client.core.pluginmanager import get_attr, handle_manager, click_menu
+  
+  Test-Case-1:
+    Id: tc_01
+    Name: tc_show_manager
+    Desc: Show manager
+    
+    Test-Condition-1: 
+      Id: tco_01
+      Name: tco_disable
+      Desc: Disable plugin
+      
+      Test: |
+        c = GuiClient.get_instance()
+        code = "self.root.pluginmanager.show_manager(); handle_manager(plugin, state); attr = get_attr(name).data['Plugins']"
+        plugin = 'GitClient'
+        c.write_msg(code, [handle_manager, get_attr], input={'plugin': plugin, 'state': False, 'name': 'config'}, output=['attr']) 
+      
+      Validate: |  
+        attr = c.read_msg('attr')
+        this.test_result = str(attr)
+        state = attr[plugin]['enabled']
+        assert (state == 0), 'plugin not disabled'
+        
+    Test-Condition-2: 
+      Id: tco_02
+      Name: tco_enable
+      Desc: Enable plugin
+      
+      Test: |
+        code = "click_menu(item); handle_manager(plugin, state); attr = get_attr(name).data['Plugins']"
+        c.write_msg(code, [click_menu, handle_manager, get_attr], input={'item': 'Plugin manager', 'plugin': plugin, 
+                                                                         'state': True, 'name': 'config'}, output=['attr']) 
+      
+      Validate: |  
+        attr = c.read_msg('attr')
+        this.test_result = str(attr)
+        state = attr[plugin]['enabled']
+        assert (state == 1), 'plugin not enabled'                          

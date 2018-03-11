@@ -1,0 +1,675 @@
+Test-Scenario-1:
+  Id: ts_01
+  Path: hydratk/extensions/client/core/yoda_tree/01_methods_ut.jedi
+  Name: ts_props
+  Desc: Test property methods
+  Author: Petr Rasek <bowman@hydratk.org>
+  Version: 0.1
+  
+  Pre-Req: |
+    from yodalib.hydratk.extensions.client.gui_client import GuiClient
+    from yodahelpers.hydratk.extensions.client.core.yoda_tree import get_property
+  
+  Test-Case-1:
+    Id: tc_01
+    Name: tc_getters
+    Desc: Getter methods
+    
+    Test-Condition-1: 
+      Id: tco_01
+      Name: tco_root
+      Desc: Getter root
+      
+      Test: |
+        c = GuiClient.get_instance()
+        code = "prop, attr = get_property(name, True)"
+        c.write_msg(code, [get_property], input={'name': 'root'}, output=['prop', 'attr']) 
+      
+      Validate: |  
+        prop, attr = c.read_msg('prop', 'attr')
+        this.test_result = prop
+        assert (prop == attr), 'prop != {0}'.format(attr)
+        
+    Test-Condition-2: 
+      Id: tco_02
+      Name: tco_trn
+      Desc: Getter trn
+      
+      Test: |
+        c.write_msg(code, [get_property], input={'name': 'trn'}, output=['prop', 'attr']) 
+      
+      Validate: |  
+        prop, attr = c.read_msg('prop', 'attr')
+        this.test_result = prop
+        assert (prop == attr), 'prop != {0}'.format(attr)
+        
+    Test-Condition-3: 
+      Id: tco_03
+      Name: tco_config
+      Desc: Getter config
+      
+      Test: |
+        c.write_msg(code, [get_property], input={'name': 'config'}, output=['prop', 'attr']) 
+      
+      Validate: |  
+        prop, attr = c.read_msg('prop', 'attr')
+        this.test_result = prop
+        assert (prop == attr), 'prop != {0}'.format(attr)
+        
+    Test-Condition-4: 
+      Id: tco_04
+      Name: tco_editor
+      Desc: Getter editor
+      
+      Test: |
+        c.write_msg(code, [get_property], input={'name': 'editor'}, output=['prop', 'attr']) 
+      
+      Validate: |  
+        prop, attr = c.read_msg('prop', 'attr')
+        this.test_result = prop
+        assert (prop == attr), 'prop != {0}'.format(attr)
+        
+    Test-Condition-5: 
+      Id: tco_05
+      Name: tco_logger
+      Desc: Getter logger
+      
+      Test: |
+        c.write_msg(code, [get_property], input={'name': 'logger'}, output=['prop', 'attr']) 
+      
+      Validate: |  
+        prop, attr = c.read_msg('prop', 'attr')
+        this.test_result = prop
+        assert (prop == attr), 'prop != {0}'.format(attr)
+        
+Test-Scenario-2:
+  Id: ts_02
+  Path: hydratk/extensions/client/core/yoda_tree/01_methods_ut.jedi
+  Name: ts_add_test
+  Desc: Test add_test method
+  Author: Petr Rasek <bowman@hydratk.org>
+  Version: 0.1
+  
+  Pre-Req: |
+    from yodalib.hydratk.extensions.client.gui_client import GuiClient
+    from yodahelpers.hydratk.extensions.client.core.yoda_tree import get_attr, select
+    from hydratk.extensions.client.core.template import test_content, draft_content
+    from yaml import safe_load
+  
+  Test-Case-1:
+    Id: tc_01
+    Name: tc_add_test
+    Desc: Add test
+    
+    Test-Condition-1: 
+      Id: tco_01
+      Name: tco_test
+      Desc: Add test
+      
+      Test: |
+        c = GuiClient.get_instance()                
+        code = "self.root.yoda_tree.add_test(path, content); attr = get_attr(name); sel = select(tree_path)"
+        path = 'test.jedi'
+        c.write_msg(code, [get_attr, select], input={'path': path, 'content': test_content, 
+                    'name': '_tests', 'tree_path': ['Test-Scenario-1']}, output=['attr', 'sel'])
+        
+      Validate: |
+        attr, sel = c.read_msg('attr', 'sel')
+        this.test_result = str(attr)
+        assert (attr[path]['content'] == safe_load(test_content)), 'content not parsed'
+        assert (sel), 'item not selected'
+        
+    Test-Condition-2: 
+      Id: tco_02
+      Name: tco_draft
+      Desc: Add draft
+      
+      Test: |
+        path = 'test.padawan'
+        c.write_msg(code, [get_attr, select], input={'path': path, 'content': draft_content, 
+                    'name': '_tests', 'tree_path': ['Test-Scenario-1']}, output=['attr', 'sel'])
+        
+      Validate: |
+        attr, sel = c.read_msg('attr', 'sel')
+        this.test_result = str(attr)
+        assert (attr[path]['content'] == safe_load(draft_content)), 'content not parsed'
+        assert (sel), 'item not selected'
+        
+    Test-Condition-3: 
+      Id: tco_03
+      Name: tco_other
+      Desc: Other content
+      
+      Test: |
+        path = 'test.txt'
+        code = "self.root.yoda_tree.add_test(path, content); attr = get_attr(name)"
+        c.write_msg(code, [get_attr], input={'path': path, 'content': 'xxx', 'name': '_tests'}, output=['attr'])
+        
+      Validate: |
+        attr = c.read_msg('attr')
+        this.test_result = str(attr)
+        assert (attr[path]['content'] == {}), 'content not empty'
+        
+Test-Scenario-3:
+  Id: ts_03
+  Path: hydratk/extensions/client/core/yoda_tree/01_methods_ut.jedi
+  Name: ts_get_test
+  Desc: Test get_test method
+  Author: Petr Rasek <bowman@hydratk.org>
+  Version: 0.1
+  
+  Pre-Req: |
+    from yodalib.hydratk.extensions.client.gui_client import GuiClient
+    from hydratk.extensions.client.core.template import test_content
+    from yaml import safe_load
+  
+  Test-Case-1:
+    Id: tc_01
+    Name: tc_get_test
+    Desc: Get test
+    
+    Test-Condition-1: 
+      Id: tco_01
+      Name: tco_get
+      Desc: Get
+      
+      Test: |
+        c = GuiClient.get_instance()                
+        code = "self.root.yoda_tree.add_test(path, content); test = self.root.yoda_tree.get_test(path)"
+        c.write_msg(code, input={'path': 'test.jedi', 'content': test_content}, output=['test'])
+        
+      Validate: |
+        test = c.read_msg('test')
+        this.test_result = str(test)
+        exp = {'content': safe_load(test_content)}
+        assert (test == exp), 'test != {0}'.format(exp)
+        
+    Test-Condition-2: 
+      Id: tco_02
+      Name: tco_unknown
+      Desc: Unknown test
+      
+      Test: |
+        c = GuiClient.get_instance()                
+        code = "test = self.root.yoda_tree.get_test(path)"
+        c.write_msg(code, input={'path': 'xxx'}, output=['test'])
+        
+      Validate: |
+        test = c.read_msg('test')
+        this.test_result = test
+        assert (test == None), 'test not empty'
+        
+Test-Scenario-4:
+  Id: ts_04
+  Path: hydratk/extensions/client/core/yoda_tree/01_methods_ut.jedi
+  Name: ts_delete_test
+  Desc: Test delete_test method
+  Author: Petr Rasek <bowman@hydratk.org>
+  Version: 0.1
+  
+  Pre-Req: |
+    from yodalib.hydratk.extensions.client.gui_client import GuiClient
+    from hydratk.extensions.client.core.template import test_content
+  
+  Test-Case-1:
+    Id: tc_01
+    Name: tc_delete_test
+    Desc: Delete test
+    
+    Test-Condition-1: 
+      Id: tco_01
+      Name: tco_add
+      Desc: Add test
+      
+      Test: |
+        c = GuiClient.get_instance()                
+        code = "self.root.yoda_tree.add_test(path, content); test = self.root.yoda_tree.get_test(path)"
+        c.write_msg(code, input={'path': 'test.jedi', 'content': test_content}, output=['test'])
+        
+      Validate: |
+        test = c.read_msg('test')
+        this.test_result = str(test)
+        assert (test != None), 'test not added'
+        
+    Test-Condition-2: 
+      Id: tco_02
+      Name: tco_delete
+      Desc: Delete test
+      
+      Test: |         
+        code = "self.root.yoda_tree.delete_test(path); test = self.root.yoda_tree.get_test(path)"
+        c.write_msg(code, input={'path': 'test.jedi'}, output=['test'])
+        
+      Validate: |
+        test = c.read_msg('test')
+        this.test_result = test
+        assert (test == None), 'test not deleted'
+        
+Test-Scenario-5:
+  Id: ts_05
+  Path: hydratk/extensions/client/core/yoda_tree/01_methods_ut.jedi
+  Name: ts_refresh
+  Desc: Test refresh method
+  Author: Petr Rasek <bowman@hydratk.org>
+  Version: 0.1
+  
+  Pre-Req: |
+    from yodalib.hydratk.extensions.client.gui_client import GuiClient
+    from yodahelpers.hydratk.extensions.client.core.yoda_tree import get_attr, select
+    from hydratk.extensions.client.core.template import test_content
+    from yaml import safe_load
+  
+  Test-Case-1:
+    Id: tc_01
+    Name: tc_refresh
+    Desc: Refresh tree
+    
+    Test-Condition-1: 
+      Id: tco_01
+      Name: tco_refresh
+      Desc: Refresh
+      
+      Test: |
+        c = GuiClient.get_instance()                
+        code = "self.root.yoda_tree.refresh(path, content); attr = get_attr(name); sel = select(tree_path)"
+        path = 'test.jedi'
+        c.write_msg(code, [get_attr, select], input={'path': path, 'content': test_content, 
+                    'name': '_tests', 'tree_path': ['Test-Scenario-1']}, output=['attr', 'sel'])
+        
+      Validate: |
+        attr, sel = c.read_msg('attr', 'sel')
+        this.test_result = str(attr)
+        assert (attr[path]['content'] == safe_load(test_content)), 'content not parsed'
+        assert (sel), 'item not selected'
+        
+Test-Scenario-6:
+  Id: ts_06
+  Path: hydratk/extensions/client/core/yoda_tree/01_methods_ut.jedi
+  Name: ts_clear_tree
+  Desc: Test clear_tree method
+  Author: Petr Rasek <bowman@hydratk.org>
+  Version: 0.1
+  
+  Pre-Req: |
+    from yodalib.hydratk.extensions.client.gui_client import GuiClient
+    from hydratk.extensions.client.core.template import test_content    
+  
+  Test-Case-1:
+    Id: tc_01
+    Name: tc_clear_tree
+    Desc: Clear tree
+    
+    Test-Condition-1: 
+      Id: tco_01
+      Name: tco_clear
+      Desc: Clear
+      
+      Test: |
+        c = GuiClient.get_instance()                
+        code = "self.root.yoda_tree.add_test(path, content); self.root.yoda_tree.clear_tree(); items = self.root.yoda_tree._tree.get_children()"
+        c.write_msg(code, input={'path': 'test.jedi', 'content': test_content}, output=['items'])
+        
+      Validate: |
+        items = c.read_msg('items')
+        this.test_result = str(items)
+        assert (len(items) == 0), 'tree not cleared'
+        
+Test-Scenario-7:
+  Id: ts_07
+  Path: hydratk/extensions/client/core/yoda_tree/01_methods_ut.jedi
+  Name: ts_display_item
+  Desc: Test _display_item method
+  Author: Petr Rasek <bowman@hydratk.org>
+  Version: 0.1
+  
+  Pre-Req: |
+    from yodalib.hydratk.extensions.client.gui_client import GuiClient
+  
+  Test-Case-1:
+    Id: tc_01
+    Name: tc_display_item
+    Desc: Display item
+    
+    Test-Condition-1: 
+      Id: tco_01
+      Name: tco_value
+      Desc: Item with value
+      
+      Test: |
+        c = GuiClient.get_instance()                
+        code = "item, value = self.root.yoda_tree._display_item(key)"
+        c.write_msg(code, input={'key': 'Name'}, output=['item', 'value'])
+        
+      Validate: |
+        item, value = c.read_msg('item', 'value')
+        this.test_result = item
+        assert (item and value), 'item, value != True, True'
+        
+    Test-Condition-2: 
+      Id: tco_02
+      Name: tco_no_value
+      Desc: Item without value
+      
+      Test: |
+        c.write_msg(code, input={'key': 'Test-Condition-1'}, output=['item', 'value'])
+        
+      Validate: |
+        item, value = c.read_msg('item', 'value')
+        this.test_result = item
+        assert (item and not value), 'item, value != True, False'
+        
+    Test-Condition-3: 
+      Id: tco_03
+      Name: tco_hidden
+      Desc: Hidden item
+      
+      Test: |
+        c.write_msg(code, input={'key': 'Author'}, output=['item', 'value'])
+        
+      Validate: |
+        item, value = c.read_msg('item', 'value')
+        this.test_result = item
+        assert (not item and not value), 'item, value != False, False'
+        
+Test-Scenario-8:
+  Id: ts_08
+  Path: hydratk/extensions/client/core/yoda_tree/01_methods_ut.jedi
+  Name: ts_prepare_add_scenario
+  Desc: Test _prepare_add_scenario method
+  Author: Petr Rasek <bowman@hydratk.org>
+  Version: 0.1
+  
+  Pre-Req: |
+    from yodalib.hydratk.extensions.client.gui_client import GuiClient
+    from yodahelpers.hydratk.extensions.client.core.explorer import create_project, get_tab_cnt, close_tabs, clean
+    from yodahelpers.hydratk.extensions.client.core.yoda_tree import select, get_tab_content, click_context_menu
+    from hydratk.extensions.client.core.template import scenario
+    from os import path
+  
+  Test-Case-1:
+    Id: tc_01
+    Name: tc_add_scenario
+    Desc: Add scenario
+    
+    Test-Condition-1: 
+      Id: tco_01
+      Name: tco_create_project
+      Desc: Create project
+      
+      Test: |
+        c = GuiClient.get_instance()        
+        code = "create_project(path)"
+        proj_path = '/tmp/test_project'
+        c.write_msg(code, [create_project, select], input={'path': proj_path})
+        
+      Validate: |
+        c.read_msg()
+        assert (path.exists(proj_path)), 'directory not created'
+        
+    Test-Condition-2: 
+      Id: tco_02
+      Name: tco_create_test
+      Desc: Create test
+      
+      Test: |
+        code = "self.root.explorer.new_test(fpath); cnt = get_tab_cnt()"
+        fpath = '/tmp/test_project/yoda-tests/test.jedi'
+        c.write_msg(code, [get_tab_cnt], input={'fpath': fpath}, output=['cnt'])
+      
+      Validate: |
+        cnt = c.read_msg('cnt')
+        this.test_result = cnt
+        assert (cnt == 1), 'tab not added'
+        
+    Test-Condition-3: 
+      Id: tco_03
+      Name: tco_add_scenario
+      Desc: Add scenario
+      
+      Test: |
+        code = "self.root.yoda_tree._add_item(item, tree_path); sel = select(tree_path2); content = get_tab_content()"
+        tree_path, tree_path2 = ['Test-Scenario-1'], ['Test-Scenario-2']
+        c.write_msg(code, [select, get_tab_content], input={'item': 'scenario', 'tree_path': tree_path, 
+                    'tree_path2': tree_path2}, output=['sel', 'content'])
+      
+      Validate: |
+        sel, content = c.read_msg('sel', 'content')
+        this.test_result = sel
+        assert (sel), 'new item not selected'
+        this.test_result = content
+        exp = scenario.format(tsc_id=2, path='test.jedi', tca_id=1, tco_id=1)
+        assert (exp in content), 'scenario template not added'
+        
+    Test-Condition-4: 
+      Id: tco_04
+      Name: tco_context_menu
+      Desc: From context menu
+      
+      Test: |
+        code = "it = select(tree_path, True); self.root.yoda_tree._set_menu(it); click_context_menu(key, item); sel = select(tree_path2); content = get_tab_content()"
+        tree_path, tree_path2 = ['Test-Scenario-1'], ['Test-Scenario-3']
+        c.write_msg(code, [select, get_tab_content, click_context_menu], input={'tree_path': tree_path, 
+                    'key': 'scenario', 'item': 'scenario', 'tree_path2': tree_path2}, output=['sel', 'content'])
+      
+      Validate: |
+        sel, content = c.read_msg('sel', 'content')
+        this.test_result = sel
+        assert (sel), 'new item not selected'
+        this.test_result = content
+        exp = scenario.format(tsc_id=3, path='test.jedi', tca_id=1, tco_id=1)
+        assert (exp in content), 'scenario template not added'                       
+        
+    Test-Condition-5: 
+      Id: tco_05
+      Name: tco_clean
+      Desc: Clean 
+      
+      Test: |
+        code = "close_tabs(); clean()"
+        c.write_msg(code, [close_tabs, clean])
+      
+      Validate: |                                                                                                         
+        c.read_msg()
+        assert (not path.exists(proj_path)), 'directory not deleted'
+        
+Test-Scenario-9:
+  Id: ts_09
+  Path: hydratk/extensions/client/core/yoda_tree/01_methods_ut.jedi
+  Name: ts_prepare_add_case
+  Desc: Test _prepare_add_case method
+  Author: Petr Rasek <bowman@hydratk.org>
+  Version: 0.1
+  
+  Pre-Req: |
+    from yodalib.hydratk.extensions.client.gui_client import GuiClient
+    from yodahelpers.hydratk.extensions.client.core.explorer import create_project, get_tab_cnt, close_tabs, clean
+    from yodahelpers.hydratk.extensions.client.core.yoda_tree import select, get_tab_content, click_context_menu
+    from hydratk.extensions.client.core.template import case
+    from os import path
+  
+  Test-Case-1:
+    Id: tc_01
+    Name: tc_add_case
+    Desc: Add case
+    
+    Test-Condition-1: 
+      Id: tco_01
+      Name: tco_create_project
+      Desc: Create project
+      
+      Test: |
+        c = GuiClient.get_instance()        
+        code = "create_project(path)"
+        proj_path = '/tmp/test_project'
+        c.write_msg(code, [create_project, select], input={'path': proj_path})
+        
+      Validate: |
+        c.read_msg()
+        assert (path.exists(proj_path)), 'directory not created'
+        
+    Test-Condition-2: 
+      Id: tco_02
+      Name: tco_create_test
+      Desc: Create test
+      
+      Test: |
+        code = "self.root.explorer.new_test(fpath); cnt = get_tab_cnt()"
+        fpath = '/tmp/test_project/yoda-tests/test.jedi'
+        c.write_msg(code, [get_tab_cnt], input={'fpath': fpath}, output=['cnt'])
+      
+      Validate: |
+        cnt = c.read_msg('cnt')
+        this.test_result = cnt
+        assert (cnt == 1), 'tab not added'
+        
+    Test-Condition-3: 
+      Id: tco_03
+      Name: tco_add_case
+      Desc: Add case
+      
+      Test: |
+        code = "self.root.yoda_tree._add_item(item, tree_path); sel = select(tree_path2); content = get_tab_content()"
+        tree_path, tree_path2 = ['Test-Scenario-1'], ['Test-Scenario-1', 'Test-Case-2']
+        c.write_msg(code, [select, get_tab_content], input={'item': 'case', 'tree_path': tree_path, 
+                    'tree_path2': tree_path2}, output=['sel', 'content'])
+      
+      Validate: |
+        sel, content = c.read_msg('sel', 'content')
+        this.test_result = sel
+        assert (sel), 'new item not selected'
+        this.test_result = content
+        exp = case.format(tca_id=2, tco_id=1)
+        assert (exp in content), 'case template not added'
+        
+    Test-Condition-4: 
+      Id: tco_04
+      Name: tco_context_menu
+      Desc: From context menu
+      
+      Test: |
+        code = "it = select(tree_path, True); self.root.yoda_tree._set_menu(it); click_context_menu(key, item); sel = select(tree_path2); content = get_tab_content()"
+        tree_path, tree_path2 = ['Test-Scenario-1'], ['Test-Scenario-1', 'Test-Case-3']
+        c.write_msg(code, [select, get_tab_content, click_context_menu], input={'tree_path': tree_path, 
+                    'key': 'scenario', 'item': 'case', 'tree_path2': tree_path2}, output=['sel', 'content'])
+      
+      Validate: |
+        sel, content = c.read_msg('sel', 'content')
+        this.test_result = sel
+        assert (sel), 'new item not selected'
+        this.test_result = content
+        exp = case.format(tca_id=2, tco_id=1)
+        assert (exp in content), 'case template not added'                       
+        
+    Test-Condition-5: 
+      Id: tco_05
+      Name: tco_clean
+      Desc: Clean 
+      
+      Test: |
+        code = "close_tabs(); clean()"
+        c.write_msg(code, [close_tabs, clean])
+      
+      Validate: |                                                                                                         
+        c.read_msg()
+        assert (not path.exists(proj_path)), 'directory not deleted'
+        
+Test-Scenario-10:
+  Id: ts_10
+  Path: hydratk/extensions/client/core/yoda_tree/01_methods_ut.jedi
+  Name: ts_prepare_add_condition
+  Desc: Test _prepare_add_condition method
+  Author: Petr Rasek <bowman@hydratk.org>
+  Version: 0.1
+  
+  Pre-Req: |
+    from yodalib.hydratk.extensions.client.gui_client import GuiClient
+    from yodahelpers.hydratk.extensions.client.core.explorer import create_project, get_tab_cnt, close_tabs, clean
+    from yodahelpers.hydratk.extensions.client.core.yoda_tree import select, get_tab_content, click_context_menu
+    from hydratk.extensions.client.core.template import condition
+    from os import path
+  
+  Test-Case-1:
+    Id: tc_01
+    Name: tc_add_condition
+    Desc: Add condition
+    
+    Test-Condition-1: 
+      Id: tco_01
+      Name: tco_create_project
+      Desc: Create project
+      
+      Test: |
+        c = GuiClient.get_instance()        
+        code = "create_project(path)"
+        proj_path = '/tmp/test_project'
+        c.write_msg(code, [create_project, select], input={'path': proj_path})
+        
+      Validate: |
+        c.read_msg()
+        assert (path.exists(proj_path)), 'directory not created'
+        
+    Test-Condition-2: 
+      Id: tco_02
+      Name: tco_create_test
+      Desc: Create test
+      
+      Test: |
+        code = "self.root.explorer.new_test(fpath); cnt = get_tab_cnt()"
+        fpath = '/tmp/test_project/yoda-tests/test.jedi'
+        c.write_msg(code, [get_tab_cnt], input={'fpath': fpath}, output=['cnt'])
+      
+      Validate: |
+        cnt = c.read_msg('cnt')
+        this.test_result = cnt
+        assert (cnt == 1), 'tab not added'
+        
+    Test-Condition-3: 
+      Id: tco_03
+      Name: tco_add_condition
+      Desc: Add condition
+      
+      Test: |
+        code = "self.root.yoda_tree._add_item(item, tree_path); sel = select(tree_path2); content = get_tab_content()"
+        tree_path, tree_path2 = ['Test-Scenario-1', 'Test-Case-1'], ['Test-Scenario-1', 'Test-Case-1', 'Test-Condition-1']
+        c.write_msg(code, [select, get_tab_content], input={'item': 'condition', 'tree_path': tree_path, 
+                    'tree_path2': tree_path2}, output=['sel', 'content'])
+      
+      Validate: |
+        sel, content = c.read_msg('sel', 'content')
+        this.test_result = sel
+        assert (sel), 'new item not selected'
+        this.test_result = content
+        exp = condition.format(tco_id=2)
+        assert (exp in content), 'condition template not added'
+        
+    Test-Condition-4: 
+      Id: tco_04
+      Name: tco_context_menu
+      Desc: From context menu
+      
+      Test: |
+        code = "it = select(tree_path, True); self.root.yoda_tree._set_menu(it); click_context_menu(key, item); sel = select(tree_path2); content = get_tab_content()"
+        tree_path, tree_path2 = ['Test-Scenario-1', 'Test-Case-1'], ['Test-Scenario-1', 'Test-Case-1', 'Test-Condition-3']
+        c.write_msg(code, [select, get_tab_content, click_context_menu], input={'tree_path': tree_path, 
+                    'key': 'case', 'item': 'condition', 'tree_path2': tree_path2}, output=['sel', 'content'])
+      
+      Validate: |
+        sel, content = c.read_msg('sel', 'content')
+        this.test_result = sel
+        assert (sel), 'new item not selected'
+        this.test_result = content
+        exp = condition.format(tco_id=3)
+        assert (exp in content), 'condition template not added'                       
+        
+    Test-Condition-5: 
+      Id: tco_05
+      Name: tco_clean
+      Desc: Clean 
+      
+      Test: |
+        code = "close_tabs(); clean()"
+        c.write_msg(code, [close_tabs, clean])
+      
+      Validate: |                                                                                                         
+        c.read_msg()
+        assert (not path.exists(proj_path)), 'directory not deleted'                                                                                                                  

@@ -16,6 +16,11 @@ Class for help menu.
 * _instance_created - bool, True if created
 * _root - Gui instance reference
 * _trn - Translator instance reference
+* _win - window about
+* _text - text entry
+* _btn_web - button web
+* _btn_email - button email
+* _btn_ok - button ok
 
 **Properties (Getters)** :
 

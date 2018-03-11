@@ -1,0 +1,132 @@
+Test-Scenario-1:
+  Id: ts_01
+  Path: hydratk/extensions/client/core/config/01_methods_ut.jedi
+  Name: ts_props
+  Desc: Test property methods
+  Author: Petr Rasek <bowman@hydratk.org>
+  Version: 0.1
+  
+  Pre-Req: |
+    from yodalib.hydratk.extensions.client.gui_client import GuiClient
+    from yodahelpers.hydratk.extensions.client.core.config import get_property
+  
+  Test-Case-1:
+    Id: tc_01
+    Name: tc_getters
+    Desc: Getter methods
+    
+    Test-Condition-1: 
+      Id: tco_01
+      Name: tco_data
+      Desc: Getter data
+      
+      Test: |
+        c = GuiClient.get_instance()
+        code = "prop, attr = get_property(name)"
+        c.write_msg(code, [get_property], input={'name': 'data'}, output=['prop', 'attr'])     
+      
+      Validate: |  
+        prop, attr = c.read_msg('prop', 'attr')
+        this.test_result = str(prop)
+        assert (prop == attr), 'prop != {0}'.format(attr)
+        
+Test-Scenario-2:
+  Id: ts_02
+  Path: hydratk/extensions/client/core/config/01_methods_ut.jedi
+  Name: ts_load
+  Desc: Test _load method
+  Author: Petr Rasek <bowman@hydratk.org>
+  Version: 0.1
+  
+  Pre-Req: |
+    from yodalib.hydratk.extensions.client.gui_client import GuiClient
+    from yodahelpers.hydratk.extensions.client.core.config import set_attr, get_attr
+  
+  Test-Case-1:
+    Id: tc_01
+    Name: tc_load
+    Desc: Load configuration
+    
+    Test-Condition-1: 
+      Id: tco_01
+      Name: tco_clear
+      Desc: Clear config
+      
+      Test: |
+        c = GuiClient.get_instance()
+        code = "set_attr(name, value); attr = get_attr(name)"
+        c.write_msg(code, [set_attr, get_attr], input={'name': '_data', 'value': None}, output=['attr'])
+        
+      Validate: |
+        attr = c.read_msg('attr')
+        this.test_result = attr
+        assert (attr == None), 'config not cleared'
+        
+    Test-Condition-2: 
+      Id: tco_02
+      Name: tco_load
+      Desc: Load config
+      
+      Test: |
+        code = "self.root.cfg._load(); attr = get_attr(name)"
+        c.write_msg(code, [get_attr], input={'name': '_data'}, output=['attr'])
+        
+      Validate: |
+        attr = c.read_msg('attr')
+        this.test_result = str(attr)
+        assert (attr != None), 'config not loaded'
+        
+Test-Scenario-3:
+  Id: ts_03
+  Path: hydratk/extensions/client/core/config/01_methods_ut.jedi
+  Name: ts_save
+  Desc: Test save method
+  Author: Petr Rasek <bowman@hydratk.org>
+  Version: 0.1
+  
+  Pre-Req: |
+    from yodalib.hydratk.extensions.client.gui_client import GuiClient
+    from yodahelpers.hydratk.extensions.client.core.config import get_attr
+    from yaml import safe_load
+  
+  Test-Case-1:
+    Id: tc_01
+    Name: tc_save
+    Desc: Save configuration
+    
+    Test-Condition-1: 
+      Id: tco_01
+      Name: tco_change
+      Desc: Change config
+      
+      Test: |
+        c = GuiClient.get_instance()
+        code = """get_attr(name)['Core']['language'] = 'xx'; self.root.cfg.save(); attr=get_attr(name2)"""
+        c.write_msg(code, [get_attr], input={'name': '_data', 'name2': '_path'}, output=['attr'])
+        
+      Validate: |
+        attr = c.read_msg('attr')
+        
+        with open(attr, 'r') as f:
+            lang = safe_load(f.read())['Core']['language']
+        
+        this.test_result = lang
+        assert (lang == 'xx'), 'config not changed'
+        
+    Test-Condition-2: 
+      Id: tco_02
+      Name: tco_orig
+      Desc: Original config
+      
+      Test: |
+        code = "get_attr(name)['Core']['language'] = 'en'; self.root.cfg.save()"
+        c.write_msg(code, [get_attr], input={'name': '_data'})
+        
+      Validate: |
+        c.read_msg()
+        
+        with open(attr, 'r') as f:
+            lang = safe_load(f.read())['Core']['language']
+        
+        this.test_result = lang
+        assert (lang == 'en'), 'config not changed'                          

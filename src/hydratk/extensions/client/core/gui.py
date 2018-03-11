@@ -10,6 +10,7 @@
 
 import traceback
 from os import path
+from sys import argv
 
 from hydratk.extensions.client.core.tkimport import tk, tkmsg, c_os
 from hydratk.extensions.client.core.config import Config
@@ -21,6 +22,7 @@ from hydratk.extensions.client.core.logger import Logger
 from hydratk.extensions.client.core.pluginmanager import PluginManager
 from hydratk.extensions.client.core.help import Help
 from hydratk.extensions.client.core.tooltip import ToolTip
+from hydratk.extensions.client.core.testhandler import TestHandler
 
 class Gui(tk.Tk):
     """Class Gui
@@ -57,6 +59,9 @@ class Gui(tk.Tk):
     _images = {}
     _imgdir = None
 
+    _test_mode = False
+    _test_handler = None
+
     def __init__(self):
         """Class constructor
 
@@ -81,6 +86,7 @@ class Gui(tk.Tk):
 
         self._instance = tk.Tk.__init__(self)
         self._set_gui()
+        self._set_test_mode()
 
     @staticmethod
     def get_instance():
@@ -195,6 +201,12 @@ class Gui(tk.Tk):
         """ pane_right property getter """
 
         return self._pane_right
+    
+    @property
+    def test_handler(self):
+        """ test_handler property getter """
+
+        return self._test_handler    
 
     def _set_gui(self):
         """Method sets graphical interface
@@ -577,7 +589,26 @@ class Gui(tk.Tk):
             self.editor.save_tabs()
             self.logger.info(self.trn.msg('htk_core_stopped'))
             self.logger.logfile.close()
+            
+            if (self._test_mode):
+                self._test_handler.clean()
+            
             self.destroy()
+
+    def _set_test_mode(self):
+        """Method sets test mode if enabled by option --test
+
+        Args:
+            none
+
+        Returns:
+            void
+
+        """
+        
+        if (c_os != 'Windows' and '--test' in argv):
+            self._test_mode = True
+            self._test_handler = TestHandler.get_instance(self)
 
 class ExceptionHandler:
     """Class ExceptionHandler

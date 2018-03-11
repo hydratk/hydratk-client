@@ -1,0 +1,406 @@
+Test-Scenario-1:
+  Id: ts_01
+  Path: hydratk/extensions/client/plugins/gitclient/01_methods_ut.jedi
+  Name: ts_init_plugin
+  Desc: Test _init_plugin method
+  Author: Petr Rasek <bowman@hydratk.org>
+  Version: 0.1
+  
+  Pre-Req: |
+    from yodalib.hydratk.extensions.client.gui_client import GuiClient     
+    from yodahelpers.hydratk.extensions.client.plugins.gitclient import get_plugin_attrs
+  
+  Test-Case-1:
+    Id: tc_01
+    Name: tc_init_plugin
+    Desc: Initialize plugin
+    
+    Test-Condition-1: 
+      Id: tco_01
+      Name: tco_init
+      Desc: Initialize
+      
+      Test: |
+        c = GuiClient.get_instance()
+        code = "attrs = get_plugin_attrs()"
+        c.write_msg(code, [get_plugin_attrs], output=['attrs']) 
+      
+      Validate: |  
+        attrs = c.read_msg('attrs')
+        this.test_result = str(attrs)
+        assert ('Undefined' not in attrs), 'Plugin not initialized'
+        
+Test-Scenario-2:
+  Id: ts_02
+  Path: hydratk/extensions/client/plugins/gitclient/01_methods_ut.jedi
+  Name: ts_clone_repo
+  Desc: Test _clone_repo method
+  Author: Petr Rasek <bowman@hydratk.org>
+  Version: 0.1
+  
+  Pre-Req: |
+    from yodalib.hydratk.extensions.client.gui_client import GuiClient
+    from yodahelpers.hydratk.extensions.client.core.explorer import select, clean       
+    from yodahelpers.hydratk.extensions.client.plugins.gitclient import clone_repo
+    from os import path 
+  
+  Test-Case-1:
+    Id: tc_01
+    Name: tc_clone_repo
+    Desc: Clone repository
+    
+    Test-Condition-1: 
+      Id: tco_01
+      Name: tco_clone
+      Desc: Clone
+      
+      Test: |
+        c = GuiClient.get_instance()
+        code = "config = clone_repo(url, user, passw, dirpath); sel = select(tree_path)"
+        url, user, passw, dirpath = 'https://git-retail.hydratk.org/test-camp.git', 'test', 'test1234', '/tmp/test-camp'
+        tree_path = ['test-camp', 'py', '01_linux', '01_shell_basic.py']
+        c.write_msg(code, [clone_repo, select], input={'url': url, 'user': user, 'passw': passw, 'dirpath': dirpath, 'tree_path': tree_path}, output=['config', 'sel']) 
+      
+      Validate: |
+        config, sel = c.read_msg('config', 'sel')
+        this.test_result = str(config)
+        exp = {'path': dirpath, 'pythonpath': [dirpath+'/lib/yodalib', dirpath+'/helpers/yodahelpers'],
+               'git': {'url': url, 'username': user, 'password': passw, 'name': '', 'email': ''}}
+        assert(config == exp), 'config != {0}'.format(exp)
+        assert (sel), 'item not selected'
+        
+    Test-Condition-2: 
+      Id: tco_02
+      Name: tco_clean
+      Desc: Clean 
+      
+      Test: |
+        code = "clean()"
+        c.write_msg(code, [clean])
+      
+      Validate: |                                                                                                         
+        c.read_msg()
+        assert (not path.exists(dirpath)), 'directory not deleted'
+        
+Test-Scenario-3:
+  Id: ts_03
+  Path: hydratk/extensions/client/plugins/gitclient/01_methods_ut.jedi
+  Name: ts_save_config
+  Desc: Test _save_config method
+  Author: Petr Rasek <bowman@hydratk.org>
+  Version: 0.1
+  
+  Pre-Req: |
+    from yodalib.hydratk.extensions.client.gui_client import GuiClient
+    from yodahelpers.hydratk.extensions.client.core.explorer import select, clean       
+    from yodahelpers.hydratk.extensions.client.plugins.gitclient import clone_repo, select_repo, save_config
+    from os import path 
+  
+  Test-Case-1:
+    Id: tc_01
+    Name: tc_save_config
+    Desc: Save configuration
+    
+    Test-Condition-1: 
+      Id: tco_01
+      Name: tco_clone_repo
+      Desc: Clone repository
+      
+      Test: |
+        c = GuiClient.get_instance()
+        code = "config = clone_repo(url, user, passw, dirpath); sel = select(tree_path)"
+        url, user, passw, dirpath = 'https://git-retail.hydratk.org/test-camp.git', 'test', 'test1234', '/tmp/test-camp'
+        tree_path = ['test-camp', 'py', '01_linux', '01_shell_basic.py']
+        c.write_msg(code, [clone_repo, select], input={'url': url, 'user': user, 'passw': passw, 'dirpath': dirpath, 'tree_path': tree_path}, output=['config', 'sel']) 
+      
+      Validate: |
+        config, sel = c.read_msg('config', 'sel')
+        this.test_result = str(config)
+        exp = {'path': dirpath, 'pythonpath': [dirpath+'/lib/yodalib', dirpath+'/helpers/yodahelpers'],
+               'git': {'url': url, 'username': user, 'password': passw, 'name': '', 'email': ''}}
+        assert(config == exp), 'config != {0}'.format(exp)
+        assert (sel), 'item not selected'
+        
+    Test-Condition-2: 
+      Id: tco_02
+      Name: tco_save_config
+      Desc: Save configuration
+      
+      Test: |
+        code = "sel = select_repo(idx); config = save_config(proj_name, url, user, passw, name, email)"
+        url, user, passw, name, email = 'https://git-retail.hydratk.org/test-camp2.git', 'test2', 'test12342', 'Petr Rasek', '<bowman@hydratk.org>'
+        c.write_msg(code, [select_repo, save_config], input={'idx': 0, 'proj_name': dirpath.split('/')[-1], 'url': url, 'user': user, 
+                    'passw': passw, 'name': name, 'email': email}, output=['sel', 'config']) 
+      
+      Validate: |
+        config, sel = c.read_msg('config', 'sel')
+        assert (sel), 'item not selected'
+        this.test_result = str(config)
+        exp = {'url': url, 'username': user, 'password': passw, 'name': name, 'email': email}
+        assert(config['git'] == exp), 'config != {0}'.format(exp)                
+        
+    Test-Condition-3: 
+      Id: tco_03
+      Name: tco_clean
+      Desc: Clean 
+      
+      Test: |
+        code = "clean()"
+        c.write_msg(code, [clean])
+      
+      Validate: |                                                                                                         
+        c.read_msg()
+        assert (not path.exists(dirpath)), 'directory not deleted'
+        
+Test-Scenario-4:
+  Id: ts_04
+  Path: hydratk/extensions/client/plugins/gitclient/01_methods_ut.jedi
+  Name: ts_push
+  Desc: Test _push method
+  Author: Petr Rasek <bowman@hydratk.org>
+  Version: 0.1
+  
+  Pre-Req: |
+    from yodalib.hydratk.extensions.client.gui_client import GuiClient
+    from yodahelpers.hydratk.extensions.client.core.explorer import select, clean       
+    from yodahelpers.hydratk.extensions.client.plugins.gitclient import clone_repo, select_repo, click_context_menu
+    from os import path 
+  
+  Test-Case-1:
+    Id: tc_01
+    Name: tc_push
+    Desc: Push repository
+    
+    Test-Condition-1: 
+      Id: tco_01
+      Name: tco_clone_repo
+      Desc: Clone repository
+      
+      Test: |
+        c = GuiClient.get_instance()
+        code = "clone_repo(url, user, passw, dirpath); sel = select(tree_path)"
+        url, user, passw, dirpath = 'https://git-retail.hydratk.org/test-camp.git', 'test', 'test1234', '/tmp/test-camp'
+        tree_path = ['test-camp', 'py', '01_linux', '01_shell_basic.py']
+        c.write_msg(code, [clone_repo, select], input={'url': url, 'user': user, 'passw': passw, 'dirpath': dirpath, 'tree_path': tree_path}, output=['sel']) 
+      
+      Validate: |
+        sel = c.read_msg('sel')
+        this.test_result = sel
+        assert (sel), 'item not selected'
+        
+    Test-Condition-2: 
+      Id: tco_02
+      Name: tco_push
+      Desc: Push repository
+      
+      Test: |
+        code = "sel = select_repo(idx); click_context_menu(item)"
+        url, user, passw, name, email = 'https://git-retail.hydratk.org/test-camp2.git', 'test2', 'test12342', 'Petr Rasek', '<bowman@hydratk.org>'
+        c.write_msg(code, [select_repo, click_context_menu], input={'idx': 0, 'item': 'Push'}, output=['sel']) 
+      
+      Validate: |
+        sel = c.read_msg('sel')
+        this.test_result = sel
+        assert (sel), 'item not selected'                
+        
+    Test-Condition-3: 
+      Id: tco_03
+      Name: tco_clean
+      Desc: Clean 
+      
+      Test: |
+        code = "clean()"
+        c.write_msg(code, [clean])
+      
+      Validate: |                                                                                                         
+        c.read_msg()
+        assert (not path.exists(dirpath)), 'directory not deleted'
+        
+Test-Scenario-5:
+  Id: ts_05
+  Path: hydratk/extensions/client/plugins/gitclient/01_methods_ut.jedi
+  Name: ts_pull
+  Desc: Test _pull method
+  Author: Petr Rasek <bowman@hydratk.org>
+  Version: 0.1
+  
+  Pre-Req: |
+    from yodalib.hydratk.extensions.client.gui_client import GuiClient
+    from yodahelpers.hydratk.extensions.client.core.explorer import select, clean       
+    from yodahelpers.hydratk.extensions.client.plugins.gitclient import clone_repo, select_repo, click_context_menu
+    from os import path 
+  
+  Test-Case-1:
+    Id: tc_01
+    Name: tc_pull
+    Desc: Pull repository
+    
+    Test-Condition-1: 
+      Id: tco_01
+      Name: tco_clone_repo
+      Desc: Clone repository
+      
+      Test: |
+        c = GuiClient.get_instance()
+        code = "clone_repo(url, user, passw, dirpath); sel = select(tree_path)"
+        url, user, passw, dirpath = 'https://git-retail.hydratk.org/test-camp.git', 'test', 'test1234', '/tmp/test-camp'
+        tree_path = ['test-camp', 'py', '01_linux', '01_shell_basic.py']
+        c.write_msg(code, [clone_repo, select], input={'url': url, 'user': user, 'passw': passw, 'dirpath': dirpath, 'tree_path': tree_path}, output=['sel']) 
+      
+      Validate: |
+        sel = c.read_msg('sel')
+        this.test_result = sel
+        assert (sel), 'item not selected'
+        
+    Test-Condition-2: 
+      Id: tco_02
+      Name: tco_pull
+      Desc: Pull repository
+      
+      Test: |
+        code = "sel = select_repo(idx); click_context_menu(item)"
+        url, user, passw, name, email = 'https://git-retail.hydratk.org/test-camp2.git', 'test2', 'test12342', 'Petr Rasek', '<bowman@hydratk.org>'
+        c.write_msg(code, [select_repo, click_context_menu], input={'idx': 0, 'item': 'Pull'}, output=['sel']) 
+      
+      Validate: |
+        sel = c.read_msg('sel')
+        this.test_result = sel
+        assert (sel), 'item not selected'                
+        
+    Test-Condition-3: 
+      Id: tco_03
+      Name: tco_clean
+      Desc: Clean 
+      
+      Test: |
+        code = "clean()"
+        c.write_msg(code, [clean])
+      
+      Validate: |                                                                                                         
+        c.read_msg()
+        assert (not path.exists(dirpath)), 'directory not deleted'
+        
+Test-Scenario-6:
+  Id: ts_06
+  Path: hydratk/extensions/client/plugins/gitclient/01_methods_ut.jedi
+  Name: ts_commit
+  Desc: Test _commit method
+  Author: Petr Rasek <bowman@hydratk.org>
+  Version: 0.1
+  
+  Pre-Req: |
+    from yodalib.hydratk.extensions.client.gui_client import GuiClient
+    from yodahelpers.hydratk.extensions.client.core.explorer import select, clean       
+    from yodahelpers.hydratk.extensions.client.plugins.gitclient import clone_repo, select_repo, save_config, commit
+    from os import path, remove 
+  
+  Test-Case-1:
+    Id: tc_01
+    Name: tc_commit
+    Desc: Commit repository
+    
+    Test-Condition-1: 
+      Id: tco_01
+      Name: tco_clone_repo
+      Desc: Clone repository
+      
+      Test: |
+        c = GuiClient.get_instance()
+        code = "clone_repo(url, user, passw, dirpath); sel = select(tree_path)"
+        url, user, passw, dirpath = 'https://git-retail.hydratk.org/test-camp.git', 'test', 'test1234', '/tmp/test-camp'
+        tree_path = ['test-camp', 'py', '01_linux', '01_shell_basic.py']
+        c.write_msg(code, [clone_repo, select], input={'url': url, 'user': user, 'passw': passw, 'dirpath': dirpath, 'tree_path': tree_path}, output=['sel']) 
+      
+      Validate: |
+        sel = c.read_msg('sel')
+        this.test_result = sel
+        assert (sel), 'item not selected'
+        
+    Test-Condition-2: 
+      Id: tco_02
+      Name: tco_save_config
+      Desc: Save configuration
+      
+      Test: |
+        code = "sel = select_repo(idx); config = save_config(proj_name, url, user, passw, name, email)"
+        name, email = 'Petr Rasek', 'bowman@hydratk.org'
+        c.write_msg(code, [select_repo, save_config], input={'idx': 0, 'proj_name': dirpath.split('/')[-1], 'url': url, 'user': user,
+                    'passw': passw, 'name': name, 'email': email}, output=['sel', 'config']) 
+      
+      Validate: |
+        config, sel = c.read_msg('config', 'sel')
+        assert (sel), 'item not selected'
+        this.test_result = str(config)
+        exp = {'url': url, 'username': user, 'password': passw, 'name': name, 'email': email}
+        assert(config['git'] == exp), 'config != {0}'.format(exp)               
+        
+    Test-Condition-3: 
+      Id: tco_03
+      Name: tco_add
+      Desc: Add file
+      
+      Test: |
+        fname = 'test.txt'
+        fpath = path.join(dirpath, fname)
+        with open(fpath, 'w') as f:
+            f.write('test')
+            
+        code = "sel = select_repo(idx); files = commit(repo_path, message, author)"
+        author = 'Petr Rasek <bowman@hydratk.org>'
+        c.write_msg(code, [select_repo, commit], input={'idx': 0, 'repo_path': dirpath, 'message': 'test commit add', 'author': author}, output=['sel', 'files'])
+      
+      Validate: |
+        sel, files = c.read_msg('sel', 'files')
+        this.test_result = str(files)
+        assert (sel), 'item not selected'
+        exp = {'add': [fname], 'modify': [], 'delete': []}
+        assert (files == exp), 'files != {0}'.format(exp)
+        
+    Test-Condition-4: 
+      Id: tco_04
+      Name: tco_modify
+      Desc: Modify file
+      
+      Test: |
+        with open(fpath, 'w') as f:
+            f.write('test modified')
+            
+        code = "sel = select_repo(idx); files = commit(repo_path, message, author)"
+        c.write_msg(code, [select_repo, commit], input={'idx': 0, 'repo_path': dirpath, 'message': 'test commit modify', 'author': author}, output=['sel', 'files'])
+      
+      Validate: |
+        sel, files = c.read_msg('sel', 'files')
+        this.test_result = str(files)
+        assert (sel), 'item not selected'
+        exp = {'add': [], 'modify': [fname], 'delete': []}
+        assert (files == exp), 'files != {0}'.format(exp)        
+        
+    Test-Condition-5: 
+      Id: tco_05
+      Name: tco_delete
+      Desc: Delete file
+      
+      Test: |
+        remove(fpath)
+        code = "sel = select_repo(idx); files = commit(repo_path, message, author)"
+        c.write_msg(code, [select_repo, commit], input={'idx': 0, 'repo_path': dirpath, 'message': 'test commit delete', 'author': author}, output=['sel', 'files'])
+      
+      Validate: |
+        sel, files = c.read_msg('sel', 'files')
+        this.test_result = str(files)
+        assert (sel), 'item not selected'
+        exp = {'add': [], 'modify': [], 'delete': [fname]}
+        assert (files == exp), 'files != {0}'.format(exp)                           
+        
+    Test-Condition-6: 
+      Id: tco_06
+      Name: tco_clean
+      Desc: Clean 
+      
+      Test: |
+        code = "clean()"
+        c.write_msg(code, [clean])
+      
+      Validate: |                                                                                                         
+        c.read_msg()
+        assert (not path.exists(dirpath)), 'directory not deleted'                                                        

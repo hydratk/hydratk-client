@@ -30,6 +30,7 @@ msg = {
     'htk_core_directory_deleted' : "Adresář {0} smazán",
     'htk_core_copied' : "{0} zkopírováno do {1}",
     'htk_core_invalid_yaml' : "Soubor {0} má nevalidní YAML obsah",
+    'htk_core_test_mode' : "Test mode povolen",
 
     'htk_gui_menu_file' : "Soubor",
     'htk_gui_menu_file_new' : "Nový",

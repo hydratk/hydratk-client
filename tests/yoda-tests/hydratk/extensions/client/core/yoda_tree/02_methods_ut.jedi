@@ -1,0 +1,192 @@
+Test-Scenario-1:
+  Id: ts_01
+  Path: hydratk/extensions/client/core/yoda_tree/02_methods_ut.jedi
+  Name: ts_prepare_add_postreq
+  Desc: Test _prepare_add_postreq method
+  Author: Petr Rasek <bowman@hydratk.org>
+  Version: 0.1
+  
+  Pre-Req: |
+    from yodalib.hydratk.extensions.client.gui_client import GuiClient
+    from yodahelpers.hydratk.extensions.client.core.explorer import create_project, get_tab_cnt, close_tabs, clean
+    from yodahelpers.hydratk.extensions.client.core.yoda_tree import select, get_tab_content, click_context_menu
+    from hydratk.extensions.client.core.template import postreq
+    from os import path
+  
+  Test-Case-1:
+    Id: tc_01
+    Name: tc_add_postreq
+    Desc: Add post-requirements
+    
+    Test-Condition-1: 
+      Id: tco_01
+      Name: tco_create_project
+      Desc: Create project
+      
+      Test: |
+        c = GuiClient.get_instance()        
+        code = "create_project(path)"
+        proj_path = '/tmp/test_project'
+        c.write_msg(code, [create_project, select], input={'path': proj_path})
+        
+      Validate: |
+        c.read_msg()
+        assert (path.exists(proj_path)), 'directory not created'
+        
+    Test-Condition-2: 
+      Id: tco_02
+      Name: tco_create_test
+      Desc: Create test
+      
+      Test: |
+        code = "self.root.explorer.new_test(fpath); cnt = get_tab_cnt()"
+        fpath = '/tmp/test_project/yoda-tests/test.jedi'
+        c.write_msg(code, [get_tab_cnt], input={'fpath': fpath}, output=['cnt'])
+      
+      Validate: |
+        cnt = c.read_msg('cnt')
+        this.test_result = cnt
+        assert (cnt == 1), 'tab not added'
+        
+    Test-Condition-3: 
+      Id: tco_03
+      Name: tco_add_postreq
+      Desc: Add pre-requirements
+      
+      Test: |
+        code = "it = select(tree_path, True); self.root.yoda_tree._set_menu(it); click_context_menu(key, item); content = get_tab_content()"
+        tree_path = ['Test-Scenario-1']
+        c.write_msg(code, [select, get_tab_content, click_context_menu], input={'tree_path': tree_path, 
+                    'key': 'scenario', 'item': 'postreq'}, output=['content'])
+      
+      Validate: |
+        content = c.read_msg('content')
+        this.test_result = content
+        assert (postreq in content), 'postreq template not added'                       
+        
+    Test-Condition-4: 
+      Id: tco_04
+      Name: tco_clean
+      Desc: Clean 
+      
+      Test: |
+        code = "close_tabs(); clean()"
+        c.write_msg(code, [close_tabs, clean])
+      
+      Validate: |                                                                                                         
+        c.read_msg()
+        assert (not path.exists(proj_path)), 'directory not deleted'
+        
+Test-Scenario-2:
+  Id: ts_02
+  Path: hydratk/extensions/client/core/yoda_tree/02_methods_ut.jedi
+  Name: ts_prepare_add_events
+  Desc: Test _prepare_add_events method
+  Author: Petr Rasek <bowman@hydratk.org>
+  Version: 0.1
+  
+  Pre-Req: |
+    from yodalib.hydratk.extensions.client.gui_client import GuiClient
+    from yodahelpers.hydratk.extensions.client.core.explorer import create_project, get_tab_cnt, close_tabs, clean
+    from yodahelpers.hydratk.extensions.client.core.yoda_tree import select, get_tab_content, click_context_menu
+    from hydratk.extensions.client.core.template import events
+    from os import path
+  
+  Test-Case-1:
+    Id: tc_01
+    Name: tc_add_events
+    Desc: Add events
+    
+    Test-Condition-1: 
+      Id: tco_01
+      Name: tco_create_project
+      Desc: Create project
+      
+      Test: |
+        c = GuiClient.get_instance()        
+        code = "create_project(path)"
+        proj_path = '/tmp/test_project'
+        c.write_msg(code, [create_project, select], input={'path': proj_path})
+        
+      Validate: |
+        c.read_msg()
+        assert (path.exists(proj_path)), 'directory not created'
+        
+    Test-Condition-2: 
+      Id: tco_02
+      Name: tco_create_test
+      Desc: Create test
+      
+      Test: |
+        code = "self.root.explorer.new_test(fpath); cnt = get_tab_cnt()"
+        fpath = '/tmp/test_project/yoda-tests/test.jedi'
+        c.write_msg(code, [get_tab_cnt], input={'fpath': fpath}, output=['cnt'])
+      
+      Validate: |
+        cnt = c.read_msg('cnt')
+        this.test_result = cnt
+        assert (cnt == 1), 'tab not added'
+        
+    Test-Condition-3: 
+      Id: tco_03
+      Name: tco_scenario_events
+      Desc: Add scenario events
+      
+      Test: |
+        code = "it = select(tree_path, True); self.root.yoda_tree._set_menu(it); click_context_menu(key, item); content = get_tab_content()"
+        tree_path = ['Test-Scenario-1']
+        c.write_msg(code, [select, get_tab_content, click_context_menu], input={'tree_path': tree_path, 
+                    'key': 'scenario', 'item': 'events'}, output=['content'])
+      
+      Validate: |
+        content = c.read_msg('content')
+        this.test_result = content
+        exp = events.format(indent=' '*2)
+        assert (exp in content), 'events template not added'
+
+    Test-Condition-4: 
+      Id: tco_04
+      Name: tco_case_events
+      Desc: Add case events
+      
+      Test: |
+        code = "it = select(tree_path, True); self.root.yoda_tree._set_menu(it); click_context_menu(key, item); content = get_tab_content()"
+        tree_path = ['Test-Scenario-1', 'Test-Case-1']
+        c.write_msg(code, [select, get_tab_content, click_context_menu], input={'tree_path': tree_path, 
+                    'key': 'case', 'item': 'events'}, output=['content'])
+      
+      Validate: |
+        content = c.read_msg('content')
+        this.test_result = content
+        exp = events.format(indent=' '*4)
+        assert (exp in content), 'events template not added' 
+        
+    Test-Condition-5: 
+      Id: tco_05
+      Name: tco_condition_events
+      Desc: Add condition events
+      
+      Test: |
+        code = "it = select(tree_path, True); self.root.yoda_tree._set_menu(it); click_context_menu(key, item); content = get_tab_content()"
+        tree_path = ['Test-Scenario-1', 'Test-Case-1', 'Test-Condition-1']
+        c.write_msg(code, [select, get_tab_content, click_context_menu], input={'tree_path': tree_path, 
+                    'key': 'condition', 'item': 'events'}, output=['content'])
+      
+      Validate: |
+        content = c.read_msg('content')
+        this.test_result = content
+        exp = events.format(indent=' '*6)
+        assert (exp in content), 'events template not added'                                        
+        
+    Test-Condition-6: 
+      Id: tco_06
+      Name: tco_clean
+      Desc: Clean 
+      
+      Test: |
+        code = "close_tabs(); clean()"
+        c.write_msg(code, [close_tabs, clean])
+      
+      Validate: |                                                                                                         
+        c.read_msg()
+        assert (not path.exists(proj_path)), 'directory not deleted'        

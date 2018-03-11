@@ -1,0 +1,29 @@
+Test-Scenario-1:
+  Id: ts_01
+  Path: hydratk/extensions/client/core/utils/01_methods_ut.jedi
+  Name: ts_fix_path
+  Desc: Test fix_path method
+  Author: Petr Rasek <bowman@hydratk.org>
+  Version: 0.1
+  
+  Pre-Req: |
+    from hydratk.extensions.client.core.utils import fix_path
+  
+  Test-Case-1:
+    Id: tc_01
+    Name: tc_fix_path
+    Desc: Fix path
+    
+    Test-Condition-1: 
+      Id: tco_01
+      Name: tco_fix
+      Desc: Fix
+      
+      Test: |
+        path = 'C:\\private\\codes\\test.txt'
+        fix = fix_path(path)
+        
+      Validate: |
+        this.test_result = fix
+        exp = 'C:/private/codes/test.txt'
+        assert (fix == exp), 'path != {0}'.format(exp)

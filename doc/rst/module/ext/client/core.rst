@@ -21,6 +21,7 @@ This section contains module documentation of Client core modules.
    core/notebook
    core/plugin
    core/pluginmanager
+   core/testhandler
    core/tkimport
    core/tooltip
    core/translator

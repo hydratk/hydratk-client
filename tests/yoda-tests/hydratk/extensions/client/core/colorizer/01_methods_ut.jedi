@@ -1,0 +1,156 @@
+Test-Scenario-1:
+  Id: ts_01
+  Path: hydratk/extensions/client/core/colorizer/01_methods_ut.jedi
+  Name: ts_props
+  Desc: Test property methods
+  Author: Petr Rasek <bowman@hydratk.org>
+  Version: 0.1
+  
+  Pre-Req: |
+    from yodalib.hydratk.extensions.client.gui_client import GuiClient
+    from yodahelpers.hydratk.extensions.client.core.colorizer import get_instance, get_property
+  
+  Test-Case-1:
+    Id: tc_01
+    Name: tc_getters
+    Desc: Getter methods
+    
+    Test-Condition-1: 
+      Id: tco_01
+      Name: tco_config
+      Desc: Getter config
+      
+      Test: |
+        c = GuiClient.get_instance()
+        code = "prop, attr = get_property(get_instance(), name, True)"
+        c.write_msg(code, [get_instance, get_property], input={'name': 'config'}, output=['prop', 'attr']) 
+      
+      Validate: |  
+        prop, attr = c.read_msg('prop', 'attr')
+        this.test_result = prop
+        assert (prop == attr), 'prop != {0}'.format(attr)
+        
+Test-Scenario-2:
+  Id: ts_02
+  Path: hydratk/extensions/client/core/colorizer/01_methods_ut.jedi
+  Name: ts_make_patterns
+  Desc: Test _make_patterns methods
+  Author: Petr Rasek <bowman@hydratk.org>
+  Version: 0.1
+  
+  Pre-Req: |
+    from yodalib.hydratk.extensions.client.gui_client import GuiClient
+    from yodahelpers.hydratk.extensions.client.core.colorizer import get_instance, get_attr
+  
+  Test-Case-1:
+    Id: tc_01
+    Name: tc_make_patterns
+    Desc: Make patterns
+    
+    Test-Condition-1: 
+      Id: tco_01
+      Name: tco_make
+      Desc: Make
+      
+      Test: |
+        c = GuiClient.get_instance()
+        code = "inst = get_instance(); inst._make_patterns(); attr = get_attr(inst, name)"
+        c.write_msg(code, [get_instance, get_attr], input={'name': '_patterns'}, output=['attr']) 
+      
+      Validate: |  
+        attr = sorted(c.read_msg('attr'))
+        this.test_result = str(attr)
+        exp = ['keyword', 'string', 'yoda']
+        assert (attr == exp), 'attr != {0}'.format(exp)
+        
+Test-Scenario-3:
+  Id: ts_03
+  Path: hydratk/extensions/client/core/colorizer/01_methods_ut.jedi
+  Name: ts_colorize
+  Desc: Test colorize method
+  Author: Petr Rasek <bowman@hydratk.org>
+  Version: 0.1
+  
+  Pre-Req: |
+    from yodalib.hydratk.extensions.client.gui_client import GuiClient
+    from yodahelpers.hydratk.extensions.client.core.editor import get_tab_cnt, close_tabs, write_text
+    from yodahelpers.hydratk.extensions.client.core.colorizer import get_tags
+    from hydratk.extensions.client.core.template import helper_content, test_content
+    from os import path
+  
+  Test-Case-1:
+    Id: tc_01
+    Name: tc_colorize
+    Desc: Colorize
+        
+    Test-Condition-1: 
+      Id: tco_01
+      Name: tco_new_file
+      Desc: New file
+      
+      Test: |
+        c = GuiClient.get_instance()
+        code = "self.root.editor.new_file(); cnt = get_tab_cnt()"        
+        c.write_msg(code, [get_tab_cnt], output=['cnt'])
+        
+      Validate: |
+        cnt = c.read_msg('cnt')
+        this.test_result = cnt
+        assert (cnt == 1), 'tab not added'              
+    
+    Test-Condition-2: 
+      Id: tco_02
+      Name: tco_text
+      Desc: Ordinary text
+      
+      Test: |
+        code = "write_text(text); tags = get_tags()"
+        c.write_msg(code, [write_text, get_tags], input={'text': 'xxx\n\nyyy'}, output=['tags'])
+        
+      Validate: |
+        tags = c.read_msg('tags')
+        this.test_result = str(tags)                    
+        assert (tags == []), 'tags not empty'
+        
+    Test-Condition-3: 
+      Id: tco_03
+      Name: tco_helper
+      Desc: Helper template
+      
+      Test: |
+        code = "self.root.editor.select_all(); self.root.editor.delete(); write_text(text); tags = get_tags()"
+        c.write_msg(code, [write_text, get_tags], input={'text': helper_content}, output=['tags'])
+        
+      Validate: |
+        tags = c.read_msg('tags')
+        this.test_result = str(tags)
+        exp = ['keyword', 'string']                    
+        assert (tags == exp), 'tags != {0}'.format(exp)
+        
+    Test-Condition-4: 
+      Id: tco_04
+      Name: tco_test
+      Desc: Test template
+      
+      Test: |
+        c.write_msg(code, [write_text, get_tags], input={'text': test_content}, output=['tags'])
+        
+      Validate: |
+        tags = c.read_msg('tags')
+        this.test_result = str(tags)
+        exp = ['keyword', 'string', 'yoda']                    
+        assert (tags == exp), 'tags != {0}'.format(exp)                                       
+        
+    Test-Condition-5: 
+      Id: tco_05
+      Name: tco_close
+      Desc: Close tabs 
+      
+      Test: |
+        code = "close_tabs(); cnt = get_tab_cnt()"
+        c.write_msg(code, [close_tabs, get_tab_cnt], output=['cnt'])
+      
+      Validate: |                                                                                                         
+        cnt = c.read_msg('cnt')
+        this.test_result = cnt
+        assert (cnt == 0), 'tab not closed'              

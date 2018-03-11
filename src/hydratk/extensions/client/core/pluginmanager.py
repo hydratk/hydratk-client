@@ -22,6 +22,11 @@ class PluginManager(object):
     _trn = None
     _config = None
 
+    # gui elements
+    _win = None
+    _states = {}
+    _btn = None
+
     def __init__(self):
         """Class constructor
 
@@ -97,38 +102,36 @@ class PluginManager(object):
 
         """
            
-        win = tk.Toplevel(self.root)
-        win.title(self.trn.msg('htk_gui_plugin_manager_title'))
-        win.transient(self.root)
-        win.resizable(False, False)
-        win.geometry('+%d+%d' % (self.root.winfo_screenwidth() / 3, self.root.winfo_screenheight() / 3))
-        win.tk.call('wm', 'iconphoto', win._w, self.root.images['logo'])
-        win.focus_set()
+        self._win = tk.Toplevel(self.root)
+        self._win.title(self.trn.msg('htk_gui_plugin_manager_title'))
+        self._win.transient(self.root)
+        self._win.resizable(False, False)
+        self._win.geometry('+%d+%d' % (self.root.winfo_screenwidth() / 3, self.root.winfo_screenheight() / 3))
+        self._win.tk.call('wm', 'iconphoto', self._win._w, self.root.images['logo'])
+        self._win.focus_set()
 
         font = ('Arial', 10, 'bold')
-        tk.Label(win, text=self.trn.msg('htk_gui_plugin_manager_name'), font=font, width=25, anchor='w', padx=3, pady=3).grid(row=0, column=0)
-        tk.Label(win, text=self.trn.msg('htk_gui_plugin_manager_enabled'), font=font, anchor='w', padx=3, pady=3).grid(row=0, column=1)
+        tk.Label(self._win, text=self.trn.msg('htk_gui_plugin_manager_name'), font=font, width=25, anchor='w', padx=3, pady=3).grid(row=0, column=0)
+        tk.Label(self._win, text=self.trn.msg('htk_gui_plugin_manager_enabled'), font=font, anchor='w', padx=3, pady=3).grid(row=0, column=1)
         i = 1
-        states = {}
+
         for name, cfg in self.config.data['Plugins'].items():
-            tk.Label(win, text=name, width=25, anchor='w', padx=3).grid(row=i, column=0)
+            tk.Label(self._win, text=name, width=25, anchor='w', padx=3).grid(row=i, column=0)
             state = True if ('enabled' in cfg and cfg['enabled'] == 1) else False
             var = tk.IntVar(value=state)
-            tk.Checkbutton(win, variable=var).grid(row=i, column=1, padx=3, sticky='w')
-            states[name] = var
+            tk.Checkbutton(self._win, variable=var).grid(row=i, column=1, padx=3, sticky='w')
+            self._states[name] = var
             i += 1
 
-        btn = tk.Button(win, text=self.trn.msg('htk_gui_plugin_manager_save'), command=lambda: self._update_state(states, win))
-        btn.grid(row=i, column=2, padx=3, pady=3, sticky='e')
+        self._btn = tk.Button(self._win, text=self.trn.msg('htk_gui_plugin_manager_save'), command=self._update_state)
+        self._btn.grid(row=i, column=2, padx=3, pady=3, sticky='e')
 
-        win.bind('<Escape>', lambda f: win.destroy())
+        self._win.bind('<Escape>', lambda f: self._win.destroy())
 
-    def _update_state(self, states, win=None):
+    def _update_state(self):
         """Method update plugin state configuration
 
-        Args:
-            states (dict): requested plugin states
-            win (obj): window reference
+        Args:none
 
         Returns:
             void
@@ -138,7 +141,7 @@ class PluginManager(object):
         plugins = self.config.data['Plugins']
         update = False
         for name, cfg in plugins.items():
-            req_state = states[name].get()
+            req_state = self._states[name].get()
             if ('enabled' not in cfg or cfg['enabled'] != req_state):
                 cfg['enabled'] = req_state
                 update = True
@@ -146,5 +149,5 @@ class PluginManager(object):
         if (update):
             self.config.save()
 
-        if (win is not None):
-            win.destroy()
+        if (self._win is not None):
+            self._win.destroy()

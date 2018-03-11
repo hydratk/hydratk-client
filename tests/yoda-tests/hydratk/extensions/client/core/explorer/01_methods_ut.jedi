@@ -1,0 +1,733 @@
+Test-Scenario-1:
+  Id: ts_01
+  Path: hydratk/extensions/client/core/explorer/01_methods_ut.jedi
+  Name: ts_props
+  Desc: Test property methods
+  Author: Petr Rasek <bowman@hydratk.org>
+  Version: 0.1
+  
+  Pre-Req: |
+    from yodalib.hydratk.extensions.client.gui_client import GuiClient
+    from yodahelpers.hydratk.extensions.client.core.explorer import get_property
+  
+  Test-Case-1:
+    Id: tc_01
+    Name: tc_getters
+    Desc: Getter methods
+    
+    Test-Condition-1: 
+      Id: tco_01
+      Name: tco_root
+      Desc: Getter root
+      
+      Test: |
+        c = GuiClient.get_instance()
+        code = "prop, attr = get_property(name, True)"
+        c.write_msg(code, [get_property], input={'name': 'root'}, output=['prop', 'attr']) 
+      
+      Validate: |  
+        prop, attr = c.read_msg('prop', 'attr')
+        this.test_result = prop
+        assert (prop == attr), 'prop != {0}'.format(attr)
+        
+    Test-Condition-2: 
+      Id: tco_02
+      Name: tco_trn
+      Desc: Getter trn
+      
+      Test: |
+        c.write_msg(code, [get_property], input={'name': 'trn'}, output=['prop', 'attr']) 
+      
+      Validate: |  
+        prop, attr = c.read_msg('prop', 'attr')
+        this.test_result = prop
+        assert (prop == attr), 'prop != {0}'.format(attr)
+        
+    Test-Condition-3: 
+      Id: tco_03
+      Name: tco_config
+      Desc: Getter config
+      
+      Test: |
+        c.write_msg(code, [get_property], input={'name': 'config'}, output=['prop', 'attr']) 
+      
+      Validate: |  
+        prop, attr = c.read_msg('prop', 'attr')
+        this.test_result = prop
+        assert (prop == attr), 'prop != {0}'.format(attr)
+        
+    Test-Condition-4: 
+      Id: tco_04
+      Name: tco_editor
+      Desc: Getter editor
+      
+      Test: |
+        c.write_msg(code, [get_property], input={'name': 'editor'}, output=['prop', 'attr']) 
+      
+      Validate: |  
+        prop, attr = c.read_msg('prop', 'attr')
+        this.test_result = prop
+        assert (prop == attr), 'prop != {0}'.format(attr)
+        
+    Test-Condition-5: 
+      Id: tco_05
+      Name: tco_logger
+      Desc: Getter logger
+      
+      Test: |
+        c.write_msg(code, [get_property], input={'name': 'logger'}, output=['prop', 'attr']) 
+      
+      Validate: |  
+        prop, attr = c.read_msg('prop', 'attr')
+        this.test_result = prop
+        assert (prop == attr), 'prop != {0}'.format(attr)
+        
+    Test-Condition-6: 
+      Id: tco_06
+      Name: tco_yoda_tree
+      Desc: Getter yoda_tree
+      
+      Test: |
+        c.write_msg(code, [get_property], input={'name': 'yoda_tree'}, output=['prop', 'attr']) 
+      
+      Validate: |  
+        prop, attr = c.read_msg('prop', 'attr')
+        this.test_result = prop
+        assert (prop == attr), 'prop != {0}'.format(attr)
+        
+    Test-Condition-7: 
+      Id: tco_07
+      Name: tco_autocompleter
+      Desc: Getter autocompleter
+      
+      Test: |
+        c.write_msg(code, [get_property], input={'name': 'autocompleter'}, output=['prop', 'attr']) 
+      
+      Validate: |  
+        prop, attr = c.read_msg('prop', 'attr')
+        this.test_result = prop
+        assert (prop == attr), 'prop != {0}'.format(attr)
+        
+Test-Scenario-2:
+  Id: ts_02
+  Path: hydratk/extensions/client/core/explorer/01_methods_ut.jedi
+  Name: ts_new_file
+  Desc: Test new_file method
+  Author: Petr Rasek <bowman@hydratk.org>
+  Version: 0.1
+  
+  Pre-Req: |
+    from yodalib.hydratk.extensions.client.gui_client import GuiClient
+    from yodahelpers.hydratk.extensions.client.core.explorer import get_tab_cnt, close_tabs, click_menu, click_context_menu
+  
+  Test-Case-1:
+    Id: tc_01
+    Name: tc_new_file
+    Desc: New file
+    
+    Test-Condition-1: 
+      Id: tco_01
+      Name: tco_new_file
+      Desc: New file
+      
+      Test: |
+        c = GuiClient.get_instance()
+        code = "self.root.explorer.new_file(); cnt = get_tab_cnt()"
+        c.write_msg(code, [get_tab_cnt], output=['cnt'])
+        
+      Validate: |
+        cnt = c.read_msg('cnt')
+        this.test_result = cnt
+        assert (cnt == 1), 'tab not added'
+        
+    Test-Condition-2: 
+      Id: tco_02
+      Name: tco_menu
+      Desc: From menu
+      
+      Test: |
+        code = "click_menu(item); cnt = get_tab_cnt()"
+        c.write_msg(code, [click_menu, get_tab_cnt], input={'item': 'New File'}, output=['cnt'])
+        
+      Validate: |
+        cnt = c.read_msg('cnt')
+        this.test_result = cnt
+        assert (cnt == 2), 'tab not added'
+        
+    Test-Condition-3: 
+      Id: tco_03
+      Name: tco_context_menu
+      Desc: From context menu
+      
+      Test: |
+        code = "click_context_menu(item); cnt = get_tab_cnt()"
+        c.write_msg(code, [click_context_menu, get_tab_cnt], input={'item': 'New File'}, output=['cnt'])
+        
+      Validate: |
+        cnt = c.read_msg('cnt')
+        this.test_result = cnt
+        assert (cnt == 3), 'tab not added'                          
+        
+    Test-Condition-4: 
+      Id: tco_04
+      Name: tco_close_tabs
+      Desc: Close tabs
+      
+      Test: |
+        code = "close_tabs(); cnt = get_tab_cnt()"
+        c.write_msg(code, [close_tabs, get_tab_cnt], output=['cnt'])
+        
+      Validate: |
+        cnt = c.read_msg('cnt')
+        this.test_result = cnt
+        assert (cnt == 0), 'tabs not closed'
+        
+Test-Scenario-3:
+  Id: ts_03
+  Path: hydratk/extensions/client/core/explorer/01_methods_ut.jedi
+  Name: ts_new_project
+  Desc: Test new_project method
+  Author: Petr Rasek <bowman@hydratk.org>
+  Version: 0.1
+  
+  Pre-Req: |
+    from yodalib.hydratk.extensions.client.gui_client import GuiClient
+    from yodahelpers.hydratk.extensions.client.core.explorer import create_project, select, clean
+    from os import path
+  
+  Test-Case-1:
+    Id: tc_01
+    Name: tc_new_project
+    Desc: New project
+    
+    Test-Condition-1: 
+      Id: tco_01
+      Name: tco_new_project
+      Desc: New project
+      
+      Test: |
+        c = GuiClient.get_instance()        
+        code = "config = create_project(path); sel = select(tree_path)"
+        proj_path, tree_path = '/tmp/test_project', ['test_project']
+        c.write_msg(code, [create_project, select], input={'path': proj_path, 'tree_path': tree_path}, output=['config', 'sel'])
+        
+      Validate: |
+        config, sel = c.read_msg('config', 'sel')
+        this.test_result = str(config)
+        exp = {'path': proj_path, 'pythonpath': [proj_path+'/lib/yodalib', proj_path+'/helpers/yodahelpers']}
+        assert(config == exp), 'config != {0}'.format(exp)
+        assert (sel), 'item not selected'
+        
+        paths = [proj_path, proj_path+'/lib/yodalib/__init__.py', proj_path+'/helpers/yodahelpers/__init__.py',
+                 proj_path+'/yoda-tests']
+        
+        for p in paths:
+            assert (path.exists(p)), '{0} not created'.format(p)
+        
+    Test-Condition-2: 
+      Id: tco_02
+      Name: tco_clean
+      Desc: Clean 
+      
+      Test: |
+        code = "clean()"
+        c.write_msg(code, [clean])
+      
+      Validate: |                                                                                                         
+        c.read_msg()
+        assert (not path.exists(proj_path)), 'directory not deleted'
+        
+Test-Scenario-4:
+  Id: ts_04
+  Path: hydratk/extensions/client/core/explorer/01_methods_ut.jedi
+  Name: ts_new_directory
+  Desc: Test new_directory method
+  Author: Petr Rasek <bowman@hydratk.org>
+  Version: 0.1
+  
+  Pre-Req: |
+    from yodalib.hydratk.extensions.client.gui_client import GuiClient
+    from yodahelpers.hydratk.extensions.client.core.explorer import create_project, select, clean
+    from os import path
+  
+  Test-Case-1:
+    Id: tc_01
+    Name: tc_new_directory
+    Desc: New directory
+    
+    Test-Condition-1: 
+      Id: tco_01
+      Name: tco_create_project
+      Desc: Create project
+      
+      Test: |
+        c = GuiClient.get_instance()        
+        code = "create_project(path); sel = select(tree_path)"
+        proj_path, tree_path = '/tmp/test_project', ['test_project', 'lib']
+        c.write_msg(code, [create_project, select], input={'path': proj_path, 'tree_path': tree_path}, output=['sel'])
+        
+      Validate: |
+        sel = c.read_msg('sel')
+        assert (sel), 'item not selected'
+
+    Test-Condition-2: 
+      Id: tco_02
+      Name: tco_new_directory
+      Desc: New directory
+      
+      Test: |
+        code = "self.root.explorer.new_directory(dirpath); sel = select(tree_path)"
+        dirpath = '/tmp/test_project/lib/testdir'
+        c.write_msg(code, [select], input={'dirpath': dirpath, 'tree_path': dirpath.split('/')[2:]}, output=['sel'])
+      
+      Validate: |
+        sel = c.read_msg('sel')
+        this.test_result = sel
+        assert (sel), 'item not selected'
+        assert (os.path.exists(dirpath)), 'directory not created'
+        
+    Test-Condition-3: 
+      Id: tco_03
+      Name: tco_clean
+      Desc: Clean 
+      
+      Test: |
+        code = "clean()"
+        c.write_msg(code, [clean])
+      
+      Validate: |                                                                                                         
+        c.read_msg()
+        assert (not path.exists(proj_path)), 'directory not deleted'
+        
+Test-Scenario-5:
+  Id: ts_05
+  Path: hydratk/extensions/client/core/explorer/01_methods_ut.jedi
+  Name: ts_new_helper
+  Desc: Test new_helper method
+  Author: Petr Rasek <bowman@hydratk.org>
+  Version: 0.1
+  
+  Pre-Req: |
+    from yodalib.hydratk.extensions.client.gui_client import GuiClient
+    from yodahelpers.hydratk.extensions.client.core.explorer import create_project, select, clean, close_tabs, get_tab_cnt
+    from os import path
+    from hydratk.extensions.client.core.template import helper_content
+  
+  Test-Case-1:
+    Id: tc_01
+    Name: tc_new_helper
+    Desc: New helper
+    
+    Test-Condition-1: 
+      Id: tco_01
+      Name: tco_create_project
+      Desc: Create project
+      
+      Test: |
+        c = GuiClient.get_instance()        
+        code = "config = create_project(path); sel = select(tree_path)"
+        proj_path, tree_path = '/tmp/test_project', ['test_project']
+        c.write_msg(code, [create_project, select], input={'path': proj_path, 'tree_path': tree_path}, output=['sel'])
+        
+      Validate: |
+        sel = c.read_msg('sel')
+        assert (sel), 'item not selected'
+
+    Test-Condition-2: 
+      Id: tco_02
+      Name: tco_new_helper
+      Desc: New helper
+      
+      Test: |
+        code = "self.root.explorer.new_helper(fpath); sel = select(tree_path); cnt = get_tab_cnt()"
+        fpath = '/tmp/test_project/helpers/yodahelpers/helper.py'
+        c.write_msg(code, [select, get_tab_cnt], input={'fpath': fpath, 'tree_path': fpath.split('/')[2:]}, output=['sel', 'cnt'])
+      
+      Validate: |
+        sel, cnt = c.read_msg('sel', 'cnt')
+        this.test_result = cnt
+        assert (cnt == 1), 'tab not added'
+        assert (sel), 'item not selected'        
+        assert (os.path.exists(fpath)), 'file not created'
+        
+        with open(fpath, 'r') as f:
+            content = f.read()
+        exp = helper_content.format(name='helper')
+        assert (content == exp), 'incorrect file content'
+        
+    Test-Condition-3: 
+      Id: tco_03
+      Name: tco_clean
+      Desc: Clean 
+      
+      Test: |
+        code = "close_tabs(); clean()"
+        c.write_msg(code, [close_tabs, clean])
+      
+      Validate: |                                                                                                         
+        c.read_msg()
+        assert (not path.exists(proj_path)), 'directory not deleted'
+
+Test-Scenario-6:
+  Id: ts_06
+  Path: hydratk/extensions/client/core/explorer/01_methods_ut.jedi
+  Name: ts_new_library
+  Desc: Test new_library method
+  Author: Petr Rasek <bowman@hydratk.org>
+  Version: 0.1
+  
+  Pre-Req: |
+    from yodalib.hydratk.extensions.client.gui_client import GuiClient
+    from yodahelpers.hydratk.extensions.client.core.explorer import create_project, select, clean, close_tabs, get_tab_cnt
+    from os import path
+    from hydratk.extensions.client.core.template import library_content
+  
+  Test-Case-1:
+    Id: tc_01
+    Name: tc_new_library
+    Desc: New library
+    
+    Test-Condition-1: 
+      Id: tco_01
+      Name: tco_create_project
+      Desc: Create project
+      
+      Test: |
+        c = GuiClient.get_instance()        
+        code = "config = create_project(path); sel = select(tree_path)"
+        proj_path, tree_path = '/tmp/test_project', ['test_project']
+        c.write_msg(code, [create_project, select], input={'path': proj_path, 'tree_path': tree_path}, output=['sel'])
+        
+      Validate: |
+        sel = c.read_msg('sel')
+        assert (sel), 'item not selected'
+
+    Test-Condition-2: 
+      Id: tco_02
+      Name: tco_new_library
+      Desc: New library
+      
+      Test: |
+        code = "self.root.explorer.new_library(fpath); sel = select(tree_path); cnt = get_tab_cnt()"
+        fpath = '/tmp/test_project/lib/yodalib/library.py'
+        c.write_msg(code, [select, get_tab_cnt], input={'fpath': fpath, 'tree_path': fpath.split('/')[2:]}, output=['sel', 'cnt'])
+      
+      Validate: |
+        sel, cnt = c.read_msg('sel', 'cnt')
+        this.test_result = cnt
+        assert (cnt == 1), 'tab not added'
+        assert (sel), 'item not selected'        
+        assert (os.path.exists(fpath)), 'file not created'
+        
+        with open(fpath, 'r') as f:
+            content = f.read()
+        exp = library_content.format(name='library')
+        assert (content == exp), 'incorrect file content'
+        
+    Test-Condition-3: 
+      Id: tco_03
+      Name: tco_clean
+      Desc: Clean 
+      
+      Test: |
+        code = "close_tabs(); clean()"
+        c.write_msg(code, [close_tabs, clean])
+      
+      Validate: |                                                                                                         
+        c.read_msg()
+        assert (not path.exists(proj_path)), 'directory not deleted'
+        
+Test-Scenario-7:
+  Id: ts_07
+  Path: hydratk/extensions/client/core/explorer/01_methods_ut.jedi
+  Name: ts_new_test
+  Desc: Test new_test method
+  Author: Petr Rasek <bowman@hydratk.org>
+  Version: 0.1
+  
+  Pre-Req: |
+    from yodalib.hydratk.extensions.client.gui_client import GuiClient
+    from yodahelpers.hydratk.extensions.client.core.explorer import create_project, select, clean, close_tabs, get_tab_cnt
+    from os import path
+    from hydratk.extensions.client.core.template import test_content
+  
+  Test-Case-1:
+    Id: tc_01
+    Name: tc_new_test
+    Desc: New test
+    
+    Test-Condition-1: 
+      Id: tco_01
+      Name: tco_create_project
+      Desc: Create project
+      
+      Test: |
+        c = GuiClient.get_instance()        
+        code = "config = create_project(path); sel = select(tree_path)"
+        proj_path, tree_path = '/tmp/test_project', ['test_project']
+        c.write_msg(code, [create_project, select], input={'path': proj_path, 'tree_path': tree_path}, output=['sel'])
+        
+      Validate: |
+        sel = c.read_msg('sel')
+        assert (sel), 'item not selected'
+
+    Test-Condition-2: 
+      Id: tco_02
+      Name: tco_new_test
+      Desc: New test
+      
+      Test: |
+        code = "self.root.explorer.new_test(fpath); sel = select(tree_path); cnt = get_tab_cnt()"
+        fpath = '/tmp/test_project/yoda-tests/test.jedi'
+        c.write_msg(code, [select, get_tab_cnt], input={'fpath': fpath, 'tree_path': fpath.split('/')[2:]}, output=['sel', 'cnt'])
+      
+      Validate: |
+        sel, cnt = c.read_msg('sel', 'cnt')
+        this.test_result = cnt
+        assert (cnt == 1), 'tab not added'
+        assert (sel), 'item not selected'        
+        assert (os.path.exists(fpath)), 'file not created'
+        
+        with open(fpath, 'r') as f:
+            content = f.read()
+        exp = test_content.format(path='test.jedi', name='test')
+        assert (content == exp), 'incorrect file content'
+        
+    Test-Condition-3: 
+      Id: tco_03
+      Name: tco_clean
+      Desc: Clean 
+      
+      Test: |
+        code = "close_tabs(); clean()"
+        c.write_msg(code, [close_tabs, clean])
+      
+      Validate: |                                                                                                         
+        c.read_msg()
+        assert (not path.exists(proj_path)), 'directory not deleted'
+
+Test-Scenario-8:
+  Id: ts_08
+  Path: hydratk/extensions/client/core/explorer/01_methods_ut.jedi
+  Name: ts_new_archive
+  Desc: Test new_archive method
+  Author: Petr Rasek <bowman@hydratk.org>
+  Version: 0.1
+  
+  Pre-Req: |
+    from yodalib.hydratk.extensions.client.gui_client import GuiClient
+    from yodahelpers.hydratk.extensions.client.core.explorer import create_project, select, clean, close_tabs, get_tab_cnt
+    from os import path
+    from hydratk.extensions.client.core.template import archive_content
+  
+  Test-Case-1:
+    Id: tc_01
+    Name: tc_new_archive
+    Desc: New archive
+    
+    Test-Condition-1: 
+      Id: tco_01
+      Name: tco_create_project
+      Desc: Create project
+      
+      Test: |
+        c = GuiClient.get_instance()        
+        code = "config = create_project(path); sel = select(tree_path)"
+        proj_path, tree_path = '/tmp/test_project', ['test_project']
+        c.write_msg(code, [create_project, select], input={'path': proj_path, 'tree_path': tree_path}, output=['sel'])
+        
+      Validate: |
+        sel = c.read_msg('sel')
+        assert (sel), 'item not selected'
+
+    Test-Condition-2: 
+      Id: tco_02
+      Name: tco_new_archive
+      Desc: New archive
+      
+      Test: |
+        code = "self.root.explorer.new_archive(fpath); sel = select(tree_path); cnt = get_tab_cnt()"
+        fpath = '/tmp/test_project/yoda-tests/archive.yoda'
+        c.write_msg(code, [select, get_tab_cnt], input={'fpath': fpath, 'tree_path': fpath.split('/')[2:]}, output=['sel', 'cnt'])
+      
+      Validate: |
+        sel, cnt = c.read_msg('sel', 'cnt')
+        this.test_result = cnt
+        assert (cnt == 1), 'tab not added'
+        assert (sel), 'item not selected'        
+        assert (os.path.exists(fpath)), 'file not created'
+        
+        with open(fpath, 'r') as f:
+            content = f.read()
+        exp = archive_content.format(name='archive')
+        assert (content == exp), 'incorrect file content'
+        
+    Test-Condition-3: 
+      Id: tco_03
+      Name: tco_clean
+      Desc: Clean 
+      
+      Test: |
+        code = "close_tabs(); clean()"
+        c.write_msg(code, [close_tabs, clean])
+      
+      Validate: |                                                                                                         
+        c.read_msg()
+        assert (not path.exists(proj_path)), 'directory not deleted' 
+        
+Test-Scenario-9:
+  Id: ts_09
+  Path: hydratk/extensions/client/core/explorer/01_methods_ut.jedi
+  Name: ts_new_draft
+  Desc: Test new_draft method
+  Author: Petr Rasek <bowman@hydratk.org>
+  Version: 0.1
+  
+  Pre-Req: |
+    from yodalib.hydratk.extensions.client.gui_client import GuiClient
+    from yodahelpers.hydratk.extensions.client.core.explorer import create_project, select, clean, close_tabs, get_tab_cnt
+    from os import path
+    from hydratk.extensions.client.core.template import draft_content
+  
+  Test-Case-1:
+    Id: tc_01
+    Name: tc_new_draft
+    Desc: New draft
+    
+    Test-Condition-1: 
+      Id: tco_01
+      Name: tco_create_project
+      Desc: Create project
+      
+      Test: |
+        c = GuiClient.get_instance()        
+        code = "config = create_project(path); sel = select(tree_path)"
+        proj_path, tree_path = '/tmp/test_project', ['test_project']
+        c.write_msg(code, [create_project, select], input={'path': proj_path, 'tree_path': tree_path}, output=['sel'])
+        
+      Validate: |
+        sel = c.read_msg('sel')
+        assert (sel), 'item not selected'
+
+    Test-Condition-2: 
+      Id: tco_02
+      Name: tco_new_draft
+      Desc: New draft
+      
+      Test: |
+        code = "self.root.explorer.new_draft(fpath); sel = select(tree_path); cnt = get_tab_cnt()"
+        fpath = '/tmp/test_project/yoda-tests/draft.padawan'
+        c.write_msg(code, [select, get_tab_cnt], input={'fpath': fpath, 'tree_path': fpath.split('/')[2:]}, output=['sel', 'cnt'])
+      
+      Validate: |
+        sel, cnt = c.read_msg('sel', 'cnt')
+        this.test_result = cnt
+        assert (cnt == 1), 'tab not added'
+        assert (sel), 'item not selected'        
+        assert (os.path.exists(fpath)), 'file not created'
+        
+        with open(fpath, 'r') as f:
+            content = f.read()
+        exp = draft_content.format(path='draft.padawan', name='draft')
+        assert (content == exp), 'incorrect file content'
+        
+    Test-Condition-3: 
+      Id: tco_03
+      Name: tco_clean
+      Desc: Clean 
+      
+      Test: |
+        code = "close_tabs(); clean()"
+        c.write_msg(code, [close_tabs, clean])
+      
+      Validate: |                                                                                                         
+        c.read_msg()
+        assert (not path.exists(proj_path)), 'directory not deleted'
+        
+Test-Scenario-10:
+  Id: ts_10
+  Path: hydratk/extensions/client/core/explorer/01_methods_ut.jedi
+  Name: ts_open
+  Desc: Test _open method
+  Author: Petr Rasek <bowman@hydratk.org>
+  Version: 0.1
+  
+  Pre-Req: |
+    from yodalib.hydratk.extensions.client.gui_client import GuiClient
+    from yodahelpers.hydratk.extensions.client.core.explorer import create_project, select, clean, close_tabs, get_tab_cnt, click_context_menu
+    from os import path
+  
+  Test-Case-1:
+    Id: tc_01
+    Name: tc_open
+    Desc: Open file
+    
+    Test-Condition-1: 
+      Id: tco_01
+      Name: tco_create_project
+      Desc: Create project
+      
+      Test: |
+        c = GuiClient.get_instance()        
+        code = "config = create_project(path); sel = select(tree_path)"
+        proj_path, tree_path = '/tmp/test_project', ['test_project']
+        c.write_msg(code, [create_project, select], input={'path': proj_path, 'tree_path': tree_path}, output=['sel'])
+        
+      Validate: |
+        sel = c.read_msg('sel')
+        assert (sel), 'item not selected'
+        
+    Test-Condition-2: 
+      Id: tco_02
+      Name: tco_open
+      Desc: Open
+      
+      Test: |
+        code = "sel = select(tree_path); self.root.explorer._open(); cnt = get_tab_cnt()"
+        tree_path = ['test_project', 'lib', 'yodalib', '__init__.py']
+        c.write_msg(code, [select, get_tab_cnt], input={'tree_path': tree_path}, output=['cnt'])
+      
+      Validate: |
+        cnt = c.read_msg('cnt')
+        assert (cnt == 1), 'file not opened'
+        
+    Test-Condition-3: 
+      Id: tco_03
+      Name: tco_context_menu
+      Desc: Open from context menu
+      
+      Test: |
+        code = "sel = select(tree_path); click_context_menu(item); cnt = get_tab_cnt()"
+        tree_path = ['test_project', 'helpers', 'yodahelpers', '__init__.py']
+        c.write_msg(code, [select, click_context_menu, get_tab_cnt], input={'tree_path': tree_path, 'item': 'Open'}, output=['cnt'])
+      
+      Validate: |
+        cnt = c.read_msg('cnt')
+        assert (cnt == 2), 'file not opened'        
+      
+    Test-Condition-4: 
+      Id: tco_04
+      Name: tco_dir
+      Desc: Directory
+      
+      Test: |
+        code = "sel = select(tree_path); self.root.explorer._open(); cnt = get_tab_cnt()"
+        tree_path = ['test_project', 'lib', 'yodalib']
+        c.write_msg(code, [select, get_tab_cnt], input={'tree_path': tree_path}, output=['cnt'])
+      
+      Validate: |
+        cnt = c.read_msg('cnt')
+        assert (cnt == 2), 'directory opened'      
+      
+    Test-Condition-5: 
+      Id: tco_05
+      Name: tco_clean
+      Desc: Clean 
+      
+      Test: |
+        code = "close_tabs(); clean()"
+        c.write_msg(code, [close_tabs, clean])
+      
+      Validate: |                                                                                                         
+        c.read_msg()
+        assert (not path.exists(proj_path)), 'directory not deleted'                                                  

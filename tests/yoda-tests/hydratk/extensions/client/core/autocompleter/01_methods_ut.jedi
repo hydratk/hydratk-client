@@ -1,0 +1,167 @@
+Test-Scenario-1:
+  Id: ts_01
+  Path: hydratk/extensions/client/core/autocompleter/01_methods_ut.jedi
+  Name: ts_props
+  Desc: Test property methods
+  Author: Petr Rasek <bowman@hydratk.org>
+  Version: 0.1
+  
+  Pre-Req: |
+    from yodalib.hydratk.extensions.client.gui_client import GuiClient
+    from yodahelpers.hydratk.extensions.client.core.autocompleter import get_instance, get_property
+  
+  Test-Case-1:
+    Id: tc_01
+    Name: tc_getters
+    Desc: Getter methods
+    
+    Test-Condition-1: 
+      Id: tco_01
+      Name: tco_root
+      Desc: Getter root
+      
+      Test: |
+        c = GuiClient.get_instance()
+        code = "prop, attr = get_property(get_instance(), name, True)"
+        c.write_msg(code, [get_instance, get_property], input={'name': 'root'}, output=['prop', 'attr']) 
+      
+      Validate: |  
+        prop, attr = c.read_msg('prop', 'attr')
+        this.test_result = prop
+        assert (prop == attr), 'prop != {0}'.format(attr)
+        
+    Test-Condition-2: 
+      Id: tco_02
+      Name: tco_config
+      Desc: Getter config
+      
+      Test: |
+        c.write_msg(code, [get_instance, get_property], input={'name': 'config'}, output=['prop', 'attr']) 
+      
+      Validate: |  
+        prop, attr = c.read_msg('prop', 'attr')
+        this.test_result = prop
+        assert (prop == attr), 'prop != {0}'.format(attr)
+        
+    Test-Condition-3: 
+      Id: tco_03
+      Name: tco_tab
+      Desc: Getter tab
+      
+      Test: |
+        c.write_msg(code, [get_instance, get_property], input={'name': 'tab'}, output=['prop', 'attr']) 
+      
+      Validate: |  
+        prop, attr = c.read_msg('prop', 'attr')
+        this.test_result = prop
+        assert (prop == attr), 'prop != {0}'.format(attr)
+        
+Test-Scenario-2:
+  Id: ts_02
+  Path: hydratk/extensions/client/core/autocompleter/01_methods_ut.jedi
+  Name: ts_complete
+  Desc: Test _complete method
+  Author: Petr Rasek <bowman@hydratk.org>
+  Version: 0.1
+  
+  Pre-Req: |
+    from yodalib.hydratk.extensions.client.gui_client import GuiClient
+    from yodahelpers.hydratk.extensions.client.core.editor import get_tab_cnt, close_tabs, get_tab_content
+    from yodahelpers.hydratk.extensions.client.core.autocompleter import complete
+    from sys import version_info
+  
+  Test-Case-1:
+    Id: tc_01
+    Name: tc_complete
+    Desc: Complete
+        
+    Test-Condition-1: 
+      Id: tco_01
+      Name: tco_new_file
+      Desc: New file
+      
+      Test: |
+        c = GuiClient.get_instance()
+        code = "self.root.editor.new_file(); cnt = get_tab_cnt()"        
+        c.write_msg(code, [get_tab_cnt], output=['cnt'])
+        
+      Validate: |
+        cnt = c.read_msg('cnt')
+        this.test_result = cnt
+        assert (cnt == 1), 'tab not added'              
+    
+    Test-Condition-2: 
+      Id: tco_02
+      Name: tco_keyword
+      Desc: Complete keyword
+      
+      Test: |
+        code = "complete(text); cont = get_tab_content()"
+        text = "pas"
+        c.write_msg(code, [complete, get_tab_content], input={'text': text}, output=['cont'])
+        
+      Validate: |
+        cont = c.read_msg('cont')
+        this.test_result = cont
+        exp = text + 's'                  
+        assert (cont == exp), 'cont != {0}'.format(exp)
+        
+    Test-Condition-3: 
+      Id: tco_03
+      Name: tco_function
+      Desc: Function
+      
+      Test: |
+        code = "self.root.editor.select_all(); self.root.editor.delete(); complete(text); cont = get_tab_content()"
+        text = "import platform; platform.python_im"
+        c.write_msg(code, [complete, get_tab_content], input={'text': text}, output=['cont'])
+        
+      Validate: |
+        cont = c.read_msg('cont')
+        this.test_result = cont
+        exp = text + 'plementation()'                  
+        assert (cont == exp), 'cont != {0}'.format(exp)
+        
+    Test-Condition-4: 
+      Id: tco_04
+      Name: tco_function_params
+      Desc: Function with params
+      
+      Test: |
+        text = "import os; os.path.exi"
+        c.write_msg(code, [complete, get_tab_content], input={'text': text}, output=['cont'])
+        
+      Validate: |
+        cont = c.read_msg('cont')
+        this.test_result = cont
+        exp = text + 'sts(path=path)'                  
+        assert (cont == exp), 'cont != {0}'.format(exp)
+        
+    Test-Condition-5: 
+      Id: tco_05
+      Name: tco_class
+      Desc: Class constructor
+      
+      Test: |
+        text = "from hydratk.extensions.client.core.plugin import Plugin; Plug"
+        c.write_msg(code, [complete, get_tab_content], input={'text': text}, output=['cont'])
+        
+      Validate: |
+        cont = c.read_msg('cont')
+        this.test_result = cont
+        exp = [text + 'in', text + 'in(root=root)']         
+        assert (cont in exp), 'cont not in {0}'.format(exp)                                                                    
+        
+    Test-Condition-6: 
+      Id: tco_06
+      Name: tco_close
+      Desc: Close tabs 
+      
+      Test: |
+        code = "close_tabs(); cnt = get_tab_cnt()"
+        c.write_msg(code, [close_tabs, get_tab_cnt], output=['cnt'])
+      
+      Validate: |                                                                                                         
+        cnt = c.read_msg('cnt')
+        this.test_result = cnt
+        assert (cnt == 0), 'tab not closed'                        

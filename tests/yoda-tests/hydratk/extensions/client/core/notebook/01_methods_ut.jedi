@@ -1,0 +1,593 @@
+Test-Scenario-1:
+  Id: ts_01
+  Path: hydratk/extensions/client/core/notebook/01_methods_ut.jedi
+  Name: ts_props
+  Desc: Test property methods
+  Author: Petr Rasek <bowman@hydratk.org>
+  Version: 0.1
+  
+  Pre-Req: |
+    from yodalib.hydratk.extensions.client.gui_client import GuiClient
+    from yodahelpers.hydratk.extensions.client.core.notebook import get_property
+  
+  Test-Case-1:
+    Id: tc_01
+    Name: tc_getters
+    Desc: Getter methods
+    
+    Test-Condition-1: 
+      Id: tco_01
+      Name: tco_editor
+      Desc: Getter editor
+      
+      Test: |
+        c = GuiClient.get_instance()
+        code = "prop, attr = get_property(name, True)"
+        c.write_msg(code, [get_property], input={'name': 'editor'}, output=['prop', 'attr']) 
+      
+      Validate: |  
+        prop, attr = c.read_msg('prop', 'attr')
+        this.test_result = prop
+        assert (prop == attr), 'prop != {0}'.format(attr)
+        
+    Test-Condition-2: 
+      Id: tco_02
+      Name: tco_tab_refs
+      Desc: Getter trn
+      
+      Test: |
+        c.write_msg(code, [get_property], input={'name': 'tab_refs'}, output=['prop', 'attr']) 
+      
+      Validate: |  
+        prop, attr = c.read_msg('prop', 'attr')
+        this.test_result = prop
+        assert (prop == attr), 'prop != {0}'.format(attr)
+        
+    Test-Condition-3: 
+      Id: tco_03
+      Name: tco_new_cnt
+      Desc: Getter new_cnt
+      
+      Test: |
+        code = "prop, attr = get_property(name)"      
+        c.write_msg(code, [get_property], input={'name': 'new_cnt'}, output=['prop', 'attr']) 
+      
+      Validate: |  
+        prop, attr = c.read_msg('prop', 'attr')
+        this.test_result = prop
+        assert (prop == attr), 'prop != {0}'.format(attr)
+        
+Test-Scenario-2:
+  Id: ts_02
+  Path: hydratk/extensions/client/core/notebook/01_methods_ut.jedi
+  Name: ts_is_tab_present
+  Desc: Test is_tab_present method
+  Author: Petr Rasek <bowman@hydratk.org>
+  Version: 0.1
+  
+  Pre-Req: |
+    from yodalib.hydratk.extensions.client.gui_client import GuiClient
+    from yodahelpers.hydratk.extensions.client.core.editor import get_tab_cnt, close_tabs
+    from yodahelpers.hydratk.extensions.client.core.notebook import get_attr
+  
+  Test-Case-1:
+    Id: tc_01
+    Name: tc_is_tab_present
+    Desc: Is tab present
+    
+    Test-Condition-1: 
+      Id: tco_01
+      Name: tco_new_file
+      Desc: New file
+      
+      Test: |
+        c = GuiClient.get_instance()
+        code = "self.root.editor.new_file(); cnt = get_tab_cnt()"
+        c.write_msg(code, [get_tab_cnt], output=['cnt'])
+        
+      Validate: |
+        cnt = c.read_msg('cnt')
+        this.test_result = cnt
+        assert (cnt == 1), 'tab not added'
+        
+    Test-Condition-2: 
+      Id: tco_02
+      Name: tco_present
+      Desc: Tab present
+      
+      Test: |
+        code = "res, idx = self.root.editor.nb.is_tab_present(path)"
+        c.write_msg(code, input={'path': None}, output=['res', 'idx'])   
+      
+      Validate: |
+        res, idx = c.read_msg('res', 'idx')
+        this.test_result = res
+        assert (res and idx == 0), 'tab not present'
+        
+    Test-Condition-3: 
+      Id: tco_03
+      Name: tco_not_present
+      Desc: Tab not present
+      
+      Test: |
+        code = "res, idx = self.root.editor.nb.is_tab_present(path)"
+        c.write_msg(code, input={'path': 'xx'}, output=['res', 'idx'])        
+      
+      Validate: |
+        res, idx = c.read_msg('res', 'idx')
+        this.test_result = res
+        assert (not res and idx == None), 'tab present'                                                                     
+        
+    Test-Condition-4: 
+      Id: tco_04
+      Name: tco_close_tabs
+      Desc: Close tabs
+      
+      Test: |
+        code = "close_tabs(); cnt = get_tab_cnt()"
+        c.write_msg(code, [close_tabs, get_tab_cnt], output=['cnt'])
+        
+      Validate: |
+        cnt = c.read_msg('cnt')
+        this.test_result = cnt
+        assert (cnt == 0), 'tabs not closed'
+        
+Test-Scenario-3:
+  Id: ts_03
+  Path: hydratk/extensions/client/core/notebook/01_methods_ut.jedi
+  Name: ts_add_tab
+  Desc: Test add_tab method
+  Author: Petr Rasek <bowman@hydratk.org>
+  Version: 0.1
+  
+  Pre-Req: |
+    from yodalib.hydratk.extensions.client.gui_client import GuiClient
+    from yodahelpers.hydratk.extensions.client.core.editor import get_tab_cnt, get_tab_content, close_tabs
+  
+  Test-Case-1:
+    Id: tc_01
+    Name: tc_add_tab
+    Desc: Add tab
+    
+    Test-Condition-1: 
+      Id: tco_01
+      Name: tco_add
+      Desc: Add
+      
+      Test: |
+        c = GuiClient.get_instance()
+        code = "self.root.editor.nb.add_tab(path, content, text=path); res, idx = self.root.editor.nb.is_tab_present(path); cont = get_tab_content()"
+        c.write_msg(code, [get_tab_content], input={'path': 'xxx', 'content': 'test'}, output=['res', 'idx', 'cont'])   
+      
+      Validate: |
+        res, idx, cont = c.read_msg('res', 'idx', 'cont')
+        this.test_result = res
+        assert (res and idx == 0), 'tab not present'
+        assert (cont == 'test'), 'text not written'
+        
+    Test-Condition-2: 
+      Id: tco_02
+      Name: tco_close_tabs
+      Desc: Close tabs
+      
+      Test: |
+        code = "close_tabs(); cnt = get_tab_cnt()"
+        c.write_msg(code, [close_tabs, get_tab_cnt], output=['cnt'])
+        
+      Validate: |
+        cnt = c.read_msg('cnt')
+        this.test_result = cnt
+        assert (cnt == 0), 'tabs not closed'
+        
+Test-Scenario-4:
+  Id: ts_04
+  Path: hydratk/extensions/client/core/notebook/01_methods_ut.jedi
+  Name: ts_get_current_index
+  Desc: Test _get_current_index method
+  Author: Petr Rasek <bowman@hydratk.org>
+  Version: 0.1
+  
+  Pre-Req: |
+    from yodalib.hydratk.extensions.client.gui_client import GuiClient
+    from yodahelpers.hydratk.extensions.client.core.editor import get_tab_cnt, close_tabs
+  
+  Test-Case-1:
+    Id: tc_01
+    Name: tc_get_current_index
+    Desc: Get current index
+    
+    Test-Condition-1: 
+      Id: tco_01
+      Name: tco_new_file
+      Desc: New file
+      
+      Test: |
+        c = GuiClient.get_instance()
+        code = "self.root.editor.new_file(); cnt = get_tab_cnt()"
+        c.write_msg(code, [get_tab_cnt], output=['cnt'])
+        
+      Validate: |
+        cnt = c.read_msg('cnt')
+        this.test_result = cnt
+        assert (cnt == 1), 'tab not added'
+        
+    Test-Condition-2: 
+      Id: tco_02
+      Name: tco_get
+      Desc: Get
+      
+      Test: |
+        code = "idx = self.root.editor.nb._get_current_index()"
+        c.write_msg(code, output=['idx'])   
+      
+      Validate: |
+        idx = c.read_msg('idx')
+        this.test_result = idx
+        assert (idx == 0), 'idx != 0'                                                                  
+        
+    Test-Condition-3: 
+      Id: tco_03
+      Name: tco_close_tabs
+      Desc: Close tabs
+      
+      Test: |
+        code = "close_tabs(); cnt = get_tab_cnt()"
+        c.write_msg(code, [close_tabs, get_tab_cnt], output=['cnt'])
+        
+      Validate: |
+        cnt = c.read_msg('cnt')
+        this.test_result = cnt
+        assert (cnt == 0), 'tabs not closed'
+        
+Test-Scenario-5:
+  Id: ts_05
+  Path: hydratk/extensions/client/core/notebook/01_methods_ut.jedi
+  Name: ts_get_current_tab
+  Desc: Test _get_current_index method
+  Author: Petr Rasek <bowman@hydratk.org>
+  Version: 0.1
+  
+  Pre-Req: |
+    from yodalib.hydratk.extensions.client.gui_client import GuiClient
+    from yodahelpers.hydratk.extensions.client.core.editor import get_tab_cnt, close_tabs
+  
+  Test-Case-1:
+    Id: tc_01
+    Name: tc_get_current_tab
+    Desc: Get current tab
+    
+    Test-Condition-1: 
+      Id: tco_01
+      Name: tco_new_file
+      Desc: New file
+      
+      Test: |
+        c = GuiClient.get_instance()
+        code = "self.root.editor.new_file(); cnt = get_tab_cnt()"
+        c.write_msg(code, [get_tab_cnt], output=['cnt'])
+        
+      Validate: |
+        cnt = c.read_msg('cnt')
+        this.test_result = cnt
+        assert (cnt == 1), 'tab not added'
+        
+    Test-Condition-2: 
+      Id: tco_02
+      Name: tco_get
+      Desc: Get
+      
+      Test: |
+        code = "name = self.root.editor.nb.get_current_tab().__class__.__name__"
+        c.write_msg(code, output=['name'])   
+      
+      Validate: |
+        name = c.read_msg('name')
+        this.test_result = name
+        assert (name == 'FileTab'), 'tab not returned'                                                                  
+        
+    Test-Condition-3: 
+      Id: tco_03
+      Name: tco_close_tabs
+      Desc: Close tabs
+      
+      Test: |
+        code = "close_tabs(); cnt = get_tab_cnt()"
+        c.write_msg(code, [close_tabs, get_tab_cnt], output=['cnt'])
+        
+      Validate: |
+        cnt = c.read_msg('cnt')
+        this.test_result = cnt
+        assert (cnt == 0), 'tabs not closed'
+        
+Test-Scenario-6:
+  Id: ts_06
+  Path: hydratk/extensions/client/core/notebook/01_methods_ut.jedi
+  Name: ts_get_current_content
+  Desc: Test get_current_content method
+  Author: Petr Rasek <bowman@hydratk.org>
+  Version: 0.1
+  
+  Pre-Req: |
+    from yodalib.hydratk.extensions.client.gui_client import GuiClient
+    from yodahelpers.hydratk.extensions.client.core.editor import get_tab_cnt, write_text, close_tabs
+  
+  Test-Case-1:
+    Id: tc_01
+    Name: tc_get_current_content
+    Desc: Get current content
+    
+    Test-Condition-1: 
+      Id: tco_01
+      Name: tco_new_file
+      Desc: New file
+      
+      Test: |
+        c = GuiClient.get_instance()
+        code = "self.root.editor.new_file(); write_text(text); cnt = get_tab_cnt()"
+        text = 'test'
+        c.write_msg(code, [write_text, get_tab_cnt], input={'text': text}, output=['cnt'])
+        
+      Validate: |
+        cnt = c.read_msg('cnt')
+        this.test_result = cnt
+        assert (cnt == 1), 'tab not added'
+        
+    Test-Condition-2: 
+      Id: tco_02
+      Name: tco_get
+      Desc: Get
+      
+      Test: |
+        code = "cont = self.root.editor.nb.get_current_content()"
+        c.write_msg(code, output=['cont'])   
+      
+      Validate: |
+        cont = c.read_msg('cont')
+        this.test_result = cont
+        assert (cont == text), 'cont != {0}'.format(text)                                                                  
+        
+    Test-Condition-3: 
+      Id: tco_03
+      Name: tco_close_tabs
+      Desc: Close tabs
+      
+      Test: |
+        code = "close_tabs(); cnt = get_tab_cnt()"
+        c.write_msg(code, [close_tabs, get_tab_cnt], output=['cnt'])
+        
+      Validate: |
+        cnt = c.read_msg('cnt')
+        this.test_result = cnt
+        assert (cnt == 0), 'tabs not closed'
+        
+Test-Scenario-7:
+  Id: ts_07
+  Path: hydratk/extensions/client/core/notebook/01_methods_ut.jedi
+  Name: ts_get_content
+  Desc: Test get_content method
+  Author: Petr Rasek <bowman@hydratk.org>
+  Version: 0.1
+  
+  Pre-Req: |
+    from yodalib.hydratk.extensions.client.gui_client import GuiClient
+    from yodahelpers.hydratk.extensions.client.core.editor import get_tab_cnt, write_text, close_tabs
+  
+  Test-Case-1:
+    Id: tc_01
+    Name: tc_get_content
+    Desc: Get content
+    
+    Test-Condition-1: 
+      Id: tco_01
+      Name: tco_new_file
+      Desc: New file
+      
+      Test: |
+        c = GuiClient.get_instance()
+        code = "self.root.editor.new_file(); write_text(text); cnt = get_tab_cnt()"
+        text = 'test'
+        c.write_msg(code, [write_text, get_tab_cnt], input={'text': text}, output=['cnt'])
+        
+      Validate: |
+        cnt = c.read_msg('cnt')
+        this.test_result = cnt
+        assert (cnt == 1), 'tab not added'
+        
+    Test-Condition-2: 
+      Id: tco_02
+      Name: tco_get
+      Desc: Get
+      
+      Test: |
+        code = "cont = self.root.editor.nb.get_content(idx=idx)"
+        c.write_msg(code, input={'idx': 0}, output=['cont'])   
+      
+      Validate: |
+        cont = c.read_msg('cont')
+        this.test_result = cont
+        assert (cont == text), 'cont != {0}'.format(text)                                                                  
+        
+    Test-Condition-3: 
+      Id: tco_03
+      Name: tco_close_tabs
+      Desc: Close tabs
+      
+      Test: |
+        code = "close_tabs(); cnt = get_tab_cnt()"
+        c.write_msg(code, [close_tabs, get_tab_cnt], output=['cnt'])
+        
+      Validate: |
+        cnt = c.read_msg('cnt')
+        this.test_result = cnt
+        assert (cnt == 0), 'tabs not closed'
+        
+Test-Scenario-8:
+  Id: ts_08
+  Path: hydratk/extensions/client/core/notebook/01_methods_ut.jedi
+  Name: ts_get_marked_content
+  Desc: Test get_content method
+  Author: Petr Rasek <bowman@hydratk.org>
+  Version: 0.1
+  
+  Pre-Req: |
+    from yodalib.hydratk.extensions.client.gui_client import GuiClient
+    from yodahelpers.hydratk.extensions.client.core.editor import get_tab_cnt, write_text, close_tabs
+  
+  Test-Case-1:
+    Id: tc_01
+    Name: tc_get_marked_content
+    Desc: Get marked content
+    
+    Test-Condition-1: 
+      Id: tco_01
+      Name: tco_new_file
+      Desc: New file
+      
+      Test: |
+        c = GuiClient.get_instance()
+        code = "self.root.editor.new_file(); write_text(text); self.root.editor.select_all(); cnt = get_tab_cnt()"
+        text = 'test'
+        c.write_msg(code, [write_text, get_tab_cnt], input={'text': text}, output=['cnt'])
+        
+      Validate: |
+        cnt = c.read_msg('cnt')
+        this.test_result = cnt
+        assert (cnt == 1), 'tab not added'
+        
+    Test-Condition-2: 
+      Id: tco_02
+      Name: tco_get
+      Desc: Get
+      
+      Test: |
+        code = "cont = self.root.editor.nb.get_marked_content()"
+        c.write_msg(code, output=['cont'])   
+      
+      Validate: |
+        cont = c.read_msg('cont')
+        this.test_result = cont
+        assert (cont[:-1] == text), 'cont != {0}'.format(text)                                                                  
+        
+    Test-Condition-3: 
+      Id: tco_03
+      Name: tco_close_tabs
+      Desc: Close tabs
+      
+      Test: |
+        code = "close_tabs(); cnt = get_tab_cnt()"
+        c.write_msg(code, [close_tabs, get_tab_cnt], output=['cnt'])
+        
+      Validate: |
+        cnt = c.read_msg('cnt')
+        this.test_result = cnt
+        assert (cnt == 0), 'tabs not closed'
+        
+Test-Scenario-9:
+  Id: ts_09
+  Path: hydratk/extensions/client/core/notebook/01_methods_ut.jedi
+  Name: ts_set_current_tab
+  Desc: Test set_current_tab method
+  Author: Petr Rasek <bowman@hydratk.org>
+  Version: 0.1
+  
+  Pre-Req: |
+    from yodalib.hydratk.extensions.client.gui_client import GuiClient
+    from yodahelpers.hydratk.extensions.client.core.editor import get_tab_cnt, close_tabs
+  
+  Test-Case-1:
+    Id: tc_01
+    Name: tc_set_current_tab
+    Desc: Set current tab
+    
+    Test-Condition-1: 
+      Id: tco_01
+      Name: tco_new_file
+      Desc: New file
+      
+      Test: |
+        c = GuiClient.get_instance()
+        code = "self.root.editor.new_file(); cnt = get_tab_cnt()"
+        text = 'test'
+        c.write_msg(code, [get_tab_cnt], output=['cnt'])
+        
+      Validate: |
+        cnt = c.read_msg('cnt')
+        this.test_result = cnt
+        assert (cnt == 1), 'tab not added'
+        
+    Test-Condition-2: 
+      Id: tco_02
+      Name: tco_set
+      Desc: Set
+      
+      Test: |
+        code = "self.root.editor.nb.set_current_tab(name, path, modified); tab = self.root.editor.nb.get_current_tab(); n=tab.name; p=tab.path; m=tab.text.edit_modified()"
+        name, path, modified = 'xx', 'test.txt', True
+        c.write_msg(code, input={'name': name, 'path': path, 'modified': modified}, output=['n', 'p', 'm'])   
+      
+      Validate: |
+        n, p, m = c.read_msg('n', 'p', 'm')
+        this.test_result = str([n, p, m])
+        exp = [name, path, modified]
+        assert ([n, p, m] == exp), '[name, path, modified] != {0}'.format(exp)                                                                  
+        
+    Test-Condition-3: 
+      Id: tco_03
+      Name: tco_close_tabs
+      Desc: Close tabs
+      
+      Test: |
+        code = "close_tabs(); cnt = get_tab_cnt()"
+        c.write_msg(code, [close_tabs, get_tab_cnt], output=['cnt'])
+        
+      Validate: |
+        cnt = c.read_msg('cnt')
+        this.test_result = cnt
+        assert (cnt == 0), 'tabs not closed'
+        
+Test-Scenario-10:
+  Id: ts_10
+  Path: hydratk/extensions/client/core/notebook/01_methods_ut.jedi
+  Name: ts_close_tab
+  Desc: Test close_tab method
+  Author: Petr Rasek <bowman@hydratk.org>
+  Version: 0.1
+  
+  Pre-Req: |
+    from yodalib.hydratk.extensions.client.gui_client import GuiClient
+    from yodahelpers.hydratk.extensions.client.core.editor import get_tab_cnt
+  
+  Test-Case-1:
+    Id: tc_01
+    Name: tc_close_tab
+    Desc: Close tab
+    
+    Test-Condition-1: 
+      Id: tco_01
+      Name: tco_new_file
+      Desc: New file
+      
+      Test: |
+        c = GuiClient.get_instance()
+        code = "self.root.editor.new_file(); cnt = get_tab_cnt()"
+        text = 'test'
+        c.write_msg(code, [get_tab_cnt], output=['cnt'])
+        
+      Validate: |
+        cnt = c.read_msg('cnt')
+        this.test_result = cnt
+        assert (cnt == 1), 'tab not added'
+        
+    Test-Condition-2: 
+      Id: tco_02
+      Name: tco_close
+      Desc: Close
+      
+      Test: |
+        code = "self.root.editor.nb.close_tab(); cnt = get_tab_cnt()"
+        c.write_msg(code, [get_tab_cnt], output=['cnt'])   
+      
+      Validate: |
+        cnt = c.read_msg('cnt')
+        this.test_result = cnt
+        assert (cnt == 0), 'tab not closed'                                                                                              

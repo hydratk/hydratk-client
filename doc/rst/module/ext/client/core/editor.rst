@@ -23,6 +23,22 @@ Class for Editor frame.
 * _nb - Notebook instance reference
 * _var_show_line_number - bool, show line numbers in text
 * _var_show_info_bar - bool, show info bar in text
+* _win_goto - goto window
+* _win_goto_entry - line entry
+* _win_goto_btn - button goto
+* _win_find - find window
+* _win_find_entry - find string entry
+* _win_find_find_all - findall checkbox
+* _win_find_ignore_case - ignore case checkbox
+* _win_find_regexp - regexp checkbox
+* _win_find_btn - button find
+* _win_replace - replace window
+* _win_replace_find_entry - find string entry
+* _win_replace_replace_entry - replace string entry
+* _win_replace_replace_all - replace all checkbox
+* _win_replace_ignore_case - ignore case checkbox
+* _win_replace_regexp - regexp checkbox
+* _win_replace_btn - button replace
 * _font - font settings
 
 **Properties (Getters)** :

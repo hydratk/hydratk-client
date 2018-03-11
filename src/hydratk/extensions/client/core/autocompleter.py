@@ -175,6 +175,9 @@ class AutoCompleter(object):
         if (self._win is not None):
             self._win.destroy()
 
+        if (tab.path == None):
+            return
+
         suffix = tab.path.split('.')[-1]
         if (suffix in ['py', 'jedi', 'padawan']):
             self._tab = tab

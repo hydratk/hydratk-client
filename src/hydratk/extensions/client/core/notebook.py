@@ -247,9 +247,9 @@ class CustomNotebook(ttk.Notebook):
 
         idx = self._get_current_index()
         self.tab(idx, text=name)
-        self._tab_refs[idx].name = name
-        self._tab_refs[idx].path = path
-        self._tab_refs[idx].text.edit_modified(modified)
+        self._tab_refs[idx]._name = name
+        self._tab_refs[idx]._path = path
+        self._tab_refs[idx]._text.edit_modified(modified)
 
     def _set_tab_related_controls(self, enable):
         """Method sets controls enabled by tab presence
@@ -309,7 +309,7 @@ class CustomNotebook(ttk.Notebook):
             index = self.index('@%d,%d' % (event.x, event.y))
             self.close_tab(index=index)
 
-    def close_tab(self, event=None, index=None):
+    def close_tab(self, event=None, index=None, force=False):
         """Method closes tab
 
         Popup is displayed for unsaved file
@@ -317,6 +317,7 @@ class CustomNotebook(ttk.Notebook):
         Args:
             event (obj): event
             index (int): index
+            force (bool): force close (confirmation not displayed)
 
         Returns:
             void
@@ -328,7 +329,7 @@ class CustomNotebook(ttk.Notebook):
 
         if (index is not None):
             tab = self._tab_refs[index]
-            if (tab.text.edit_modified()):
+            if (tab.text.edit_modified() and not force):
                 res = tkmsg.askyesno(self.editor.trn.msg('htk_gui_editor_close_save_title'),
                                      self.editor.trn.msg('htk_gui_editor_close_save_question', tab.name))
                 if (res):

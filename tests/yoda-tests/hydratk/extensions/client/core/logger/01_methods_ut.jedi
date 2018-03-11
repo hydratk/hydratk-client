@@ -1,0 +1,241 @@
+Test-Scenario-1:
+  Id: ts_01
+  Path: hydratk/extensions/client/core/logger/01_methods_ut.jedi
+  Name: ts_props
+  Desc: Test property methods
+  Author: Petr Rasek <bowman@hydratk.org>
+  Version: 0.1
+  
+  Pre-Req: |
+    from yodalib.hydratk.extensions.client.gui_client import GuiClient
+    from yodahelpers.hydratk.extensions.client.core.logger import get_property
+  
+  Test-Case-1:
+    Id: tc_01
+    Name: tc_getters
+    Desc: Getter methods
+    
+    Test-Condition-1: 
+      Id: tco_01
+      Name: tco_root
+      Desc: Getter root
+      
+      Test: |
+        c = GuiClient.get_instance()
+        code = "prop, attr = get_property(name, True)"
+        c.write_msg(code, [get_property], input={'name': 'root'}, output=['prop', 'attr'])     
+      
+      Validate: |  
+        prop, attr = c.read_msg('prop', 'attr')
+        this.test_result = prop
+        assert (prop == attr), 'prop != {0}'.format(attr)
+        
+    Test-Condition-2: 
+      Id: tco_02
+      Name: tco_trn
+      Desc: Getter trn
+      
+      Test: |
+        c.write_msg(code, [get_property], input={'name': 'trn'}, output=['prop', 'attr'])     
+      
+      Validate: |  
+        prop, attr = c.read_msg('prop', 'attr')
+        this.test_result = prop
+        assert (prop == attr), 'prop != {0}'.format(attr)
+        
+    Test-Condition-3: 
+      Id: tco_03
+      Name: tco_config
+      Desc: Getter config
+      
+      Test: |
+        c.write_msg(code, [get_property], input={'name': 'config'}, output=['prop', 'attr'])     
+      
+      Validate: |  
+        prop, attr = c.read_msg('prop', 'attr')
+        this.test_result = prop
+        assert (prop == attr), 'prop != {0}'.format(attr)    
+        
+    Test-Condition-4: 
+      Id: tco_04
+      Name: tco_logile
+      Desc: Getter logfile
+      
+      Test: |
+        c.write_msg(code, [get_property], input={'name': 'logfile'}, output=['prop', 'attr'])     
+      
+      Validate: |  
+        prop, attr = c.read_msg('prop', 'attr')
+        this.test_result = prop
+        assert (prop == attr), 'prop != {0}'.format(attr)
+        
+Test-Scenario-2:
+  Id: ts_02
+  Path: hydratk/extensions/client/core/logger/01_methods_ut.jedi
+  Name: ts_write_msg
+  Desc: Test _write_msg method
+  Author: Petr Rasek <bowman@hydratk.org>
+  Version: 0.1
+  
+  Pre-Req: |
+    from yodalib.hydratk.extensions.client.gui_client import GuiClient
+    from yodahelpers.hydratk.extensions.client.core.logger import get_text
+  
+  Test-Case-1:
+    Id: tc_01
+    Name: tc_write_msg
+    Desc: Write message
+    
+    Test-Condition-1: 
+      Id: tco_01
+      Name: tco_high_level
+      Desc: High message level
+      
+      Test: |
+        c = GuiClient.get_instance()
+        msg = 'test message high'
+        code = "self.root.logger._write_msg(msg, level); text = get_text()"
+        c.write_msg(code, [get_text], input={'msg': msg, 'level': 1}, output=['text'])     
+      
+      Validate: |  
+        text = c.read_msg('text').splitlines()[-2]
+        this.test_result = text
+        assert (msg in text), 'Message not written'
+        
+    Test-Condition-2: 
+      Id: tco_02
+      Name: tco_low_level
+      Desc: Low message level
+      
+      Test: |
+        msg = 'test message low'
+        c.write_msg(code, [get_text], input={'msg': msg, 'level': 5}, output=['text'])     
+      
+      Validate: |  
+        text = c.read_msg('text').splitlines()[-2]
+        this.test_result = text
+        assert (msg not in text), 'Message written'
+        
+Test-Scenario-3:
+  Id: ts_03
+  Path: hydratk/extensions/client/core/logger/01_methods_ut.jedi
+  Name: ts_levels
+  Desc: Test level methods
+  Author: Petr Rasek <bowman@hydratk.org>
+  Version: 0.1
+  
+  Pre-Req: |
+    from yodalib.hydratk.extensions.client.gui_client import GuiClient
+    from yodahelpers.hydratk.extensions.client.core.logger import get_text, set_attr
+  
+  Test-Case-1:
+    Id: tc_01
+    Name: tc_levels
+    Desc: Message levels
+    
+    Test-Condition-1: 
+      Id: tco_01
+      Name: tco_debug
+      Desc: Debug level
+      
+      Test: |
+        c = GuiClient.get_instance()
+        msg = 'test message debug'
+        code = "set_attr(name, value); self.root.logger.debug(msg); text = get_text()"
+        c.write_msg(code, [set_attr, get_text], input={'name': '_level', 'value': 4, 'msg': msg}, output=['text'])     
+      
+      Validate: |  
+        text = c.read_msg('text').splitlines()[-2]
+        this.test_result = text
+        assert (msg in text), 'Message not written'
+        
+    Test-Condition-2: 
+      Id: tco_02
+      Name: tco_info
+      Desc: Info level
+      
+      Test: |
+        msg = 'test message info'
+        code = "self.root.logger.info(msg); text = get_text()"
+        c.write_msg(code, [get_text], input={'msg': msg}, output=['text'])     
+      
+      Validate: |  
+        text = c.read_msg('text').splitlines()[-2]
+        this.test_result = text
+        assert (msg in text), 'Message not written'
+        
+    Test-Condition-3: 
+      Id: tco_03
+      Name: tco_warn
+      Desc: Warn level
+      
+      Test: |
+        msg = 'test message warn'
+        code = "self.root.logger.warn(msg); text = get_text()"
+        c.write_msg(code, [get_text], input={'msg': msg}, output=['text'])     
+      
+      Validate: |  
+        text = c.read_msg('text').splitlines()[-2]
+        this.test_result = text
+        assert (msg in text), 'Message not written'
+        
+    Test-Condition-4: 
+      Id: tco_04
+      Name: tco_error
+      Desc: Error level
+      
+      Test: |
+        msg = 'test message error'
+        code = "self.root.logger.error(msg); text = get_text()"
+        c.write_msg(code, [get_text], input={'msg': msg}, output=['text'])     
+      
+      Validate: |  
+        text = c.read_msg('text').splitlines()[-2]
+        this.test_result = text
+        assert (msg in text), 'Message not written'
+        
+Test-Scenario-4:
+  Id: ts_04
+  Path: hydratk/extensions/client/core/logger/01_methods_ut.jedi
+  Name: ts_clear
+  Desc: Test _clear method
+  Author: Petr Rasek <bowman@hydratk.org>
+  Version: 0.1
+  
+  Pre-Req: |
+    from yodalib.hydratk.extensions.client.gui_client import GuiClient
+    from yodahelpers.hydratk.extensions.client.core.logger import get_text, click_context_menu
+  
+  Test-Case-1:
+    Id: tc_01
+    Name: tc_clear
+    Desc: Clear log
+    
+    Test-Condition-1: 
+      Id: tco_01
+      Name: tco_clear
+      Desc: Clear
+      
+      Test: |
+        c = GuiClient.get_instance()
+        code = "self.root.logger.info(msg); self.root.logger._clear(); text = get_text()"
+        c.write_msg(code, [get_text], input={'msg': 'Test message'}, output=['text'])     
+      
+      Validate: |  
+        text = c.read_msg('text')
+        this.test_result = text
+        assert (len(text) < 2), 'Log not cleared'
+        
+    Test-Condition-2: 
+      Id: tco_02
+      Name: tco_menu
+      Desc: Clear from menu
+      
+      Test: |
+        code = "self.root.logger.info(msg); click_context_menu(item); text = get_text()"
+        c.write_msg(code, [click_context_menu, get_text], input={'msg': 'Test message', 'item': 'Clear'}, output=['text'])     
+      
+      Validate: |  
+        text = c.read_msg('text')
+        this.test_result = text
+        assert (len(text) < 2), 'Log not cleared'                                                                                                  

@@ -1,0 +1,500 @@
+Test-Scenario-1:
+  Id: ts_01
+  Path: hydratk/extensions/client/plugins/syntaxchecker/01_methods_ut.jedi
+  Name: ts_init_plugin
+  Desc: Test _init_plugin method
+  Author: Petr Rasek <bowman@hydratk.org>
+  Version: 0.1
+  
+  Pre-Req: |
+    from yodalib.hydratk.extensions.client.gui_client import GuiClient
+    from yodahelpers.hydratk.extensions.client.plugins.syntaxchecker import get_plugin_attrs
+  
+  Test-Case-1:
+    Id: tc_01
+    Name: tc_init_plugin
+    Desc: Initialize plugin
+    
+    Test-Condition-1: 
+      Id: tco_01
+      Name: tco_init
+      Desc: Initialize
+      
+      Test: |
+        c = GuiClient.get_instance()
+        code = "attrs = get_plugin_attrs()"
+        c.write_msg(code, [get_plugin_attrs], output=['attrs']) 
+      
+      Validate: |  
+        attrs = c.read_msg('attrs')
+        this.test_result = str(attrs)
+        assert ('Undefined' not in attrs), 'Plugin not initialized'
+        
+Test-Scenario-2:
+  Id: ts_02
+  Path: hydratk/extensions/client/plugins/syntaxchecker/01_methods_ut.jedi
+  Name: ts_check_python
+  Desc: Test _check_python method
+  Author: Petr Rasek <bowman@hydratk.org>
+  Version: 0.1
+  
+  Pre-Req: |
+    from yodalib.hydratk.extensions.client.gui_client import GuiClient
+    from yodahelpers.hydratk.extensions.client.plugins.syntaxchecker import get_instance
+    
+  Test-Case-1:
+    Id: tc_01
+    Name: tc_check_python
+    Desc: Check Python code
+    
+    Test-Condition-1: 
+      Id: tco_01
+      Name: tco_simple
+      Desc: Simple code
+      
+      Test: |
+        c = GuiClient.get_instance()
+        code = "result, error = get_instance()._check_python(name, content)"
+        content = "a = 1"
+        c.write_msg(code, [get_instance], input={'name': 'test.py', 'content': content}, output=['result', 'error']) 
+      
+      Validate: |  
+        result, error = c.read_msg('result', 'error')
+        this.test_result = result
+        assert (result and error == ''), 'Code not valid'
+        
+    Test-Condition-2: 
+      Id: tco_02
+      Name: tco_complex
+      Desc: Complex code
+      
+      Test: |
+        content = "def test(val, *args, **kwargs):\n    res = False\n    if (val == ''):\n        res = True\n    return res"
+        c.write_msg(code, [get_instance], input={'name': 'test.py', 'content': content}, output=['result', 'error']) 
+      
+      Validate: |  
+        result, error = c.read_msg('result', 'error')
+        this.test_result = result
+        assert (result and error == ''), 'Code not valid'
+        
+    Test-Condition-3: 
+      Id: tco_03
+      Name: tco_invalid
+      Desc: Invalid code
+      
+      Test: |
+        content = "defi test(val, *args, key)"
+        c.write_msg(code, [get_instance], input={'name': 'test.py', 'content': content}, output=['result', 'error']) 
+      
+      Validate: |  
+        result, error = c.read_msg('result', 'error')
+        this.test_result = result
+        assert (not result and 'SyntaxError' in error), 'Code valid'
+
+Test-Scenario-3:
+  Id: ts_03
+  Path: hydratk/extensions/client/plugins/syntaxchecker/01_methods_ut.jedi
+  Name: ts_check_jedi
+  Desc: Test _check_jedi method
+  Author: Petr Rasek <bowman@hydratk.org>
+  Version: 0.1
+  
+  Pre-Req: |
+    from yodalib.hydratk.extensions.client.gui_client import GuiClient
+    from yodahelpers.hydratk.extensions.client.plugins.syntaxchecker import get_instance
+    
+  Test-Case-1:
+    Id: tc_01
+    Name: tc_check_jedi
+    Desc: Check jedi file
+    
+    Test-Condition-1: 
+      Id: tco_01
+      Name: tco_valid
+      Desc: Valid content
+      
+      Test: |
+        c = GuiClient.get_instance()
+        code = "result, error = get_instance()._check_jedi(name, content)"
+        content = "Test-Scenario-1:\n  Id: ts_01\n  Name: Scenario\n  Test-Case-1:\n    Id: tc_01\n    Name: Case\n    " + \
+                  "Test-Condition-1:\n      Id: tco_01\n      Name: Condition\n      Test: |\n        print(10)\n      Validate: |\n        assert True"
+        c.write_msg(code, [get_instance], input={'name': 'test.jedi', 'content': content}, output=['result', 'error']) 
+      
+      Validate: |  
+        result, error = c.read_msg('result', 'error')
+        this.test_result = result
+        assert (result and error == ''), 'Content not valid'
+        
+    Test-Condition-2: 
+      Id: tco_02
+      Name: tco_invalid
+      Desc: Invalid content
+      
+      Test: |
+        content = "Test-Scenario-2:\n  Id: ts_01\n  Name: Scenario\n  Test-Case-1:\n    Id: tc_01\n    Name: Case\n    " + \
+                  "Test-Condition-1:\n      Id: tco_01\n      Name: Condition\n      Test: |\n        print(10)\n      Validate: |\n        assert True"
+        c.write_msg(code, [get_instance], input={'name': 'test.jedi', 'content': content}, output=['result', 'error']) 
+      
+      Validate: |  
+        result, error = c.read_msg('result', 'error')
+        this.test_result = result
+        assert (not result and 'Missing tag test-scenario-1' in error), 'Content valid'             
+        
+Test-Scenario-4:
+  Id: ts_04
+  Path: hydratk/extensions/client/plugins/syntaxchecker/01_methods_ut.jedi
+  Name: ts_reformat_test
+  Desc: Test _reformat_test method
+  Author: Petr Rasek <bowman@hydratk.org>
+  Version: 0.1
+  
+  Pre-Req: |
+    from yodalib.hydratk.extensions.client.gui_client import GuiClient
+    from yodahelpers.hydratk.extensions.client.plugins.syntaxchecker import get_instance
+    
+  Test-Case-1:
+    Id: tc_01
+    Name: tc_reformat_test
+    Desc: Reformat test
+    
+    Test-Condition-1: 
+      Id: tco_01
+      Name: tco_reformat
+      Desc: Reformat
+      
+      Test: |
+        c = GuiClient.get_instance()
+        code = "test = get_instance()._reformat_test(content)"
+        content = {'Test-Scenario-1': {'Test-Case-1': {'Test-Condition-1': {'Test': 'xxx', 'Validate': 'yyy'}}}}
+        c.write_msg(code, [get_instance], input={'content': content}, output=['test']) 
+      
+      Validate: |  
+        test = c.read_msg('test')
+        this.test_result = str(test)
+        exp = {'test-scenario-1': {'test-case-1': {'test-condition-1': {'test': 'xxx', 'validate': 'yyy'}}}}
+        assert (test == exp), 'test != {0}'.format(exp)
+        
+Test-Scenario-5:
+  Id: ts_05
+  Path: hydratk/extensions/client/plugins/syntaxchecker/01_methods_ut.jedi
+  Name: ts_check_scenario
+  Desc: Test _check_scenario method
+  Author: Petr Rasek <bowman@hydratk.org>
+  Version: 0.1
+  
+  Pre-Req: |
+    from yodalib.hydratk.extensions.client.gui_client import GuiClient
+    from yodahelpers.hydratk.extensions.client.plugins.syntaxchecker import get_instance
+    
+  Test-Case-1:
+    Id: tc_01
+    Name: tc_check_scenario
+    Desc: Check scenario
+    
+    Test-Condition-1: 
+      Id: tco_01
+      Name: tco_valid
+      Desc: Valid content
+      
+      Test: |
+        c = GuiClient.get_instance()
+        code = "error = get_instance()._check_scenario(id, content)"
+        content = {'id': 'ts_01', 'name': 'Scenario', 'pre-req': "a = 1", 'post-req': "a = 2", 'events': {'before-start': "b = 1", 'after-finish': "b = 2"},  
+                   'test-case-1': {'id': 'tc_01', 'name': 'Case', 'test-condition-1': {'id': 'tco_01', 'name': 'Condition', 'test': "print(10)", 'validate': "assert True"}}}
+        c.write_msg(code, [get_instance], input={'id': 'test-scenario-1', 'content': content}, output=['error']) 
+      
+      Validate: |  
+        error = c.read_msg('error')
+        this.test_result = error
+        assert (error == ''), 'Scenario not valid'
+        
+    Test-Condition-2: 
+      Id: tco_02
+      Name: tco_missing_id
+      Desc: Missing id
+      
+      Test: |
+        content = {'name': 'Scenario', 'pre-req': "a = 1", 'post-req': "a = 2", 'events': {'before-start': "b = 1", 'after-finish': "b = 2"},  
+                   'test-case-1': {'id': 'tc_01', 'name': 'Case', 'test-condition-1': {'id': 'tco_01', 'name': 'Condition', 'test': "print(10)", 'validate': "assert True"}}}
+        c.write_msg(code, [get_instance], input={'id': 'test-scenario-1', 'content': content}, output=['error']) 
+      
+      Validate: |  
+        error = c.read_msg('error')
+        this.test_result = error
+        assert ('Missing tag id' in error), 'Missing id not detected'
+        
+    Test-Condition-3: 
+      Id: tco_03
+      Name: tco_missing_case
+      Desc: Missing case
+      
+      Test: |
+        content = {'id': 'ts_01', 'name': 'Scenario', 'pre-req': "a = 1", 'post-req': "a = 2", 'events': {'before-start': "b = 1", 'after-finish': "b = 2"},  
+                   'test-case-2': {'id': 'tc_01', 'name': 'Case', 'test-condition-1': {'id': 'tco_01', 'name': 'Condition', 'test': "print(10)", 'validate': "assert True"}}}
+        c.write_msg(code, [get_instance], input={'id': 'test-scenario-1', 'content': content}, output=['error']) 
+      
+      Validate: |  
+        error = c.read_msg('error')
+        this.test_result = error
+        assert ('Missing tag test-case-1' in error), 'Missing case not detected'
+        
+    Test-Condition-4: 
+      Id: tco_04
+      Name: tco_invalid_prereq
+      Desc: Invalid pre-req
+      
+      Test: |
+        content = {'id': 'ts_01', 'name': 'Scenario', 'pre-req': "print(", 'post-req': "a = 2", 'events': {'before-start': "b = 1", 'after-finish': "b = 2"},  
+                   'test-case-1': {'id': 'tc_01', 'name': 'Case', 'test-condition-1': {'id': 'tco_01', 'name': 'Condition', 'test': "print(10)", 'validate': "assert True"}}}
+        c.write_msg(code, [get_instance], input={'id': 'test-scenario-1', 'content': content}, output=['error']) 
+      
+      Validate: |  
+        error = c.read_msg('error')
+        this.test_result = error
+        assert ('SyntaxError' in error), 'Syntax error not detected'
+        
+    Test-Condition-5: 
+      Id: tco_05
+      Name: tco_invalid_events
+      Desc: Invalid events
+      
+      Test: |
+        content = {'id': 'ts_01', 'name': 'Scenario', 'pre-req': "a = 1", 'post-req': "a = 2", 'events': {'before-start': "print(", 'after-finish': "b = 2"},  
+                   'test-case-1': {'id': 'tc_01', 'name': 'Case', 'test-condition-1': {'id': 'tco_01', 'name': 'Condition', 'test': "print(10)", 'validate': "assert True"}}}
+        c.write_msg(code, [get_instance], input={'id': 'test-scenario-1', 'content': content}, output=['error']) 
+      
+      Validate: |  
+        error = c.read_msg('error')
+        this.test_result = error
+        assert ('SyntaxError' in error), 'Syntax error not detected'
+        
+Test-Scenario-6:
+  Id: ts_06
+  Path: hydratk/extensions/client/plugins/syntaxchecker/01_methods_ut.jedi
+  Name: ts_check_case
+  Desc: Test _check_case method
+  Author: Petr Rasek <bowman@hydratk.org>
+  Version: 0.1
+  
+  Pre-Req: |
+    from yodalib.hydratk.extensions.client.gui_client import GuiClient
+    from yodahelpers.hydratk.extensions.client.plugins.syntaxchecker import get_instance
+    
+  Test-Case-1:
+    Id: tc_01
+    Name: tc_check_case
+    Desc: Check case
+    
+    Test-Condition-1: 
+      Id: tco_01
+      Name: tco_valid
+      Desc: Valid content
+      
+      Test: |
+        c = GuiClient.get_instance()
+        code = "error = get_instance()._check_case(ids, content)"
+        ids = ['test-scenario-1', 'test-case-1']
+        content = {'id': 'tc_01', 'name': 'Case', 'events': {'before_start': "a = 1", 'after_finish': "a = 2"},
+                   'test-condition-1': {'id': 'tco_01', 'name': 'Condition', 'test': "print(10)", 'validate': "assert True"}}
+        c.write_msg(code, [get_instance], input={'ids': ids, 'content': content}, output=['error']) 
+      
+      Validate: |  
+        error = c.read_msg('error')
+        this.test_result = error
+        assert (error == ''), 'Case not valid'
+        
+    Test-Condition-2: 
+      Id: tco_02
+      Name: tco_missing_id
+      Desc: Missing id
+      
+      Test: |
+        content = {'name': 'Case', 'events': {'before_start': "a = 1", 'after_finish': "a = 2"},
+                   'test-condition-1': {'id': 'tco_01', 'name': 'Condition', 'test': "print(10)", 'validate': "assert True"}}
+        c.write_msg(code, [get_instance], input={'ids': ids, 'content': content}, output=['error']) 
+      
+      Validate: |  
+        error = c.read_msg('error')
+        this.test_result = error
+        assert ('Missing tag id' in error), 'Missing id not detected'
+        
+    Test-Condition-3: 
+      Id: tco_03
+      Name: tco_missing_condition
+      Desc: Missing condition
+      
+      Test: |
+        content = {'id': 'tc_01', 'name': 'Case', 'events': {'before_start': "a = 1", 'after_finish': "a = 2"},
+                   'test-condition-2': {'id': 'tco_01', 'name': 'Condition', 'test': "print(10)", 'validate': "assert True"}}
+        c.write_msg(code, [get_instance], input={'ids': ids, 'content': content}, output=['error']) 
+      
+      Validate: |  
+        error = c.read_msg('error')
+        this.test_result = error
+        assert ('Missing tag test-condition-1' in error), 'Missing condition not detected'
+        
+    Test-Condition-4: 
+      Id: tco_04
+      Name: tco_invalid_events
+      Desc: Invalid events
+      
+      Test: |
+        content = {'id': 'tc_01', 'name': 'Case', 'events': {'before_start': "print(", 'after_finish': "a = 2"},
+                   'test-condition-1': {'id': 'tco_01', 'name': 'Condition', 'test': "print(10)", 'validate': "assert True"}}
+        c.write_msg(code, [get_instance], input={'ids': ids, 'content': content}, output=['error']) 
+      
+      Validate: |  
+        error = c.read_msg('error')
+        this.test_result = error
+        assert ('SyntaxError' in error), 'Syntax error not detected'
+        
+Test-Scenario-7:
+  Id: ts_07
+  Path: hydratk/extensions/client/plugins/syntaxchecker/01_methods_ut.jedi
+  Name: ts_check_condition
+  Desc: Test _check_condition method
+  Author: Petr Rasek <bowman@hydratk.org>
+  Version: 0.1
+  
+  Pre-Req: |
+    from yodalib.hydratk.extensions.client.gui_client import GuiClient
+    from yodahelpers.hydratk.extensions.client.plugins.syntaxchecker import get_instance
+    
+  Test-Case-1:
+    Id: tc_01
+    Name: tc_check_condition
+    Desc: Check condition
+    
+    Test-Condition-1: 
+      Id: tco_01
+      Name: tco_valid
+      Desc: Valid content
+      
+      Test: |
+        c = GuiClient.get_instance()
+        code = "error = get_instance()._check_condition(ids, content)"
+        ids = ['test-scenario-1', 'test-case-1', 'test-condition-1']
+        content = {'id': 'tco_01', 'name': 'Condition', 'events': {'before_start': "a = 1", 'after_finish': "a = 2"}, 'test': "print(10)", 'validate': "assert True"}
+        c.write_msg(code, [get_instance], input={'ids': ids, 'content': content}, output=['error']) 
+      
+      Validate: |  
+        error = c.read_msg('error')
+        this.test_result = error
+        assert (error == ''), 'Condition not valid'
+        
+    Test-Condition-2: 
+      Id: tco_02
+      Name: tco_missing_id
+      Desc: Missing id
+      
+      Test: |
+        content = {'name': 'Condition', 'events': {'before_start': "a = 1", 'after_finish': "a = 2"}, 'test': "print(10)", 'validate': "assert True"}        
+        c.write_msg(code, [get_instance], input={'ids': ids, 'content': content}, output=['error']) 
+      
+      Validate: |  
+        error = c.read_msg('error')
+        this.test_result = error
+        assert ('Missing tag id' in error), 'Missing id not detected'
+        
+    Test-Condition-3: 
+      Id: tco_03
+      Name: tco_missing_assertion
+      Desc: Missing assertion
+      
+      Test: |
+        content = {'id': 'tco_01', 'name': 'Condition', 'events': {'before_start': "a = 1", 'after_finish': "a = 2"}, 'test': "print(10)", 'validate': "a = 3"}
+        c.write_msg(code, [get_instance], input={'ids': ids, 'content': content}, output=['error']) 
+      
+      Validate: |  
+        error = c.read_msg('error')
+        this.test_result = error
+        assert ('Missing assertion' in error), 'Missing assertion not detected'
+        
+    Test-Condition-4: 
+      Id: tco_04
+      Name: tco_invalid_test
+      Desc: Invalid test
+      
+      Test: |
+        content = {'id': 'tco_01', 'name': 'Condition', 'events': {'before_start': "a = 1", 'after_finish': "a = 2"}, 'test': "print(", 'validate': "assert True"}
+        c.write_msg(code, [get_instance], input={'ids': ids, 'content': content}, output=['error']) 
+      
+      Validate: |  
+        error = c.read_msg('error')
+        this.test_result = error
+        assert ('SyntaxError' in error), 'Syntax error not detected'         
+        
+    Test-Condition-5: 
+      Id: tco_05
+      Name: tco_invalid_events
+      Desc: Invalid events
+      
+      Test: |
+        content = {'id': 'tco_01', 'name': 'Condition', 'events': {'before_start': "print(", 'after_finish': "a = 2"}, 'test': "print(10)", 'validate': "assert True"}
+        c.write_msg(code, [get_instance], input={'ids': ids, 'content': content}, output=['error']) 
+      
+      Validate: |  
+        error = c.read_msg('error')
+        this.test_result = error
+        assert ('SyntaxError' in error), 'Syntax error not detected'
+        
+Test-Scenario-8:
+  Id: ts_08
+  Path: hydratk/extensions/client/plugins/syntaxchecker/01_methods_ut.jedi
+  Name: ts_check_python_block
+  Desc: Test _check_python method
+  Author: Petr Rasek <bowman@hydratk.org>
+  Version: 0.1
+  
+  Pre-Req: |
+    from yodalib.hydratk.extensions.client.gui_client import GuiClient
+    from yodahelpers.hydratk.extensions.client.plugins.syntaxchecker import get_instance
+    
+  Test-Case-1:
+    Id: tc_01
+    Name: tc_check_python
+    Desc: Check Python block
+    
+    Test-Condition-1: 
+      Id: tco_01
+      Name: tco_simple
+      Desc: Simple code
+      
+      Test: |
+        c = GuiClient.get_instance()
+        code = "error = get_instance()._check_python_block(ids, content)"
+        content = "a = 1"
+        c.write_msg(code, [get_instance], input={'ids': ['test-scenario-1'], 'content': content}, output=['error']) 
+      
+      Validate: |  
+        error = c.read_msg('error')
+        this.test_result = error
+        assert (error == ''), 'Code not valid'
+        
+    Test-Condition-2: 
+      Id: tco_02
+      Name: tco_complex
+      Desc: Complex code
+      
+      Test: |
+        content = "def test(val, *args, **kwargs):\n    res = False\n    if (val == ''):\n        res = True\n    return res"
+        c.write_msg(code, [get_instance], input={'ids': ['test-scenario-1'], 'content': content}, output=['error']) 
+      
+      Validate: |  
+        error = c.read_msg('error')
+        this.test_result = error
+        assert (error == ''), 'Code not valid'
+        
+    Test-Condition-3: 
+      Id: tco_03
+      Name: tco_invalid
+      Desc: Invalid code
+      
+      Test: |
+        content = "defi test(val, *args, key)"
+        c.write_msg(code, [get_instance], input={'ids': ['test-scenario-1'], 'content': content}, output=['error']) 
+      
+      Validate: |  
+        error = c.read_msg('error')
+        this.test_result = error
+        assert ('SyntaxError' in error), 'Code valid'                                                                                                                         

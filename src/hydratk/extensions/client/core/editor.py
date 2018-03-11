@@ -34,6 +34,25 @@ class Editor(tk.LabelFrame):
     _var_show_line_number = None
     _var_show_info_bar = None
 
+    _win_goto = None
+    _win_goto_entry = None
+    _win_goto_btn = None
+
+    _win_find = None
+    _win_find_entry = None
+    _win_find_find_all = None
+    _win_find_ignore_case = None
+    _win_find_regexp = None
+    _win_find_btn = None
+
+    _win_replace = None
+    _win_replace_find_entry = None
+    _win_replace_replace_entry = None
+    _win_replace_replace_all = None
+    _win_replace_ignore_case = None
+    _win_replace_regexp = None
+    _win_replace_btn = None
+
     # font
     _font = None
 
@@ -483,28 +502,27 @@ class Editor(tk.LabelFrame):
 
         tab = self.nb.get_current_tab()
         if (tab is not None):
-            win = tk.Toplevel(self.root)
-            win.title(self.trn.msg('htk_gui_editor_goto_title'))
-            win.transient(self.root)
-            win.resizable(False, False)
-            win.geometry('+%d+%d' % (self.root.winfo_screenwidth() / 2, self.root.winfo_screenheight() / 2))
-            win.tk.call('wm', 'iconphoto', win._w, self.root.images['logo'])
+            self._win_goto = tk.Toplevel(self.root)
+            self._win_goto.title(self.trn.msg('htk_gui_editor_goto_title'))
+            self._win_goto.transient(self.root)
+            self._win_goto.resizable(False, False)
+            self._win_goto.geometry('+%d+%d' % (self.root.winfo_screenwidth() / 2, self.root.winfo_screenheight() / 2))
+            self._win_goto.tk.call('wm', 'iconphoto', self._win_goto._w, self.root.images['logo'])
 
-            tk.Label(win, text=self.trn.msg('htk_gui_editor_goto_text')).pack(side=tk.LEFT, padx=3)
-            entry = tk.Entry(win, width=15)
-            entry.pack(side=tk.LEFT, padx=3)
-            entry.focus_set()
-            btn = tk.Button(win, text='OK', command=lambda: self._goto(entry.get(), win))
-            btn.pack(side=tk.LEFT, padx=3)
+            tk.Label(self._win_goto, text=self.trn.msg('htk_gui_editor_goto_text')).pack(side=tk.LEFT, padx=3)
+            self._win_goto_entry = tk.Entry(self._win_goto, width=15)
+            self._win_goto_entry.pack(side=tk.LEFT, padx=3)
+            self._win_goto_entry.focus_set()
+            self._win_goto_btn = tk.Button(self._win_goto, text='OK', command=lambda: self._goto(self._win_goto_entry.get()))
+            self._win_goto_btn.pack(side=tk.LEFT, padx=3)
 
-            win.bind('<Escape>', lambda f: win.destroy())
+            self._win_goto.bind('<Escape>', lambda f: self._win_goto.destroy())
 
-    def _goto(self, line, win=None):
+    def _goto(self, line):
         """Method goes to given line
 
         Args:
             line (int): line number
-            win (obj): window reference
 
         Returns:
             void
@@ -515,8 +533,8 @@ class Editor(tk.LabelFrame):
             tab = self.nb.get_current_tab()
             tab.goto(line)
 
-        if (win is not None):
-            win.destroy()
+        if (self._win_goto is not None):
+            self._win_goto.destroy()
 
     def win_find(self, event=None):
         """Method displays Find window
@@ -531,31 +549,32 @@ class Editor(tk.LabelFrame):
 
         tab = self.nb.get_current_tab()
         if (tab is not None):
-            win = tk.Toplevel(self.root)
-            win.title(self.trn.msg('htk_gui_editor_find_title'))
-            win.transient(self.root)
-            win.resizable(False, False)
-            win.geometry('+%d+%d' % (self.root.winfo_screenwidth() / 2, self.root.winfo_screenheight() / 2))
-            win.tk.call('wm', 'iconphoto', win._w, self.root.images['logo'])
+            self._win_find = tk.Toplevel(self.root)
+            self._win_find.title(self.trn.msg('htk_gui_editor_find_title'))
+            self._win_find.transient(self.root)
+            self._win_find.resizable(False, False)
+            self._win_find.geometry('+%d+%d' % (self.root.winfo_screenwidth() / 2, self.root.winfo_screenheight() / 2))
+            self._win_find.tk.call('wm', 'iconphoto', self._win_find._w, self.root.images['logo'])
 
-            tk.Label(win, text=self.trn.msg('htk_gui_editor_find_text')).grid(row=0, column=0, sticky='e')
-            entry = tk.Entry(win, width=50)
-            entry.grid(row=0, column=1, padx=3, sticky='e')
-            entry.focus_set()
+            tk.Label(self._win_find, text=self.trn.msg('htk_gui_editor_find_text')).grid(row=0, column=0, sticky='e')
+            self._win_find_entry = tk.Entry(self._win_find, width=50)
+            self._win_find_entry.grid(row=0, column=1, padx=3, sticky='e')
+            self._win_find_entry.focus_set()
 
-            find_all = tk.BooleanVar(value=True)
-            tk.Checkbutton(win, text=self.trn.msg('htk_gui_editor_find_find_all'), variable=find_all).grid(row=1, column=1, pady=3, sticky='w')
-            ignore_case = tk.BooleanVar(value=True)
-            tk.Checkbutton(win, text=self.trn.msg('htk_gui_editor_find_ignore_case'), variable=ignore_case).grid(row=2, column=1, sticky='w')
-            regexp = tk.BooleanVar()
-            tk.Checkbutton(win, text=self.trn.msg('htk_gui_editor_find_regexp'), variable=regexp).grid(row=3, column=1, sticky='w')
+            self._win_find_find_all = tk.BooleanVar(value=True)
+            tk.Checkbutton(self._win_find, text=self.trn.msg('htk_gui_editor_find_find_all'), variable=self._win_find_find_all).grid(row=1, column=1, pady=3, sticky='w')
+            self._win_find_ignore_case = tk.BooleanVar(value=True)
+            tk.Checkbutton(self._win_find, text=self.trn.msg('htk_gui_editor_find_ignore_case'), variable=self._win_find_ignore_case).grid(row=2, column=1, sticky='w')
+            self._win_find_regexp = tk.BooleanVar()
+            tk.Checkbutton(self._win_find, text=self.trn.msg('htk_gui_editor_find_regexp'), variable=self._win_find_regexp).grid(row=3, column=1, sticky='w')
 
-            btn = tk.Button(win, text='OK', command=lambda: self._find(entry.get(), find_all.get(), ignore_case.get(), regexp.get(), win))
-            btn.grid(row=0, column=2, padx=3, sticky='e')
+            self._win_find_btn = tk.Button(self._win_find, text='OK', command=lambda: self._find(self._win_find_entry.get(), self._win_find_find_all.get(),
+                                                                                      self._win_find_ignore_case.get(), self._win_find_regexp.get()))
+            self._win_find_btn.grid(row=0, column=2, padx=3, sticky='e')
 
-            win.bind('<Escape>', lambda f: win.destroy())
+            self._win_find.bind('<Escape>', lambda f: self._win_find.destroy())
 
-    def _find(self, find_str, find_all, ignore_case, regexp, win=None):
+    def _find(self, find_str, find_all, ignore_case, regexp):
         """Method finds given string and highlights it
 
         Args:
@@ -563,7 +582,6 @@ class Editor(tk.LabelFrame):
             find_all (bool): find all occurrences, otherwise only next one
             ignore_case (bool): ignore case
             regexp (bool): regular expression
-            win (obj): window reference
 
         Returns:
             void
@@ -574,8 +592,8 @@ class Editor(tk.LabelFrame):
             tab = self.nb.get_current_tab()
             tab.find(find_str=find_str, find_all=find_all, ignore_case=ignore_case, regexp=regexp)
 
-        if (win is not None):
-            win.destroy()
+        if (self._win_find is not None):
+            self._win_find.destroy()
 
     def win_replace(self, event=None):
         """Method displays Replace window
@@ -590,35 +608,36 @@ class Editor(tk.LabelFrame):
 
         tab = self.nb.get_current_tab()
         if (tab is not None):
-            win = tk.Toplevel(self.root)
-            win.title(self.trn.msg('htk_gui_editor_replace_title'))
-            win.transient(self.root)
-            win.resizable(False, False)
-            win.geometry('+%d+%d' % (self.root.winfo_screenwidth() / 2, self.root.winfo_screenheight() / 2))
-            win.tk.call('wm', 'iconphoto', win._w, self.root.images['logo'])
+            self._win_replace = tk.Toplevel(self.root)
+            self._win_replace.title(self.trn.msg('htk_gui_editor_replace_title'))
+            self._win_replace.transient(self.root)
+            self._win_replace.resizable(False, False)
+            self._win_replace.geometry('+%d+%d' % (self.root.winfo_screenwidth() / 2, self.root.winfo_screenheight() / 2))
+            self._win_replace.tk.call('wm', 'iconphoto', self._win_replace._w, self.root.images['logo'])
 
-            tk.Label(win, text=self.trn.msg('htk_gui_editor_replace_find')).grid(row=0, column=0, sticky='e')
-            find_entry = tk.Entry(win, width=50)
-            find_entry.grid(row=0, column=1, padx=3, sticky='e')
-            find_entry.focus_set()
+            tk.Label(self._win_replace, text=self.trn.msg('htk_gui_editor_replace_find')).grid(row=0, column=0, sticky='e')
+            self._win_replace_find_entry = tk.Entry(self._win_replace, width=50)
+            self._win_replace_find_entry.grid(row=0, column=1, padx=3, sticky='e')
+            self._win_replace_find_entry.focus_set()
 
-            tk.Label(win, text=self.trn.msg('htk_gui_editor_replace_replace')).grid(row=1, column=0, pady=3, sticky='e')
-            replace_entry = tk.Entry(win, width=50)
-            replace_entry.grid(row=1, column=1, padx=3, sticky='e')
+            tk.Label(self._win_replace, text=self.trn.msg('htk_gui_editor_replace_replace')).grid(row=1, column=0, pady=3, sticky='e')
+            self._win_replace_replace_entry = tk.Entry(self._win_replace, width=50)
+            self._win_replace_replace_entry.grid(row=1, column=1, padx=3, sticky='e')
 
-            replace_all = tk.BooleanVar(value=True)
-            tk.Checkbutton(win, text=self.trn.msg('htk_gui_editor_replace_replace_all'), variable=replace_all).grid(row=2, column=1, pady=3, sticky='w')
-            ignore_case = tk.BooleanVar(value=True)
-            tk.Checkbutton(win, text=self.trn.msg('htk_gui_editor_replace_ignore_case'), variable=ignore_case).grid(row=3, column=1, sticky='w')
-            regexp = tk.BooleanVar()
-            tk.Checkbutton(win, text=self.trn.msg('htk_gui_editor_replace_regexp'), variable=regexp).grid(row=4, column=1, sticky='w')
+            self._win_replace_replace_all = tk.BooleanVar(value=True)
+            tk.Checkbutton(self._win_replace, text=self.trn.msg('htk_gui_editor_replace_replace_all'), variable=self._win_replace_replace_all).grid(row=2, column=1, pady=3, sticky='w')
+            self._win_replace_ignore_case = tk.BooleanVar(value=True)
+            tk.Checkbutton(self._win_replace, text=self.trn.msg('htk_gui_editor_replace_ignore_case'), variable=self._win_replace_ignore_case).grid(row=3, column=1, sticky='w')
+            self._win_replace_regexp = tk.BooleanVar()
+            tk.Checkbutton(self._win_replace, text=self.trn.msg('htk_gui_editor_replace_regexp'), variable=self._win_replace_regexp).grid(row=4, column=1, sticky='w')
 
-            btn = tk.Button(win, text='OK', command=lambda: self._replace(find_entry.get(), replace_entry.get(), replace_all.get(), ignore_case.get(), regexp.get(), win))
-            btn.grid(row=0, column=2, padx=3, sticky='e')
+            self._win_replace_btn = tk.Button(self._win_replace, text='OK', command=lambda: self._replace(self._win_replace_find_entry.get(), self._win_replace_replace_entry.get(),
+                                                                                            self._win_replace_replace_all.get(), self._win_replace_ignore_case.get(), self._win_replace_regexp.get()))
+            self._win_replace_btn.grid(row=0, column=2, padx=3, sticky='e')
 
-            win.bind('<Escape>', lambda f: win.destroy())
+            self._win_replace.bind('<Escape>', lambda f: self._win_replace.destroy())
             
-    def _replace(self, find_str, replace_str, replace_all, ignore_case, regexp, win=None):
+    def _replace(self, find_str, replace_str, replace_all, ignore_case, regexp):
         """Method finds given string and replaces it
 
         Args:
@@ -627,7 +646,6 @@ class Editor(tk.LabelFrame):
             replace_all (bool): replace all occurrences, otherwise only next one
             ignore_case (bool): ignore case
             regexp (bool): regular expression
-            win (obj): window reference
 
         Returns:
             void
@@ -639,8 +657,8 @@ class Editor(tk.LabelFrame):
             tab.replace(find_str, replace_str, replace_all, ignore_case, regexp)
             self.refresh_yoda_tree(tab)
 
-        if (win is not None):
-            win.destroy()
+        if (self._win_replace is not None):
+            self._win_replace.destroy()
 
     def increase_font(self):
         """Method increases font size

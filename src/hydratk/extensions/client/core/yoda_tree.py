@@ -362,7 +362,7 @@ class YodaTree(tk.LabelFrame):
         item, value = True, True
         for k in self._hidden_tags:
             if (key == k.upper()):        
-                item = False
+                item, value = False, False
                 break
 
         # tags with not displayed value

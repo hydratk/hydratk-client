@@ -1,0 +1,354 @@
+Test-Scenario-1:
+  Id: ts_01
+  Path: hydratk/extensions/client/core/explorer/02_methods_ut.jedi
+  Name: ts_copy
+  Desc: Test _copy method
+  Author: Petr Rasek <bowman@hydratk.org>
+  Version: 0.1
+  
+  Pre-Req: |
+    from yodalib.hydratk.extensions.client.gui_client import GuiClient
+    from yodahelpers.hydratk.extensions.client.core.explorer import create_project, select, clean, click_context_menu
+    from os import path
+  
+  Test-Case-1:
+    Id: tc_01
+    Name: tc_copy
+    Desc: Copy file
+    
+    Test-Condition-1: 
+      Id: tco_01
+      Name: tco_create_project
+      Desc: Create project
+      
+      Test: |
+        c = GuiClient.get_instance()        
+        code = "config = create_project(path); sel = select(tree_path)"
+        proj_path, tree_path = '/tmp/test_project', ['test_project']
+        c.write_msg(code, [create_project, select], input={'path': proj_path, 'tree_path': tree_path}, output=['sel'])
+        
+      Validate: |
+        sel = c.read_msg('sel')
+        assert (sel), 'item not selected'
+        
+    Test-Condition-2: 
+      Id: tco_02
+      Name: tco_copy
+      Desc: Copy
+      
+      Test: |
+        code = "select(tree_path); self.root.explorer._copy(); f = self.root.clipboard_get()"
+        tree_path = ['test_project', 'lib', 'yodalib', '__init__.py']
+        c.write_msg(code, [select], input={'tree_path': tree_path}, output=['f'])
+      
+      Validate: |
+        f = c.read_msg('f')
+        this.test_result = f
+        exp = '/tmp/' + '/'.join(tree_path)
+        assert (f == exp), 'path not in clipboard'    
+      
+    Test-Condition-3: 
+      Id: tco_03
+      Name: tco_context_menu
+      Desc: Copy from context menu
+      
+      Test: |
+        code = "select(tree_path); click_context_menu(item); f = self.root.clipboard_get()"
+        tree_path = ['test_project', 'lib', 'yodalib']
+        c.write_msg(code, [select, click_context_menu], input={'tree_path': tree_path, 'item': 'Copy'}, output=['f'])
+      
+      Validate: |
+        f = c.read_msg('f')
+        this.test_result = f
+        exp = '/tmp/' + '/'.join(tree_path)
+        assert (f == exp), 'path not in clipboard'        
+      
+    Test-Condition-4: 
+      Id: tco_04
+      Name: tco_clean
+      Desc: Clean 
+      
+      Test: |
+        code = "clean()"
+        c.write_msg(code, [clean])
+      
+      Validate: |                                                                                                         
+        c.read_msg()
+        assert (not path.exists(proj_path)), 'directory not deleted'
+        
+Test-Scenario-2:
+  Id: ts_02
+  Path: hydratk/extensions/client/core/explorer/02_methods_ut.jedi
+  Name: ts_paste
+  Desc: Test _paste method
+  Author: Petr Rasek <bowman@hydratk.org>
+  Version: 0.1
+  
+  Pre-Req: |
+    from yodalib.hydratk.extensions.client.gui_client import GuiClient
+    from yodahelpers.hydratk.extensions.client.core.explorer import create_project, select, clean, click_context_menu
+    from os import path
+  
+  Test-Case-1:
+    Id: tc_01
+    Name: tc_paste
+    Desc: Paste file
+    
+    Test-Condition-1: 
+      Id: tco_01
+      Name: tco_create_project
+      Desc: Create project
+      
+      Test: |
+        c = GuiClient.get_instance()        
+        code = "config = create_project(path); sel = select(tree_path)"
+        proj_path, tree_path = '/tmp/test_project', ['test_project']
+        c.write_msg(code, [create_project, select], input={'path': proj_path, 'tree_path': tree_path}, output=['sel'])
+        
+      Validate: |
+        sel = c.read_msg('sel')
+        assert (sel), 'item not selected'
+        
+    Test-Condition-2: 
+      Id: tco_02
+      Name: tco_copy
+      Desc: Copy
+      
+      Test: |
+        code = "select(tree_path); self.root.explorer._copy(); f = self.root.clipboard_get()"
+        tree_path = ['test_project', 'lib', 'yodalib', '__init__.py']
+        c.write_msg(code, [select], input={'tree_path': tree_path}, output=['f'])
+      
+      Validate: |
+        f = c.read_msg('f')
+        this.test_result = f
+        exp = '/tmp/' + '/'.join(tree_path)
+        assert (f == exp), 'path not in clipboard'    
+      
+    Test-Condition-3: 
+      Id: tco_03
+      Name: tco_paste
+      Desc: Paste
+      
+      Test: |
+        code = "select(tree_path); self.root.explorer._paste(); sel = select(tree_path2)"
+        tree_path = ['test_project', 'lib']
+        c.write_msg(code, [select], input={'tree_path': tree_path, 'tree_path2': tree_path+['__init__.py']}, output=['sel'])
+      
+      Validate: |
+        sel = c.read_msg('sel')
+        assert (sel), 'item not selected'
+        exp = '/tmp/' + '/'.join(tree_path) + '/__init__.py'
+        assert (path.exists(exp)), 'file not copied'
+        
+    Test-Condition-4: 
+      Id: tco_04
+      Name: tco_copy_context
+      Desc: Copy from context menu
+      
+      Test: |
+        code = "select(tree_path); click_context_menu(item); f = self.root.clipboard_get()"
+        tree_path = ['test_project', 'helpers', 'yodahelpers', '__init__.py']
+        c.write_msg(code, [select, click_context_menu], input={'tree_path': tree_path, 'item': 'Copy'}, output=['f'])
+      
+      Validate: |
+        f = c.read_msg('f')
+        this.test_result = f
+        exp = '/tmp/' + '/'.join(tree_path)
+        assert (f == exp), 'path not in clipboard'    
+      
+    Test-Condition-5: 
+      Id: tco_05
+      Name: tco_paste_context
+      Desc: Paste from context menu
+      
+      Test: |
+        code = "select(tree_path); click_context_menu(item); sel = select(tree_path2)"
+        tree_path = ['test_project', 'yoda-tests']
+        c.write_msg(code, [select, click_context_menu], 
+                    input={'tree_path': tree_path, 'item': 'Paste', 'tree_path2': tree_path+['__init__.py']}, output=['sel'])
+      
+      Validate: |
+        sel = c.read_msg('sel')
+        assert (sel), 'item not selected'
+        exp = '/tmp/' + '/'.join(tree_path) + '/__init__.py'
+        assert (path.exists(exp)), 'file not copied'                   
+      
+    Test-Condition-6: 
+      Id: tco_06
+      Name: tco_clean
+      Desc: Clean 
+      
+      Test: |
+        code = "clean()"
+        c.write_msg(code, [clean])
+      
+      Validate: |                                                                                                         
+        c.read_msg()
+        assert (not path.exists(proj_path)), 'directory not deleted'
+        
+Test-Scenario-3:
+  Id: ts_03
+  Path: hydratk/extensions/client/core/explorer/02_methods_ut.jedi
+  Name: ts_refresh
+  Desc: Test refresh method
+  Author: Petr Rasek <bowman@hydratk.org>
+  Version: 0.1
+  
+  Pre-Req: |
+    from yodalib.hydratk.extensions.client.gui_client import GuiClient
+    from yodahelpers.hydratk.extensions.client.core.explorer import create_project, select, clean, click_context_menu
+    from os import path
+  
+  Test-Case-1:
+    Id: tc_01
+    Name: tc_refresh
+    Desc: Refresh tree
+    
+    Test-Condition-1: 
+      Id: tco_01
+      Name: tco_create_project
+      Desc: Create project
+      
+      Test: |
+        c = GuiClient.get_instance()        
+        code = "config = create_project(path); sel = select(tree_path)"
+        proj_path, tree_path = '/tmp/test_project', ['test_project']
+        c.write_msg(code, [create_project, select], input={'path': proj_path, 'tree_path': tree_path}, output=['sel'])
+        
+      Validate: |
+        sel = c.read_msg('sel')
+        assert (sel), 'item not selected'
+        
+    Test-Condition-2: 
+      Id: tco_02
+      Name: tco_refresh
+      Desc: Refresh
+      
+      Test: |
+        fpath = proj_path + '/test1.txt'        
+        with open(fpath, 'w') as f:
+            f.write('test')
+      
+        code = "select(tree_path); self.root.explorer.refresh(path=path); sel = select(tree_path)"
+        tree_path = ['test_project', 'test1.txt']
+        c.write_msg(code, [select], input={'path': fpath, 'tree_path': tree_path}, output=['sel'])
+      
+      Validate: |
+        sel = c.read_msg('sel')
+        this.test_result = sel
+        assert (sel), 'item not selected'     
+      
+    Test-Condition-3: 
+      Id: tco_03
+      Name: tco_context_menu
+      Desc: Refresh from context menu
+      
+      Test: |
+        fpath = proj_path + '/lib/yodalib/test2.txt'        
+        with open(fpath, 'w') as f:
+            f.write('test')      
+      
+        code = "select(tree_path); click_context_menu(item); sel = select(tree_path2)"
+        tree_path = ['test_project', 'lib', 'yodalib']
+        c.write_msg(code, [select, click_context_menu], 
+                    input={'tree_path': tree_path, 'item': 'Refresh', 'tree_path2': tree_path+['test2.txt']}, output=['sel'])
+      
+      Validate: |
+        sel = c.read_msg('sel')
+        this.test_result = sel
+        assert (sel), 'item not selected'                    
+      
+    Test-Condition-4: 
+      Id: tco_04
+      Name: tco_clean
+      Desc: Clean 
+      
+      Test: |
+        code = "clean()"
+        c.write_msg(code, [clean])
+      
+      Validate: |                                                                                                         
+        c.read_msg()
+        assert (not path.exists(proj_path)), 'directory not deleted'
+        
+Test-Scenario-4:
+  Id: ts_04
+  Path: hydratk/extensions/client/core/explorer/02_methods_ut.jedi
+  Name: ts_delete
+  Desc: Test _delete method
+  Author: Petr Rasek <bowman@hydratk.org>
+  Version: 0.1
+  
+  Pre-Req: |
+    from yodalib.hydratk.extensions.client.gui_client import GuiClient
+    from yodahelpers.hydratk.extensions.client.core.explorer import create_project, select, get_attr
+    from os import path
+  
+  Test-Case-1:
+    Id: tc_01
+    Name: tc_delete
+    Desc: Delete
+    
+    Test-Condition-1: 
+      Id: tco_01
+      Name: tco_create_project
+      Desc: Create project
+      
+      Test: |
+        c = GuiClient.get_instance()        
+        code = "config = create_project(path); sel = select(tree_path)"
+        proj_path, tree_path = '/tmp/test_project', ['test_project']
+        c.write_msg(code, [create_project, select], input={'path': proj_path, 'tree_path': tree_path}, output=['sel'])
+        
+      Validate: |
+        sel = c.read_msg('sel')
+        assert (sel), 'item not selected'
+        
+    Test-Condition-2: 
+      Id: tco_02
+      Name: tco_file
+      Desc: Delete file
+      
+      Test: |
+        code = "select(tree_path); self.root.explorer._delete(force=force)"
+        tree_path = ['test_project', 'lib', 'yodalib', '__init__.py']
+        c.write_msg(code, [select], input={'tree_path': tree_path, 'force': True})
+      
+      Validate: |
+        c.read_msg()
+        res = path.exists('/tmp/' + '/'.join(tree_path))
+        this.test_result = res
+        assert (not res), 'file not deleted'     
+      
+    Test-Condition-3: 
+      Id: tco_03
+      Name: tco_directory
+      Desc: Delete directory
+      
+      Test: |
+        tree_path = ['test_project', 'lib', 'yodalib']
+        c.write_msg(code, [select], input={'tree_path': tree_path, 'force': True})
+
+      Validate: |
+        c.read_msg()
+        res = path.exists('/tmp/' + '/'.join(tree_path))
+        this.test_result = res
+        assert (not res), 'directory not deleted'
+        
+    Test-Condition-4: 
+      Id: tco_04
+      Name: tco_project
+      Desc: Delete project
+      
+      Test: |
+        code = "select(tree_path); self.root.explorer._delete(force=force); attr = get_attr(name)"
+        tree_path = ['test_project']
+        c.write_msg(code, [select, get_attr], input={'tree_path': tree_path, 'force': True, 'name': '_projects'}, output=['attr'])
+
+      Validate: |
+        attr = c.read_msg('attr')
+        res = path.exists(proj_path)
+        this.test_result = res
+        assert (not res), 'project not deleted'
+        assert (tree_path[0] not in attr), 'project not deleted from configuration'                                      

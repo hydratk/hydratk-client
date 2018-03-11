@@ -1,0 +1,240 @@
+Test-Scenario-1:
+  Id: ts_01
+  Path: hydratk/extensions/client/core/gui/01_methods_ut.jedi
+  Name: ts_props
+  Desc: Test property methods
+  Author: Petr Rasek <bowman@hydratk.org>
+  Version: 0.1
+  
+  Pre-Req: |
+    from yodalib.hydratk.extensions.client.gui_client import GuiClient
+    from yodahelpers.hydratk.extensions.client.core.gui import get_property, get_attr
+  
+  Test-Case-1:
+    Id: tc_01
+    Name: tc_getters
+    Desc: Getter methods
+    
+    Test-Condition-1: 
+      Id: tco_01
+      Name: tco_cfg
+      Desc: Getter cfg
+      
+      Test: |
+        c = GuiClient.get_instance()
+        code = "prop = get_attr(name1, True); attr = get_attr(name2, True)"
+        c.write_msg(code, [get_attr], input={'name1': 'cfg', 'name2': '_config'}, output=['prop', 'attr'])     
+      
+      Validate: |  
+        prop, attr = c.read_msg('prop', 'attr')
+        this.test_result = prop
+        assert (prop == attr), 'prop != {0}'.format(attr)
+        
+    Test-Condition-2: 
+      Id: tco_02
+      Name: tco_trn
+      Desc: Getter trn
+      
+      Test: |
+        code = "prop, attr = get_property(name, True)"
+        c.write_msg(code, [get_property], input={'name': 'trn'}, output=['prop', 'attr'])     
+      
+      Validate: |  
+        prop, attr = c.read_msg('prop', 'attr')
+        this.test_result = prop
+        assert (prop == attr), 'prop != {0}'.format(attr)
+        
+    Test-Condition-3: 
+      Id: tco_03
+      Name: tco_explorer
+      Desc: Getter explorer
+      
+      Test: |
+        c.write_msg(code, [get_property], input={'name': 'explorer'}, output=['prop', 'attr'])     
+      
+      Validate: |  
+        prop, attr = c.read_msg('prop', 'attr')
+        this.test_result = prop
+        assert (prop == attr), 'prop != {0}'.format(attr)
+        
+    Test-Condition-4: 
+      Id: tco_04
+      Name: tco_yoda_tree
+      Desc: Getter yoda_tree
+      
+      Test: |
+        c.write_msg(code, [get_property], input={'name': 'yoda_tree'}, output=['prop', 'attr'])     
+      
+      Validate: |  
+        prop, attr = c.read_msg('prop', 'attr')
+        this.test_result = prop
+        assert (prop == attr), 'prop != {0}'.format(attr)   
+        
+    Test-Condition-5: 
+      Id: tco_05
+      Name: tco_editor
+      Desc: Getter editor
+      
+      Test: |
+        c.write_msg(code, [get_property], input={'name': 'editor'}, output=['prop', 'attr'])     
+      
+      Validate: |  
+        prop, attr = c.read_msg('prop', 'attr')
+        this.test_result = prop
+        assert (prop == attr), 'prop != {0}'.format(attr)
+        
+    Test-Condition-6: 
+      Id: tco_06
+      Name: tco_logger
+      Desc: Getter logger
+      
+      Test: |
+        c.write_msg(code, [get_property], input={'name': 'logger'}, output=['prop', 'attr'])     
+      
+      Validate: |  
+        prop, attr = c.read_msg('prop', 'attr')
+        this.test_result = prop
+        assert (prop == attr), 'prop != {0}'.format(attr)   
+        
+    Test-Condition-7: 
+      Id: tco_07
+      Name: tco_pluginmanager
+      Desc: Getter pluginmanager
+      
+      Test: |
+        c.write_msg(code, [get_property], input={'name': 'pluginmanager'}, output=['prop', 'attr'])     
+      
+      Validate: |  
+        prop, attr = c.read_msg('prop', 'attr')
+        this.test_result = prop
+        assert (prop == attr), 'prop != {0}'.format(attr)
+        
+    Test-Condition-8: 
+      Id: tco_08
+      Name: tco_plugins
+      Desc: Getter plugins
+      
+      Test: |
+        c.write_msg(code, [get_property], input={'name': 'plugins'}, output=['prop', 'attr'])     
+      
+      Validate: |  
+        prop, attr = c.read_msg('prop', 'attr')
+        this.test_result = prop
+        assert (prop == attr), 'prop != {0}'.format(attr)
+        
+    Test-Condition-9: 
+      Id: tco_09
+      Name: tco_help
+      Desc: Getter help
+      
+      Test: |
+        c.write_msg(code, [get_property], input={'name': 'help'}, output=['prop', 'attr'])     
+      
+      Validate: |  
+        prop, attr = c.read_msg('prop', 'attr')
+        this.test_result = prop
+        assert (prop == attr), 'prop != {0}'.format(attr)
+        
+    Test-Condition-10: 
+      Id: tco_10
+      Name: tco_menu_bar
+      Desc: Getter menu_bar
+      
+      Test: |
+        c.write_msg(code, [get_property], input={'name': 'menu_bar'}, output=['prop', 'attr'])     
+      
+      Validate: |  
+        prop, attr = c.read_msg('prop', 'attr')
+        this.test_result = prop
+        assert (prop == attr), 'prop != {0}'.format(attr)
+        
+    Test-Condition-11: 
+      Id: tco_11
+      Name: tco_menus
+      Desc: Getter menus
+      
+      Test: |
+        c.write_msg(code, [get_property], input={'name': 'menus'}, output=['prop', 'attr'])     
+      
+      Validate: |  
+        prop, attr = c.read_msg('prop', 'attr')
+        this.test_result = prop
+        assert (prop == attr), 'prop != {0}'.format(attr)
+        
+    Test-Condition-12: 
+      Id: tco_12
+      Name: tco_tools
+      Desc: Getter tools
+      
+      Test: |
+        c.write_msg(code, [get_property], input={'name': 'tools'}, output=['prop', 'attr'])     
+      
+      Validate: |  
+        prop, attr = c.read_msg('prop', 'attr')
+        this.test_result = prop
+        assert (prop == attr), 'prop != {0}'.format(attr)
+        
+    Test-Condition-13: 
+      Id: tco_13
+      Name: tco_imgdir
+      Desc: Getter imgdir
+      
+      Test: |
+        c.write_msg(code, [get_property], input={'name': 'imgdir'}, output=['prop', 'attr'])     
+      
+      Validate: |  
+        prop, attr = c.read_msg('prop', 'attr')
+        this.test_result = prop
+        assert (prop == attr), 'prop != {0}'.format(attr)
+        
+    Test-Condition-14: 
+      Id: tco_14
+      Name: tco_images
+      Desc: Getter images
+      
+      Test: |
+        c.write_msg(code, [get_property], input={'name': 'images'}, output=['prop', 'attr'])     
+      
+      Validate: |  
+        prop, attr = c.read_msg('prop', 'attr')
+        this.test_result = prop
+        assert (prop == attr), 'prop != {0}'.format(attr)
+        
+    Test-Condition-15: 
+      Id: tco_07
+      Name: tco_pane_left
+      Desc: Getter pane_left
+      
+      Test: |
+        c.write_msg(code, [get_property], input={'name': 'pane_left'}, output=['prop', 'attr'])     
+      
+      Validate: |  
+        prop, attr = c.read_msg('prop', 'attr')
+        this.test_result = prop
+        assert (prop == attr), 'prop != {0}'.format(attr)
+        
+    Test-Condition-16: 
+      Id: tco_16
+      Name: tco_pane_right
+      Desc: Getter pane_right
+      
+      Test: |
+        c.write_msg(code, [get_property], input={'name': 'pane_right'}, output=['prop', 'attr'])     
+      
+      Validate: |  
+        prop, attr = c.read_msg('prop', 'attr')
+        this.test_result = prop
+        assert (prop == attr), 'prop != {0}'.format(attr)
+        
+    Test-Condition-17: 
+      Id: tco_17
+      Name: tco_test_handler
+      Desc: Getter test_handler
+      
+      Test: |
+        c.write_msg(code, [get_property], input={'name': 'test_handler'}, output=['prop', 'attr'])     
+      
+      Validate: |  
+        prop, attr = c.read_msg('prop', 'attr')
+        this.test_result = prop
+        assert (prop == attr), 'prop != {0}'.format(attr)                                                                                                                                                 

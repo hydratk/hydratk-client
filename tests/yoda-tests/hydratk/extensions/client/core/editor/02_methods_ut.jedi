@@ -1,0 +1,696 @@
+Test-Scenario-1:
+  Id: ts_01
+  Path: hydratk/extensions/client/core/editor/02_methods_ut.jedi
+  Name: ts_select_all
+  Desc: Test select_all method
+  Author: Petr Rasek <bowman@hydratk.org>
+  Version: 0.1
+  
+  Pre-Req: |
+    from yodalib.hydratk.extensions.client.gui_client import GuiClient
+    from yodahelpers.hydratk.extensions.client.core.editor import get_tab_cnt, close_tabs, get_tab_content, write_text, click_menu, click_context_menu
+  
+  Test-Case-1:
+    Id: tc_01
+    Name: tc_select_all
+    Desc: Select all
+    
+    Test-Condition-1: 
+      Id: tco_01
+      Name: tco_new_file
+      Desc: New file
+      
+      Test: |
+        c = GuiClient.get_instance()
+        code = "self.root.editor.new_file(); cnt = get_tab_cnt(); write_text(text); cont = get_tab_content()"
+        text = 'xxyyzz'
+        c.write_msg(code, [get_tab_cnt, write_text, get_tab_content], input={'text': text}, output=['cnt', 'cont'])
+        
+      Validate: |
+        cnt, cont = c.read_msg('cnt', 'cont')
+        this.test_result = cnt
+        assert (cnt == 1), 'tab not added'
+        assert (cont == text), 'text not written'
+        
+    Test-Condition-2: 
+      Id: tco_02
+      Name: tco_select_all
+      Desc: Select all
+      
+      Test: |
+        code = "self.root.editor.select_all(); cont = self.root.editor.nb.get_marked_content()"
+        c.write_msg(code, output=['cont'])        
+      
+      Validate: |
+        cont = c.read_msg('cont')
+        this.test_result = cont
+        assert (cont[:-1] == text), 'Select all not performed'
+        
+    Test-Condition-3: 
+      Id: tco_03
+      Name: tco_menu
+      Desc: From menu
+      
+      Test: |
+        code = "click_menu(key, item); cont = self.root.editor.nb.get_marked_content()"
+        c.write_msg(code, [click_menu], input={'key': 'edit', 'item': 'Select All'}, output=['cont'])        
+      
+      Validate: |
+        cont = c.read_msg('cont')
+        this.test_result = cont
+        assert (cont[:-1] == text), 'Select all not performed'
+        
+    Test-Condition-4: 
+      Id: tco_04
+      Name: tco_context_menu
+      Desc: From context menu
+      
+      Test: |
+        code = "click_context_menu(item); cont = self.root.editor.nb.get_marked_content()"
+        c.write_msg(code, [click_context_menu], input={'item': 'Select All'}, output=['cont'])        
+      
+      Validate: |
+        cont = c.read_msg('cont')
+        this.test_result = cont
+        assert (cont[:-1] == text), 'Select all not performed'                                                           
+        
+    Test-Condition-5: 
+      Id: tco_05
+      Name: tco_close_tabs
+      Desc: Close tabs
+      
+      Test: |
+        code = "close_tabs(); cnt = get_tab_cnt()"
+        c.write_msg(code, [close_tabs, get_tab_cnt], output=['cnt'])
+        
+      Validate: |
+        cnt = c.read_msg('cnt')
+        this.test_result = cnt
+        assert (cnt == 0), 'tabs not closed'
+        
+Test-Scenario-2:
+  Id: ts_02
+  Path: hydratk/extensions/client/core/editor/02_methods_ut.jedi
+  Name: ts_show_line_number
+  Desc: Test show_line_number method
+  Author: Petr Rasek <bowman@hydratk.org>
+  Version: 0.1
+  
+  Pre-Req: |
+    from yodalib.hydratk.extensions.client.gui_client import GuiClient
+    from yodahelpers.hydratk.extensions.client.core.editor import get_tab_cnt, close_tabs, get_tab_content, write_text, click_menu, get_ln_bar
+  
+  Test-Case-1:
+    Id: tc_01
+    Name: tc_show_line_number
+    Desc: Show line number
+    
+    Test-Condition-1: 
+      Id: tco_01
+      Name: tco_new_file
+      Desc: New file
+      
+      Test: |
+        c = GuiClient.get_instance()
+        code = "self.root.editor.new_file(); cnt = get_tab_cnt(); write_text(text); cont = get_tab_content()"
+        text = 'xx\nyy\nzz'
+        c.write_msg(code, [get_tab_cnt, write_text, get_tab_content], input={'text': text}, output=['cnt', 'cont'])
+        
+      Validate: |
+        cnt, cont = c.read_msg('cnt', 'cont')
+        this.test_result = cnt
+        assert (cnt == 1), 'tab not added'
+        assert (cont == text), 'text not written'
+        
+    Test-Condition-2: 
+      Id: tco_02
+      Name: tco_disable
+      Desc: Disable line numbers
+      
+      Test: |
+        code = "click_menu(key, item); cont = get_ln_bar()"
+        c.write_msg(code, [click_menu, get_ln_bar], input={'key': 'view', 'item': 'Line numbers'}, output=['cont'])        
+      
+      Validate: |
+        cont = c.read_msg('cont')
+        this.test_result = cont
+        assert (cont == '\n'), 'Line number bar enabled'
+        
+    Test-Condition-3: 
+      Id: tco_03
+      Name: tco_enable
+      Desc: Enable line numbers
+      
+      Test: |
+        code = "click_menu(key, item); cont = get_ln_bar()"
+        c.write_msg(code, [click_menu, get_ln_bar], input={'key': 'view', 'item': 'Line numbers'}, output=['cont'])        
+      
+      Validate: |
+        cont = c.read_msg('cont')
+        this.test_result = cont
+        assert (cont == '1\n2\n3\n'), 'Line number bar disabled'                                                                              
+        
+    Test-Condition-4: 
+      Id: tco_04
+      Name: tco_close_tabs
+      Desc: Close tabs
+      
+      Test: |
+        code = "close_tabs(); cnt = get_tab_cnt()"
+        c.write_msg(code, [close_tabs, get_tab_cnt], output=['cnt'])
+        
+      Validate: |
+        cnt = c.read_msg('cnt')
+        this.test_result = cnt
+        assert (cnt == 0), 'tabs not closed'
+        
+Test-Scenario-3:
+  Id: ts_03
+  Path: hydratk/extensions/client/core/editor/02_methods_ut.jedi
+  Name: ts_show_info_bar
+  Desc: Test show_info_bar method
+  Author: Petr Rasek <bowman@hydratk.org>
+  Version: 0.1
+  
+  Pre-Req: |
+    from yodalib.hydratk.extensions.client.gui_client import GuiClient
+    from yodahelpers.hydratk.extensions.client.core.editor import get_tab_cnt, close_tabs, get_tab_content, write_text, click_menu, get_info_bar
+  
+  Test-Case-1:
+    Id: tc_01
+    Name: tc_show_info_bar
+    Desc: Show info bar
+    
+    Test-Condition-1: 
+      Id: tco_01
+      Name: tco_new_file
+      Desc: New file
+      
+      Test: |
+        c = GuiClient.get_instance()
+        code = "self.root.editor.new_file(); cnt = get_tab_cnt(); write_text(text); cont = get_tab_content()"
+        text = 'xx\nyy\nzz'
+        c.write_msg(code, [get_tab_cnt, write_text, get_tab_content], input={'text': text}, output=['cnt', 'cont'])
+        
+      Validate: |
+        cnt, cont = c.read_msg('cnt', 'cont')
+        this.test_result = cnt
+        assert (cnt == 1), 'tab not added'
+        assert (cont == text), 'text not written'
+        
+    Test-Condition-2: 
+      Id: tco_02
+      Name: tco_disable
+      Desc: Disable info bar
+      
+      Test: |
+        code = "click_menu(key, item); cont = get_info_bar()"
+        c.write_msg(code, [click_menu, get_info_bar], input={'key': 'view', 'item': 'Info bar'}, output=['cont'])        
+      
+      Validate: |
+        cont = c.read_msg('cont')
+        this.test_result = cont
+        assert (cont == ''), 'Info bar enabled'
+        
+    Test-Condition-3: 
+      Id: tco_03
+      Name: tco_enable
+      Desc: Enable info bar
+      
+      Test: |
+        code = "click_menu(key, item); cont = get_info_bar()"
+        c.write_msg(code, [click_menu, get_info_bar], input={'key': 'view', 'item': 'Info bar'}, output=['cont'])        
+      
+      Validate: |
+        cont = c.read_msg('cont')
+        this.test_result = cont
+        assert (cont == '1 : 1'), 'Info bar bar disabled'                                                                              
+        
+    Test-Condition-4: 
+      Id: tco_04
+      Name: tco_close_tabs
+      Desc: Close tabs
+      
+      Test: |
+        code = "close_tabs(); cnt = get_tab_cnt()"
+        c.write_msg(code, [close_tabs, get_tab_cnt], output=['cnt'])
+        
+      Validate: |
+        cnt = c.read_msg('cnt')
+        this.test_result = cnt
+        assert (cnt == 0), 'tabs not closed'
+        
+Test-Scenario-4:
+  Id: ts_04
+  Path: hydratk/extensions/client/core/editor/02_methods_ut.jedi
+  Name: ts_increase_font
+  Desc: Test increase_font method
+  Author: Petr Rasek <bowman@hydratk.org>
+  Version: 0.1
+  
+  Pre-Req: |
+    from yodalib.hydratk.extensions.client.gui_client import GuiClient
+    from yodahelpers.hydratk.extensions.client.core.editor import get_tab_cnt, close_tabs, get_tab_content, write_text, get_font, click_menu
+  
+  Test-Case-1:
+    Id: tc_01
+    Name: tc_increase_font
+    Desc: Increase font
+    
+    Test-Condition-1: 
+      Id: tco_01
+      Name: tco_new_file
+      Desc: New file
+      
+      Test: |
+        c = GuiClient.get_instance()
+        code = "self.root.editor.new_file(); cnt = get_tab_cnt(); write_text(text); cont = get_tab_content(); font = get_font()"
+        text = 'xx\nyy\nzz'
+        c.write_msg(code, [get_tab_cnt, write_text, get_tab_content, get_font], input={'text': text}, output=['cnt', 'cont', 'font'])
+        
+      Validate: |
+        cnt, cont, font = c.read_msg('cnt', 'cont', 'font')
+        this.test_result = cnt
+        assert (cnt == 1), 'tab not added'
+        assert (cont == text), 'text not written'
+
+    Test-Condition-2: 
+      Id: tco_02
+      Name: tco_increase
+      Desc: Increase font
+      
+      Test: |
+        code = "self.root.editor.increase_font(); font = get_font()"
+        c.write_msg(code, [get_font], output=['font'])        
+      
+      Validate: |
+        font2 = c.read_msg('font')
+        this.test_result = font
+        assert (font2 > font), 'Font not increased'   
+        
+    Test-Condition-3: 
+      Id: tco_03
+      Name: tco_menu
+      Desc: From menu
+      
+      Test: |
+        code = "click_menu(key, item); font = get_font()"
+        c.write_msg(code, [click_menu, get_font], input={'key': 'view', 'item': 'Increase font'}, output=['font'])        
+      
+      Validate: |
+        font3 = c.read_msg('font')
+        this.test_result = font3
+        assert (font3 > font2), 'Font not increased'                                                                           
+        
+    Test-Condition-4: 
+      Id: tco_04
+      Name: tco_close_tabs
+      Desc: Close tabs
+      
+      Test: |
+        code = "close_tabs(); cnt = get_tab_cnt()"
+        c.write_msg(code, [close_tabs, get_tab_cnt], output=['cnt'])
+        
+      Validate: |
+        cnt = c.read_msg('cnt')
+        this.test_result = cnt
+        assert (cnt == 0), 'tabs not closed'
+        
+Test-Scenario-5:
+  Id: ts_05
+  Path: hydratk/extensions/client/core/editor/02_methods_ut.jedi
+  Name: ts_decrease_font
+  Desc: Test decrease_font method
+  Author: Petr Rasek <bowman@hydratk.org>
+  Version: 0.1
+  
+  Pre-Req: |
+    from yodalib.hydratk.extensions.client.gui_client import GuiClient
+    from yodahelpers.hydratk.extensions.client.core.editor import get_tab_cnt, close_tabs, get_tab_content, write_text, get_font, click_menu
+  
+  Test-Case-1:
+    Id: tc_01
+    Name: tc_decrease_font
+    Desc: Decrease font
+    
+    Test-Condition-1: 
+      Id: tco_01
+      Name: tco_new_file
+      Desc: New file
+      
+      Test: |
+        c = GuiClient.get_instance()
+        code = "self.root.editor.new_file(); cnt = get_tab_cnt(); write_text(text); cont = get_tab_content(); font = get_font()"
+        text = 'xx\nyy\nzz'
+        c.write_msg(code, [get_tab_cnt, write_text, get_tab_content, get_font], input={'text': text}, output=['cnt', 'cont', 'font'])
+        
+      Validate: |
+        cnt, cont, font = c.read_msg('cnt', 'cont', 'font')
+        this.test_result = cnt
+        assert (cnt == 1), 'tab not added'
+        assert (cont == text), 'text not written'
+
+    Test-Condition-2: 
+      Id: tco_02
+      Name: tco_decrease
+      Desc: Decrease font
+      
+      Test: |
+        code = "self.root.editor.decrease_font(); font = get_font()"
+        c.write_msg(code, [get_font], output=['font'])        
+      
+      Validate: |
+        font2 = c.read_msg('font')
+        this.test_result = font
+        assert (font2 < font), 'Font not decreased'   
+        
+    Test-Condition-3: 
+      Id: tco_03
+      Name: tco_menu
+      Desc: From menu
+      
+      Test: |
+        code = "click_menu(key, item); font = get_font()"
+        c.write_msg(code, [click_menu, get_font], input={'key': 'view', 'item': 'Decrease font'}, output=['font'])        
+      
+      Validate: |
+        font3 = c.read_msg('font')
+        this.test_result = font3
+        assert (font3 < font2), 'Font not decreased'                                                                           
+        
+    Test-Condition-4: 
+      Id: tco_04
+      Name: tco_close_tabs
+      Desc: Close tabs
+      
+      Test: |
+        code = "close_tabs(); cnt = get_tab_cnt()"
+        c.write_msg(code, [close_tabs, get_tab_cnt], output=['cnt'])
+        
+      Validate: |
+        cnt = c.read_msg('cnt')
+        this.test_result = cnt
+        assert (cnt == 0), 'tabs not closed'
+        
+Test-Scenario-6:
+  Id: ts_06
+  Path: hydratk/extensions/client/core/editor/02_methods_ut.jedi
+  Name: ts_win_goto
+  Desc: Test win_goto method
+  Author: Petr Rasek <bowman@hydratk.org>
+  Version: 0.1
+  
+  Pre-Req: |
+    from yodalib.hydratk.extensions.client.gui_client import GuiClient
+    from yodahelpers.hydratk.extensions.client.core.editor import get_tab_cnt, close_tabs, get_tab_content, write_text, handle_goto, click_menu, click_context_menu
+  
+  Test-Case-1:
+    Id: tc_01
+    Name: tc_goto
+    Desc: Goto
+    
+    Test-Condition-1: 
+      Id: tco_01
+      Name: tco_new_file
+      Desc: New file
+      
+      Test: |
+        c = GuiClient.get_instance()
+        code = "self.root.editor.new_file(); cnt = get_tab_cnt(); write_text(text); cont = get_tab_content()"
+        text = 'xx\nyy\nzz'
+        c.write_msg(code, [get_tab_cnt, write_text, get_tab_content], input={'text': text}, output=['cnt', 'cont'])
+        
+      Validate: |
+        cnt, cont = c.read_msg('cnt', 'cont')
+        this.test_result = cnt
+        assert (cnt == 1), 'tab not added'
+        assert (cont == text), 'text not written'
+        
+    Test-Condition-2: 
+      Id: tco_02
+      Name: tco_goto
+      Desc: Goto
+      
+      Test: |
+        code = "self.root.editor.win_goto(); ln = handle_goto(line)"
+        line = '2'
+        c.write_msg(code, [handle_goto], input={'line': line}, output=['ln'])        
+      
+      Validate: |
+        ln = c.read_msg('ln')
+        this.test_result = ln
+        assert (ln == line), 'line != {0}'.format(line)
+        
+    Test-Condition-3: 
+      Id: tco_03
+      Name: tco_menu
+      Desc: From menu
+      
+      Test: |
+        code = "click_menu(key, item); ln = handle_goto(line)"
+        line = '3'
+        c.write_msg(code, [click_menu, handle_goto], input={'key': 'edit', 'item': 'Goto', 'line': line}, output=['ln'])        
+      
+      Validate: |
+        ln = c.read_msg('ln')
+        this.test_result = ln
+        assert (ln == line), 'line != {0}'.format(line)
+        
+    Test-Condition-4: 
+      Id: tco_04
+      Name: tco_context_menu
+      Desc: From context menu
+      
+      Test: |
+        code = "click_context_menu(item); ln = handle_goto(line)"
+        line = '1'
+        c.write_msg(code, [click_context_menu, handle_goto], input={'item': 'Goto', 'line': line}, output=['ln'])        
+      
+      Validate: |
+        ln = c.read_msg('ln')
+        this.test_result = ln
+        assert (ln == line), 'line != {0}'.format(line)                                                                            
+        
+    Test-Condition-5: 
+      Id: tco_05
+      Name: tco_close_tabs
+      Desc: Close tabs
+      
+      Test: |
+        code = "close_tabs(); cnt = get_tab_cnt()"
+        c.write_msg(code, [close_tabs, get_tab_cnt], output=['cnt'])
+        
+      Validate: |
+        cnt = c.read_msg('cnt')
+        this.test_result = cnt
+        assert (cnt == 0), 'tabs not closed'
+        
+Test-Scenario-7:
+  Id: ts_07
+  Path: hydratk/extensions/client/core/editor/02_methods_ut.jedi
+  Name: ts_win_find
+  Desc: Test win_find method
+  Author: Petr Rasek <bowman@hydratk.org>
+  Version: 0.1
+  
+  Pre-Req: |
+    from yodalib.hydratk.extensions.client.gui_client import GuiClient
+    from yodahelpers.hydratk.extensions.client.core.editor import get_tab_cnt, close_tabs, get_tab_content, write_text, handle_find, click_menu, click_context_menu
+  
+  Test-Case-1:
+    Id: tc_01
+    Name: tc_find
+    Desc: Find
+    
+    Test-Condition-1: 
+      Id: tco_01
+      Name: tco_new_file
+      Desc: New file
+      
+      Test: |
+        c = GuiClient.get_instance()
+        code = "self.root.editor.new_file(); cnt = get_tab_cnt(); write_text(text); cont = get_tab_content()"
+        text = 'xx\nyy\nzz'
+        c.write_msg(code, [get_tab_cnt, write_text, get_tab_content], input={'text': text}, output=['cnt', 'cont'])
+        
+      Validate: |
+        cnt, cont = c.read_msg('cnt', 'cont')
+        this.test_result = cnt
+        assert (cnt == 1), 'tab not added'
+        assert (cont == text), 'text not written'
+        
+    Test-Condition-2: 
+      Id: tco_02
+      Name: tco_find
+      Desc: Find
+      
+      Test: |
+        code = "self.root.editor.win_find(); found = handle_find(text, find_all=find_all)"
+        c.write_msg(code, [handle_find], input={'text': 'yy', 'find_all': True}, output=['found'])        
+      
+      Validate: |
+        found = c.read_msg('found')
+        this.test_result = found
+        assert (found), 'text not found'
+        
+    Test-Condition-3: 
+      Id: tco_03
+      Name: tco_menu
+      Desc: From menu
+      
+      Test: |
+        code = "click_menu(key, item); found = handle_find(text, ignore_case=ignore_case)"   
+        c.write_msg(code, [click_menu, handle_find], input={'key': 'edit', 'item': 'Find', 'text': 'Zz', 'ignore_case': True}, output=['found'])        
+      
+      Validate: |
+        found = c.read_msg('found')
+        this.test_result = found
+        assert (found), 'text not found'
+        
+    Test-Condition-4: 
+      Id: tco_04
+      Name: tco_context_menu
+      Desc: From context menu
+      
+      Test: |
+        code = "click_context_menu(item); found = handle_find(text, regexp=regexp)"     
+        c.write_msg(code, [click_context_menu, handle_find], input={'item': 'Find', 'text': '\w+', 'regexp': True}, output=['found'])        
+      
+      Validate: |
+        found = c.read_msg('found')
+        this.test_result = found
+        assert (found), 'text not found'
+        
+    Test-Condition-5: 
+      Id: tco_05
+      Name: tco_not_found
+      Desc: Not found text
+      
+      Test: |
+        code = "self.root.editor.win_find(); found = handle_find(text)"
+        c.write_msg(code, [handle_find], input={'text': 'ewgf'}, output=['found'])        
+      
+      Validate: |
+        found = c.read_msg('found')
+        this.test_result = found
+        assert (not found), 'text found'                                                                           
+        
+    Test-Condition-6: 
+      Id: tco_06
+      Name: tco_close_tabs
+      Desc: Close tabs
+      
+      Test: |
+        code = "close_tabs(); cnt = get_tab_cnt()"
+        c.write_msg(code, [close_tabs, get_tab_cnt], output=['cnt'])
+        
+      Validate: |
+        cnt = c.read_msg('cnt')
+        this.test_result = cnt
+        assert (cnt == 0), 'tabs not closed'
+        
+Test-Scenario-8:
+  Id: ts_08
+  Path: hydratk/extensions/client/core/editor/02_methods_ut.jedi
+  Name: ts_win_replace
+  Desc: Test win_replace method
+  Author: Petr Rasek <bowman@hydratk.org>
+  Version: 0.1
+  
+  Pre-Req: |
+    from yodalib.hydratk.extensions.client.gui_client import GuiClient
+    from yodahelpers.hydratk.extensions.client.core.editor import get_tab_cnt, close_tabs, get_tab_content, write_text, handle_replace, click_menu, click_context_menu
+  
+  Test-Case-1:
+    Id: tc_01
+    Name: tc_replace
+    Desc: Replace
+    
+    Test-Condition-1: 
+      Id: tco_01
+      Name: tco_new_file
+      Desc: New file
+      
+      Test: |
+        c = GuiClient.get_instance()
+        code = "self.root.editor.new_file(); cnt = get_tab_cnt(); write_text(text); cont = get_tab_content()"
+        text = 'xx\nyy\nzz'
+        c.write_msg(code, [get_tab_cnt, write_text, get_tab_content], input={'text': text}, output=['cnt', 'cont'])
+        
+      Validate: |
+        cnt, cont = c.read_msg('cnt', 'cont')
+        this.test_result = cnt
+        assert (cnt == 1), 'tab not added'
+        assert (cont == text), 'text not written'
+        
+    Test-Condition-2: 
+      Id: tco_02
+      Name: tco_replace
+      Desc: Replace
+      
+      Test: |
+        code = "self.root.editor.win_replace(); res = handle_replace(find_str, replace_str, replace_all)"
+        c.write_msg(code, [handle_replace], input={'find_str': 'yy', 'replace_str': '11', 'replace_all': True}, output=['res'])        
+      
+      Validate: |
+        res = c.read_msg('res')
+        this.test_result = res
+        assert (res), 'text not replaced'
+        
+    Test-Condition-3: 
+      Id: tco_03
+      Name: tco_menu
+      Desc: From menu
+      
+      Test: |
+        code = "click_menu(key, item); res = handle_replace(find_str, replace_str, ignore_case=ignore_case)"   
+        c.write_msg(code, [click_menu, handle_replace], input={'key': 'edit', 'item': 'Replace', 'find_str': 'Zz', 'replace_str': '22', 
+                                                               'ignore_case': True}, output=['res'])        
+      
+      Validate: |
+        res = c.read_msg('res')
+        this.test_result = res
+        assert (res), 'text not replaced'
+        
+    Test-Condition-4: 
+      Id: tco_04
+      Name: tco_context_menu
+      Desc: From context menu
+      
+      Test: |
+        code = "click_context_menu(item); res = handle_replace(find_str, replace_str, regexp=regexp)"     
+        c.write_msg(code, [click_context_menu, handle_replace], input={'item': 'Replace', 'find_str': '\w+', 'replace_str': '33',
+                                                                       'regexp': True}, output=['res'])        
+      
+      Validate: |
+        res = c.read_msg('res')
+        this.test_result = res
+        assert (res), 'text not replaced'
+        
+    Test-Condition-5: 
+      Id: tco_05
+      Name: tco_not_replaced
+      Desc: Not replaced text
+      
+      Test: |
+        code = "self.root.editor.win_replace(); res = handle_replace(find_str, replace_str)"
+        c.write_msg(code, [handle_replace], input={'find_str': 'ewgf', 'replace_str': '314'}, output=['res'])        
+      
+      Validate: |
+        res = c.read_msg('res')
+        this.test_result = res
+        assert (not res), 'text replaced'                                                                           
+        
+    Test-Condition-6: 
+      Id: tco_06
+      Name: tco_close_tabs
+      Desc: Close tabs
+      
+      Test: |
+        code = "close_tabs(); cnt = get_tab_cnt()"
+        c.write_msg(code, [close_tabs, get_tab_cnt], output=['cnt'])
+        
+      Validate: |
+        cnt = c.read_msg('cnt')
+        this.test_result = cnt
+        assert (cnt == 0), 'tabs not closed'                                                           

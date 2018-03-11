@@ -98,6 +98,13 @@ core
 
 .. automodule:: hydratk.extensions.client.core.pluginmanager
    :member-order: bysource        
+
+.. _refman_ext_client_core_testhandler:   
+   
+* testhandler
+
+.. automodule:: hydratk.extensions.client.core.testhandler
+   :member-order: bysource    
    
 .. _refman_ext_client_core_tooltip:   
    

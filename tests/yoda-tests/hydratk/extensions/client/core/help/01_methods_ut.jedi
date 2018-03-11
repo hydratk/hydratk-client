@@ -1,0 +1,119 @@
+Test-Scenario-1:
+  Id: ts_01
+  Path: hydratk/extensions/client/core/help/01_methods_ut.jedi
+  Name: ts_props
+  Desc: Test property methods
+  Author: Petr Rasek <bowman@hydratk.org>
+  Version: 0.1
+  
+  Pre-Req: |
+    from yodalib.hydratk.extensions.client.gui_client import GuiClient
+    from yodahelpers.hydratk.extensions.client.core.help import get_property
+  
+  Test-Case-1:
+    Id: tc_01
+    Name: tc_getters
+    Desc: Getter methods
+    
+    Test-Condition-1: 
+      Id: tco_01
+      Name: tco_root
+      Desc: Getter root
+      
+      Test: |
+        c = GuiClient.get_instance()
+        code = "prop, attr = get_property(name, True)"
+        c.write_msg(code, [get_property], input={'name': 'root'}, output=['prop', 'attr'])     
+      
+      Validate: |  
+        prop, attr = c.read_msg('prop', 'attr')
+        this.test_result = prop
+        assert (prop == attr), 'prop != {0}'.format(attr)
+        
+    Test-Condition-2: 
+      Id: tco_02
+      Name: tco_trn
+      Desc: Getter trn
+      
+      Test: |
+        c.write_msg(code, [get_property], input={'name': 'trn'}, output=['prop', 'attr'])     
+      
+      Validate: |  
+        prop, attr = c.read_msg('prop', 'attr')
+        this.test_result = prop
+        assert (prop == attr), 'prop != {0}'.format(attr)
+        
+Test-Scenario-2:
+  Id: ts_02
+  Path: hydratk/extensions/client/core/help/01_methods_ut.jedi
+  Name: ts_win_about
+  Desc: Test win_about method
+  Author: Petr Rasek <bowman@hydratk.org>
+  Version: 0.1
+  
+  Pre-Req: |
+    from yodalib.hydratk.extensions.client.gui_client import GuiClient
+    from yodahelpers.hydratk.extensions.client.core.help import click_menu, get_attrs, get_attr, get_text, click_button
+  
+  Test-Case-1:
+    Id: tc_01
+    Name: tc_win_about
+    Desc: Window About
+    
+    Test-Condition-1: 
+      Id: tco_01
+      Name: tco_click_about
+      Desc: Click menu item About
+      
+      Test: |
+        c = GuiClient.get_instance()
+        code = "click_menu(item); attr = get_attr(name, True)"
+        c.write_msg(code, [click_menu, get_attr], input={'item': 'About', 'name': '_win'}, output=['attr'])     
+      
+      Validate: |  
+        attr = c.read_msg('attr')
+        this.test_result = attr
+        exp = 'Toplevel'
+        assert (attr == exp), 'window not opened'
+        
+    Test-Condition-2: 
+      Id: tco_02
+      Name: tco_gui_elements
+      Desc: GUI elements
+      
+      Test: |
+        code = "attrs = get_attrs(names, True)"
+        input={'names': ['_text', '_btn_web', '_btn_email', '_btn_ok']}
+        c.write_msg(code, [get_attrs], input=input, output=['attrs'])
+      
+      Validate: | 
+        attrs = c.read_msg('attrs')
+        this.test_result = str(attrs)
+        exp = ['Text', 'Button', 'Button', 'Button']
+        assert (attrs == exp), 'attrs != {0}'.format(attrs)
+        
+    Test-Condition-3: 
+      Id: tco_03
+      Name: tco_get_text
+      Desc: Get text content
+      
+      Test: |
+        code = "text = get_text()"
+        c.write_msg(code, [get_text], output=['text']) 
+      
+      Validate: |
+        text = c.read_msg('text')
+        this.test_result = text
+        assert ('HydraTK' in text), 'empty content'
+        
+    Test-Condition-4: 
+      Id: tco_04
+      Name: tco_click_ok
+      Desc: Click button ok
+      
+      Test: |
+        code = "click_button(button)"
+        c.write_msg(code, [click_button], input={'button': 'ok'})     
+      
+      Validate: |  
+        c.read_msg()                                        

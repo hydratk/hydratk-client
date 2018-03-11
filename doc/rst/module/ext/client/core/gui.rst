@@ -34,6 +34,8 @@ Main class which implements tk GUI application.
 * _tooltips dict, ToolTip references
 * _images - dict, PhotoImage references
 * _imgdir - directory with images
+* _test_mode - bool, True if test mode set
+* _test_handler - TestHandler reference
 
 **Properties (Getters)** :
 
@@ -54,6 +56,7 @@ Main class which implements tk GUI application.
 * images - retutns _images
 * pane_left - returns _pane_left
 * pane_right - returns _pane_right
+* test_handler - returns _test_handler
 
 **Methods** :
 
@@ -135,7 +138,11 @@ Method loads all plugins which are enabled in configuration.
 
 * _exit
 
-Method stops application, dialog confirmation, save tabs, close log.  
+Method stops application, dialog confirmation, save tabs, close log.
+
+* _set_test_mode
+
+Method sets test mode if enabled by option --test.  
 
 ExceptionHandler
 ^^^^^^^^^^^^^^^^

@@ -12,22 +12,26 @@ Class for GitClient.
 
 **Attributes** :
 
-* _win - repository manager window
-* _pane - window pane
-* _frame_left - left frame
-* _frame_right - right frame
-* _tree - repositories tree
-* _menu - context menu
-* _vbar - repositories scrollbar
-* _url - url entry
-* _user - user entry
-* _passw - password entry
-* _name - name entry
-* _email - email entry
-* _msg - message entry
-* _author - author entry
-* _files - changed files tree
-* _files_bar - files scrollbar
+* _w_mng - repository manager window
+* _w_mng_pane - window pane
+* _w_mng_frame_left - left frame
+* _w_mng_frame_right - right frame
+* _w_mng_tree - repositories tree
+* _w_mng_menu - context menu
+* _w_mng_vbar - repositories scrollbar
+* _w_mng_url - url entry
+* _w_mng_user - user entry
+* _w_mng_passw - password entry
+* _w_mng_name - name entry
+* _w_mng_email - email entry
+* _w_mng_btn_save - button save
+* _w_mng_msg - message entry
+* _w_mng_author - author entry
+* _w_mng_push - push checkbox
+* _w_mng_select_all - select all checkbox
+* _w_mng_files - changed files tree
+* _w_mng_files_bar - files scrollbar
+* _w_mng_btn_commit - button commit
 
 **Methods** :
 

@@ -1,0 +1,152 @@
+Test-Scenario-1:
+  Id: ts_01
+  Path: hydratk/extensions/client/core/filetab/01_methods_ut.jedi
+  Name: ts_props
+  Desc: Test property methods
+  Author: Petr Rasek <bowman@hydratk.org>
+  Version: 0.1
+  
+  Pre-Req: |
+    from yodalib.hydratk.extensions.client.gui_client import GuiClient
+    from yodahelpers.hydratk.extensions.client.core.editor import get_tab_cnt, close_tabs
+    from yodahelpers.hydratk.extensions.client.core.filetab import get_property
+  
+  Test-Case-1:
+    Id: tc_01
+    Name: tc_getters
+    Desc: Getter methods
+    
+    Test-Condition-1: 
+      Id: tco_01
+      Name: tco_new_file
+      Desc: New file
+      
+      Test: |
+        c = GuiClient.get_instance()
+        code = "self.root.editor.new_file(); cnt = get_tab_cnt()"
+        c.write_msg(code, [get_tab_cnt], output=['cnt'])
+        
+      Validate: |
+        cnt = c.read_msg('cnt')
+        this.test_result = cnt
+        assert (cnt == 1), 'tab not added'    
+    
+    Test-Condition-2: 
+      Id: tco_02
+      Name: tco_nb
+      Desc: Getter nb
+      
+      Test: |
+        code = "prop, attr = get_property(name, True)"
+        c.write_msg(code, [get_property], input={'name': 'nb'}, output=['prop', 'attr']) 
+      
+      Validate: |  
+        prop, attr = c.read_msg('prop', 'attr')
+        this.test_result = prop
+        assert (prop == attr), 'prop != {0}'.format(attr)
+        
+    Test-Condition-3: 
+      Id: tco_03
+      Name: tco_editor
+      Desc: Getter editor
+      
+      Test: |
+        c.write_msg(code, [get_property], input={'name': 'editor'}, output=['prop', 'attr']) 
+      
+      Validate: |  
+        prop, attr = c.read_msg('prop', 'attr')
+        this.test_result = prop
+        assert (prop == attr), 'prop != {0}'.format(attr)
+        
+    Test-Condition-4: 
+      Id: tco_04
+      Name: tco_colorizer
+      Desc: Getter colorizer
+      
+      Test: |
+        c.write_msg(code, [get_property], input={'name': 'colorizer'}, output=['prop', 'attr']) 
+      
+      Validate: |  
+        prop, attr = c.read_msg('prop', 'attr')
+        this.test_result = prop
+        assert (prop == attr), 'prop != {0}'.format(attr)
+        
+    Test-Condition-5: 
+      Id: tco_05
+      Name: tco_formatter
+      Desc: Getter formatter
+      
+      Test: |
+        c.write_msg(code, [get_property], input={'name': 'formatter'}, output=['prop', 'attr']) 
+      
+      Validate: |  
+        prop, attr = c.read_msg('prop', 'attr')
+        this.test_result = prop
+        assert (prop == attr), 'prop != {0}'.format(attr)
+        
+    Test-Condition-6: 
+      Id: tco_06
+      Name: tco_autocompleter
+      Desc: Getter autocompleter
+      
+      Test: |
+        c.write_msg(code, [get_property], input={'name': 'autocompleter'}, output=['prop', 'attr']) 
+      
+      Validate: |  
+        prop, attr = c.read_msg('prop', 'attr')
+        this.test_result = prop
+        assert (prop == attr), 'prop != {0}'.format(attr)
+        
+    Test-Condition-7: 
+      Id: tco_07
+      Name: tco_text
+      Desc: Getter text
+      
+      Test: |
+        c.write_msg(code, [get_property], input={'name': 'text'}, output=['prop', 'attr']) 
+      
+      Validate: |  
+        prop, attr = c.read_msg('prop', 'attr')
+        this.test_result = prop
+        assert (prop == attr), 'prop != {0}'.format(attr)
+        
+    Test-Condition-8: 
+      Id: tco_08
+      Name: tco_name
+      Desc: Getter name
+      
+      Test: |
+        code = "prop, attr = get_property(name)"
+        c.write_msg(code, [get_property], input={'name': 'name'}, output=['prop', 'attr']) 
+      
+      Validate: |  
+        prop, attr = c.read_msg('prop', 'attr')
+        this.test_result = prop
+        assert (prop == attr), 'prop != {0}'.format(attr)
+        
+    Test-Condition-9: 
+      Id: tco_09
+      Name: tco_path
+      Desc: Getter path
+      
+      Test: |
+        c.write_msg(code, [get_property], input={'name': 'path'}, output=['prop', 'attr']) 
+      
+      Validate: |  
+        prop, attr = c.read_msg('prop', 'attr')
+        this.test_result = prop
+        assert (prop == attr), 'prop != {0}'.format(attr)                                                
+        
+    Test-Condition-10: 
+      Id: tco_10
+      Name: tco_close_tabs
+      Desc: Close tabs
+      
+      Test: |
+        code = "close_tabs(); cnt = get_tab_cnt()"
+        c.write_msg(code, [close_tabs, get_tab_cnt], output=['cnt'])
+        
+      Validate: |
+        cnt = c.read_msg('cnt')
+        this.test_result = cnt
+        assert (cnt == 0), 'tabs not closed'        

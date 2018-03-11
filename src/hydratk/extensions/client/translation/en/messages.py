@@ -30,6 +30,7 @@ msg = {
     'htk_core_directory_deleted' : "Directory {0} deleted",
     'htk_core_copied' : "{0} copied to {1}",
     'htk_core_invalid_yaml' : "File {0} has invalid YAML content",
+    'htk_core_test_mode' : "Test mode enabled",
 
     'htk_gui_menu_file' : "File",
     'htk_gui_menu_file_new' : "New",

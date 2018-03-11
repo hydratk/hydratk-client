@@ -1,0 +1,148 @@
+Test-Scenario-1:
+  Id: ts_01
+  Path: hydratk/extensions/client/core/translator/01_methods_ut.jedi
+  Name: ts_register_messages
+  Desc: Test _register_messages method
+  Author: Petr Rasek <bowman@hydratk.org>
+  Version: 0.1
+  
+  Pre-Req: |
+    from yodalib.hydratk.extensions.client.gui_client import GuiClient
+    from yodahelpers.hydratk.extensions.client.core.translator import get_attr
+  
+  Test-Case-1:
+    Id: tc_01
+    Name: tc_new_msg
+    Desc: Register new message
+    
+    Test-Condition-1: 
+      Id: tco_01
+      Name: tco_register
+      Desc: Register
+      
+      Test: |
+        c = GuiClient.get_instance()
+        code = "self.root.trn._register_messages(msg); attr = get_attr(name)"
+        msg = {'htkclient_test_msg': 'Test message'}
+        c.write_msg(code, [get_attr], input={'msg': msg, 'name': '_messages'}, output=['attr'])
+        
+      Validate: |
+        attr = c.read_msg('attr')
+        this.test_result = str(attr)
+        assert ('htkclient_test_msg' in attr), 'message not registered'
+        
+  Test-Case-2:
+    Id: tc_02
+    Name: tc_negative
+    Desc: Negative cases
+    
+    Test-Condition-1:
+      Id: tco_01
+      Name: tco_empty
+      Desc: Empty input
+      
+      Test: |
+        c = GuiClient.get_instance()
+        code = "self.root.trn._register_messages('')"
+        c.write_msg(code)
+      
+      Validate: |
+        error = c.read_msg(error=True)
+        this.test_result = error
+        assert ('ValueError' in error), 'ValueError expected'
+        
+    Test-Condition-2:
+      Id: tco_02
+      Name: tco_invalid
+      Desc: Invalid type
+      
+      Test: |
+        c = GuiClient.get_instance()
+        code = "self.root.trn._register_messages([])"
+        c.write_msg(code)
+      
+      Validate: |
+        error = c.read_msg(error=True)
+        this.test_result = error
+        assert ('ValueError' in error), 'ValueError expected'
+        
+Test-Scenario-2:
+  Id: ts_02
+  Path: hydratk/extensions/client/core/translator/01_methods_ut.jedi
+  Name: ts_set_language
+  Desc: Test _set_language method
+  Author: Petr Rasek <bowman@hydratk.org>
+  Version: 0.1
+  
+  Pre-Req: |
+    from yodalib.hydratk.extensions.client.gui_client import GuiClient
+    from yodahelpers.hydratk.extensions.client.core.translator import get_attr
+  
+  Test-Case-1:
+    Id: tc_01
+    Name: tc_set
+    Desc: Set language
+    
+    Test-Condition-1: 
+      Id: tco_01
+      Name: tco_set
+      Desc: Set
+      
+      Test: |
+        c = GuiClient.get_instance()
+        code = "self.root.trn._set_language(value); attr = get_attr(name)"
+        value = 'en'
+        c.write_msg(code, [get_attr], input={'value': value, 'name': '_language'}, output=['attr'])
+        
+      Validate: |
+        attr = c.read_msg('attr')
+        this.test_result = attr
+        assert (attr == value), 'attr != {0}'.format(value)
+        
+Test-Scenario-3:
+  Id: ts_03
+  Path: hydratk/extensions/client/core/translator/01_methods_ut.jedi
+  Name: ts_msg
+  Desc: Test msg method
+  Author: Petr Rasek <bowman@hydratk.org>
+  Version: 0.1
+  
+  Pre-Req: |
+    from yodalib.hydratk.extensions.client.gui_client import GuiClient
+    from yodahelpers.hydratk.extensions.client.core.translator import get_attr
+  
+  Test-Case-1:
+    Id: tc_01
+    Name: tc_msg
+    Desc: Resolve langtext
+    
+    Test-Condition-1: 
+      Id: tco_01
+      Name: tco_static
+      Desc: Static message
+      
+      Test: |
+        c = GuiClient.get_instance()
+        code = "value = self.root.trn.msg(langtext)"
+        c.write_msg(code, input={'langtext': 'htk_core_started'}, output=['value'])
+        
+      Validate: |
+        value = c.read_msg('value')
+        this.test_result = value
+        exp = 'Application started'
+        assert (value == exp), 'value != {0}'.format(exp)
+        
+    Test-Condition-2: 
+      Id: tco_02
+      Name: tco_dynamic
+      Desc: Dynamic message
+      
+      Test: |
+        code = "value = self.root.trn.msg(langtext, project)"
+        c.write_msg(code, input={'langtext': 'htk_core_project_created', 'project': 'test'}, output=['value'])
+        
+      Validate: |
+        value = c.read_msg('value')
+        this.test_result = value
+        exp = 'Project test created'
+        assert (value == exp), 'value != {0}'.format(exp)                                                 

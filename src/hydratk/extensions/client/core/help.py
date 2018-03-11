@@ -23,6 +23,13 @@ class Help(object):
     _root = None
     _trn = None
 
+    # gui elements
+    _win = None
+    _text = None
+    _btn_web = None
+    _btn_email = None
+    _btn_ok = None
+
     def __init__(self):
         """Class constructor
 
@@ -89,16 +96,16 @@ class Help(object):
 
         """
 
-        win = tk.Toplevel(self.root)
-        win.title(self.trn.msg('htk_gui_help_about_title'))
-        win.transient(self.root)
-        win.resizable(False, False)
-        win.geometry('+%d+%d' % (self.root.winfo_screenwidth() / 3, self.root.winfo_screenheight() / 3))
-        win.tk.call('wm', 'iconphoto', win._w, self.root.images['logo'])
+        self._win = tk.Toplevel(self.root)
+        self._win.title(self.trn.msg('htk_gui_help_about_title'))
+        self._win.transient(self.root)
+        self._win.resizable(False, False)
+        self._win.geometry('+%d+%d' % (self.root.winfo_screenwidth() / 3, self.root.winfo_screenheight() / 3))
+        self._win.tk.call('wm', 'iconphoto', self._win._w, self.root.images['logo'])
 
-        text = tk.Text(win, background='#FFFFFF')
-        text.pack(expand=True, fill=tk.BOTH)
-        text.focus_set()
+        self._text = tk.Text(self._win, background='#FFFFFF')
+        self._text.pack(expand=True, fill=tk.BOTH)
+        self._text.focus_set()
         content = """Client for HydraTK
 
 Version: 0.1.0
@@ -108,13 +115,16 @@ Copyright (c) 2017-2018
 Petr Rašek (bowman@hydratk.org)
 HydraTK team (team@hydratk.org)
 All rights reserved."""
-        text.insert(tk.END, content)
-        text.configure(state=tk.DISABLED)
+        self._text.insert(tk.END, content)
+        self._text.configure(state=tk.DISABLED)
 
-        tk.Button(win, text='Web', command=lambda: open('http://hydratk.org')).pack(side=tk.LEFT, pady=3)
-        tk.Button(win, text='E-mail', command=lambda: open('mailto:team@hydratk.org')).pack(side=tk.LEFT, padx=3, pady=3)
-        tk.Button(win, text='OK', command=lambda: win.destroy()).pack(side=tk.RIGHT, pady=3)
-        win.bind('<Escape>', lambda f: win.destroy())
+        self._btn_web = tk.Button(self._win, text='Web', command=lambda: open('http://hydratk.org'))
+        self._btn_web.pack(side=tk.LEFT, pady=3)
+        self._btn_email = tk.Button(self._win, text='E-mail', command=lambda: open('mailto:team@hydratk.org'))
+        self._btn_email.pack(side=tk.LEFT, padx=3, pady=3)
+        self._btn_ok = tk.Button(self._win, text='OK', command=lambda: self._win.destroy())
+        self._btn_ok.pack(side=tk.RIGHT, pady=3)
+        self._win.bind('<Escape>', lambda f: self._win.destroy())
 
     def web_tutor(self):
         """Method opens web tutorial

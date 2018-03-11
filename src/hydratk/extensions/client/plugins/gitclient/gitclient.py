@@ -25,25 +25,41 @@ class Plugin(plugin.Plugin):
     """
 
     # gui elements
-    _win = None
-    _pane = None
-    _frame_left = None
-    _frame_right = None
+    # window clone
+    _w_clone = None
+    _w_clone_url = None
+    _w_clone_user = None
+    _w_clone_passw = None
+    _w_clone_dirpath = None
+    _w_clone_error = None
+    _w_clone_btn = None
 
-    _tree = None
-    _menu = None
-    _vbar = None
+    # window repomanager
+    _w_mng = None
+    _w_mng_pane = None
+    _w_mng_frame_left = None
+    _w_mng_frame_right = None
 
-    _url = None
-    _user = None
-    _passw = None
-    _name = None
-    _email = None
+    _w_mng_tree = None
+    _w_mng_menu = None
+    _w_mng_vbar = None
 
-    _msg = None
-    _author = None
-    _files = None
-    _files_bar = None
+    # configuration section
+    _w_mng_url = None
+    _w_mng_user = None
+    _w_mng_passw = None
+    _w_mng_name = None
+    _w_mng_email = None
+    _w_mng_btn_save = None
+
+    # commit section
+    _w_mng_msg = None
+    _w_mng_author = None
+    _w_mng_push = None
+    _w_mng_select_all = None
+    _w_mng_files = None
+    _w_mng_files_bar = None
+    _w_mng_btn_commit = None
 
     def _init_plugin(self):
         """Method initializes plugin
@@ -93,38 +109,39 @@ class Plugin(plugin.Plugin):
 
         """
 
-        win = tk.Toplevel(self.root)
-        win.title(self.trn.msg('htk_gitclient_clone_title'))
-        win.transient(self.root)
-        win.resizable(False, False)
-        win.geometry('+%d+%d' % (self.root.winfo_screenwidth() / 3, self.root.winfo_screenheight() / 3))
-        win.tk.call('wm', 'iconphoto', win._w, self.root.images['logo'])
+        self._w_clone = tk.Toplevel(self.root)
+        self._w_clone.title(self.trn.msg('htk_gitclient_clone_title'))
+        self._w_clone.transient(self.root)
+        self._w_clone.resizable(False, False)
+        self._w_clone.geometry('+%d+%d' % (self.root.winfo_screenwidth() / 3, self.root.winfo_screenheight() / 3))
+        self._w_clone.tk.call('wm', 'iconphoto', self._w_clone._w, self.root.images['logo'])
 
-        tk.Label(win, text=self.trn.msg('htk_gitclient_clone_url')).grid(row=0, column=0, sticky='e')
-        url = tk.Entry(win, width=70)
-        url.grid(row=0, column=1, padx=3, pady=10, sticky='e')
-        url.focus_set()
+        tk.Label(self._w_clone, text=self.trn.msg('htk_gitclient_clone_url')).grid(row=0, column=0, sticky='e')
+        self._w_clone_url = tk.Entry(self._w_clone, width=70)
+        self._w_clone_url.grid(row=0, column=1, padx=3, pady=10, sticky='e')
+        self._w_clone_url.focus_set()
 
-        tk.Label(win, text=self.trn.msg('htk_gitclient_clone_user')).grid(row=1, column=0, sticky='e')
-        user = tk.Entry(win, width=20)
-        user.grid(row=1, column=1, padx=3, pady=3, sticky='w')
+        tk.Label(self._w_clone, text=self.trn.msg('htk_gitclient_clone_user')).grid(row=1, column=0, sticky='e')
+        self._w_clone_user = tk.Entry(self._w_clone, width=20)
+        self._w_clone_user.grid(row=1, column=1, padx=3, pady=3, sticky='w')
 
-        tk.Label(win, text=self.trn.msg('htk_gitclient_clone_password')).grid(row=2, column=0, sticky='e')
-        passw = tk.Entry(win, width=20)
-        passw.grid(row=2, column=1, padx=3, pady=3, sticky='w')
+        tk.Label(self._w_clone, text=self.trn.msg('htk_gitclient_clone_password')).grid(row=2, column=0, sticky='e')
+        self._w_clone_passw = tk.Entry(self._w_clone, width=20)
+        self._w_clone_passw.grid(row=2, column=1, padx=3, pady=3, sticky='w')
 
-        tk.Label(win, text=self.trn.msg('htk_gitclient_clone_dirpath')).grid(row=3, column=0, sticky='e')
-        dirpath = tk.Entry(win, width=70)
-        dirpath.grid(row=3, column=1, padx=3, pady=3, sticky='w')
-        tk.Button(win, text='...', command=lambda: self._set_dirpath(dirpath)).grid(row=3, column=2, sticky='w')
+        tk.Label(self._w_clone, text=self.trn.msg('htk_gitclient_clone_dirpath')).grid(row=3, column=0, sticky='e')
+        self._w_clone_dirpath = tk.Entry(self._w_clone, width=70)
+        self._w_clone_dirpath.grid(row=3, column=1, padx=3, pady=3, sticky='w')
+        tk.Button(self._w_clone, text='...', command=lambda: self._set_dirpath(self._w_clone_dirpath)).grid(row=3, column=2, sticky='w')
 
-        error = tk.Label(win, text='', foreground='#FF0000')
+        error = tk.Label(self._w_clone, text='', foreground='#FF0000')
         error.grid(row=4, column=1, sticky='w')
-        btn = tk.Button(win, text=self.trn.msg('htk_gitclient_clone_button'),
-                        command=lambda: self._clone_repo(url.get(), dirpath.get(), user.get(), passw.get(), error, win))
-        btn.grid(row=4, column=2, padx=3, pady=3, sticky='e')
+        self._w_clone_btn = tk.Button(self._w_clone, text=self.trn.msg('htk_gitclient_clone_button'),
+                        command=lambda: self._clone_repo(self._w_clone_url.get(), self._w_clone_dirpath.get(), self._w_clone_user.get(),
+                                                         self._w_clone_passw.get(), error))
+        self._w_clone_btn.grid(row=4, column=2, padx=3, pady=3, sticky='e')
 
-        win.bind('<Escape>', lambda f: win.destroy())
+        self._w_clone.bind('<Escape>', lambda f: self._w_clone.destroy())
 
     def _win_repomanager(self):
         """Method displays repository manager window
@@ -137,28 +154,28 @@ class Plugin(plugin.Plugin):
 
         """
 
-        self._win = tk.Toplevel(self.root)
-        self._win.title(self.trn.msg('htk_gitclient_repomanager_title'))
-        self._win.transient(self.root)
-        self._win.resizable(False, False)
-        self._win.geometry('+%d+%d' % (self.root.winfo_screenwidth() / 5, self.root.winfo_screenheight() / 10))
-        self._win.tk.call('wm', 'iconphoto', self._win._w, self.root.images['logo'])
+        self._w_mng = tk.Toplevel(self.root)
+        self._w_mng.title(self.trn.msg('htk_gitclient_repomanager_title'))
+        self._w_mng.transient(self.root)
+        self._w_mng.resizable(False, False)
+        self._w_mng.geometry('+%d+%d' % (self.root.winfo_screenwidth() / 5, self.root.winfo_screenheight() / 10))
+        self._w_mng.tk.call('wm', 'iconphoto', self._w_mng._w, self.root.images['logo'])
 
-        self._pane = tk.PanedWindow(self._win, orient=tk.HORIZONTAL)
-        self._pane.pack(expand=True, fill=tk.BOTH)
+        self._w_mng_pane = tk.PanedWindow(self._w_mng, orient=tk.HORIZONTAL)
+        self._w_mng_pane.pack(expand=True, fill=tk.BOTH)
 
         # left frame
-        self._frame_left = tk.Frame(self._pane)
+        self._w_mng_frame_left = tk.Frame(self._w_mng_pane)
         self._set_tree()
-        self._pane.add(self._frame_left)
+        self._w_mng_pane.add(self._w_mng_frame_left)
 
         # right frame
-        self._frame_right = tk.Frame(self._pane)
+        self._w_mng_frame_right = tk.Frame(self._w_mng_pane)
         self._set_config()
         self._set_commit()
-        self._pane.add(self._frame_right)
+        self._w_mng_pane.add(self._w_mng_frame_right)
 
-        self._win.bind('<Escape>', lambda f: self._win.destroy())
+        self._w_mng.bind('<Escape>', lambda f: self._w_mng.destroy())
 
     def _set_tree(self):
         """Method sets tree gui
@@ -171,26 +188,26 @@ class Plugin(plugin.Plugin):
 
         """
 
-        self._vbar = ttk.Scrollbar(self._frame_left, orient=tk.VERTICAL)
-        self._tree = ttk.Treeview(self._frame_left, columns=(), show='tree', displaycolumns=(), height=10, selectmode='browse',
-                                  yscrollcommand=self._vbar.set)
-        self._vbar.config(command=self._tree.yview)
-        self._vbar.pack(side=tk.RIGHT, fill=tk.Y)
-        self._tree.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
+        self._w_mng_vbar = ttk.Scrollbar(self._w_mng_frame_left, orient=tk.VERTICAL)
+        self._w_mng_tree = ttk.Treeview(self._w_mng_frame_left, columns=(), show='tree', displaycolumns=(), height=10, selectmode='browse',
+                                        yscrollcommand=self._w_mng_vbar.set)
+        self._w_mng_vbar.config(command=self._w_mng_tree.yview)
+        self._w_mng_vbar.pack(side=tk.RIGHT, fill=tk.Y)
+        self._w_mng_tree.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
 
         for name, cfg in self.explorer._projects.items():
             if ('git' in cfg):
-                self._tree.insert('', 'end', text=name)
+                self._w_mng_tree.insert('', 'end', text=name)
 
         # context menu
-        self._menu = tk.Menu(self._tree, tearoff=False)
-        self._menu.add_command(label=self.trn.msg('htk_gitclient_repomanager_push'), command=self._push)
-        self._menu.add_command(label=self.trn.msg('htk_gitclient_repomanager_pull'), command=self._pull)
+        self._w_mng_menu = tk.Menu(self._w_mng_tree, tearoff=False)
+        self._w_mng_menu.add_command(label=self.trn.msg('htk_gitclient_repomanager_push'), command=self._push)
+        self._w_mng_menu.add_command(label=self.trn.msg('htk_gitclient_repomanager_pull'), command=self._pull)
 
         # events
-        self._tree.bind('<ButtonRelease-1>', self._fill_repo_detail)
-        self._tree.bind('<Any-KeyRelease>', self._fill_repo_detail)
-        self._tree.bind('<Button-3>', self._context_menu)
+        self._w_mng_tree.bind('<ButtonRelease-1>', self._fill_repo_detail)
+        self._w_mng_tree.bind('<Any-KeyRelease>', self._fill_repo_detail)
+        self._w_mng_tree.bind('<Button-3>', self._context_menu)
 
     def _context_menu(self, event=None):
         """Method sets context menu
@@ -203,7 +220,7 @@ class Plugin(plugin.Plugin):
 
         """
 
-        self._menu.tk_popup(event.x_root, event.y_root)
+        self._w_mng_menu.tk_popup(event.x_root, event.y_root)
 
     def _set_config(self):
         """Method sets configuration gui
@@ -218,32 +235,33 @@ class Plugin(plugin.Plugin):
 
         row = 0
         font = ('Arial', 10, 'bold')
-        tk.Label(self._frame_right, text=self.trn.msg('htk_gitclient_repomanager_config_title'), font=font).grid(row=row, column=0, sticky='w')
-        tk.Label(self._frame_right, text=self.trn.msg('htk_gitclient_repomanager_config_url')).grid(row=row + 1, column=0, sticky='e')
-        self._url = tk.Entry(self._frame_right, width=70)
-        self._url.grid(row=row + 1, column=1, padx=3, pady=3, sticky='w')
+        tk.Label(self._w_mng_frame_right, text=self.trn.msg('htk_gitclient_repomanager_config_title'), font=font).grid(row=row, column=0, sticky='w')
+        tk.Label(self._w_mng_frame_right, text=self.trn.msg('htk_gitclient_repomanager_config_url')).grid(row=row + 1, column=0, sticky='e')
+        self._w_mng_url = tk.Entry(self._w_mng_frame_right, width=70)
+        self._w_mng_url.grid(row=row + 1, column=1, padx=3, pady=3, sticky='w')
 
-        tk.Label(self._frame_right, text=self.trn.msg('htk_gitclient_repomanager_config_user')).grid(row=row + 2, column=0, sticky='e')
-        self._user = tk.Entry(self._frame_right, width=20)
-        self._user.grid(row=row + 2, column=1, padx=3, pady=3, sticky='w')
+        tk.Label(self._w_mng_frame_right, text=self.trn.msg('htk_gitclient_repomanager_config_user')).grid(row=row + 2, column=0, sticky='e')
+        self._w_mng_user = tk.Entry(self._w_mng_frame_right, width=20)
+        self._w_mng_user.grid(row=row + 2, column=1, padx=3, pady=3, sticky='w')
 
-        tk.Label(self._frame_right, text=self.trn.msg('htk_gitclient_repomanager_config_password')).grid(row=row + 3, column=0, sticky='e')
-        self._passw = tk.Entry(self._frame_right, width=20)
-        self._passw.grid(row=row + 3, column=1, padx=3, pady=3, sticky='w')
+        tk.Label(self._w_mng_frame_right, text=self.trn.msg('htk_gitclient_repomanager_config_password')).grid(row=row + 3, column=0, sticky='e')
+        self._w_mng_passw = tk.Entry(self._w_mng_frame_right, width=20)
+        self._w_mng_passw.grid(row=row + 3, column=1, padx=3, pady=3, sticky='w')
 
-        tk.Label(self._frame_right, text=self.trn.msg('htk_gitclient_repomanager_config_name')).grid(row=row + 4, column=0, sticky='e')
-        self._name = tk.Entry(self._frame_right, width=40)
-        self._name.grid(row=row + 4, column=1, padx=3, pady=3, sticky='w')
+        tk.Label(self._w_mng_frame_right, text=self.trn.msg('htk_gitclient_repomanager_config_name')).grid(row=row + 4, column=0, sticky='e')
+        self._w_mng_name = tk.Entry(self._w_mng_frame_right, width=40)
+        self._w_mng_name.grid(row=row + 4, column=1, padx=3, pady=3, sticky='w')
 
-        tk.Label(self._frame_right, text=self.trn.msg('htk_gitclient_repomanager_config_email')).grid(row=row + 5, column=0, sticky='e')
-        self._email = tk.Entry(self._frame_right, width=40)
-        self._email.grid(row=row + 5, column=1, padx=3, pady=3, sticky='w')
+        tk.Label(self._w_mng_frame_right, text=self.trn.msg('htk_gitclient_repomanager_config_email')).grid(row=row + 5, column=0, sticky='e')
+        self._w_mng_email = tk.Entry(self._w_mng_frame_right, width=40)
+        self._w_mng_email.grid(row=row + 5, column=1, padx=3, pady=3, sticky='w')
 
-        error = tk.Label(self._frame_right, text='', foreground='#FF0000')
+        error = tk.Label(self._w_mng_frame_right, text='', foreground='#FF0000')
         error.grid(row=row + 6, column=1, sticky='w')
-        btn = tk.Button(self._frame_right, text=self.trn.msg('htk_gitclient_repomanager_config_save'),
-                        command=lambda: self._save_config(self._url.get(), self._user.get(), self._passw.get(), self._name.get(), self._email.get(), error))
-        btn.grid(row=row + 6, column=2, padx=3, pady=3, sticky='e')
+        self._w_mng_btn_save = tk.Button(self._w_mng_frame_right, text=self.trn.msg('htk_gitclient_repomanager_config_save'),
+                                         command=lambda: self._save_config(self._w_mng_url.get(), self._w_mng_user.get(), self._w_mng_passw.get(),
+                                                         self._w_mng_name.get(), self._w_mng_email.get(), error))
+        self._w_mng_btn_save.grid(row=row + 6, column=2, padx=3, pady=3, sticky='e')
 
     def _set_commit(self):
         """Method sets commit gui
@@ -258,45 +276,45 @@ class Plugin(plugin.Plugin):
 
         row = 7
         font = ('Arial', 10, 'bold')
-        tk.Label(self._frame_right, text=self.trn.msg('htk_gitclient_repomanager_commit_title'), font=font).grid(row=row, column=0, sticky='w')
+        tk.Label(self._w_mng_frame_right, text=self.trn.msg('htk_gitclient_repomanager_commit_title'), font=font).grid(row=row, column=0, sticky='w')
 
-        tk.Label(self._frame_right, text=self.trn.msg('htk_gitclient_repomanager_commit_message')).grid(row=row + 1, column=0, sticky='e')
-        self._msg = tk.Text(self._frame_right, background='#FFFFFF', height=7, width=50)
-        self._msg.grid(row=row + 1, column=1, rowspan=2, sticky='w')
+        tk.Label(self._w_mng_frame_right, text=self.trn.msg('htk_gitclient_repomanager_commit_message')).grid(row=row + 1, column=0, sticky='e')
+        self._w_mng_msg = tk.Text(self._w_mng_frame_right, background='#FFFFFF', height=7, width=50)
+        self._w_mng_msg.grid(row=row + 1, column=1, rowspan=2, sticky='w')
         row += 1
 
-        tk.Label(self._frame_right, text=self.trn.msg('htk_gitclient_repomanager_commit_author')).grid(row=row + 3, column=0, sticky='e')
-        self._author = tk.Entry(self._frame_right, width=40)
-        self._author.grid(row=row + 3, column=1, padx=3, pady=3, sticky='w')
+        tk.Label(self._w_mng_frame_right, text=self.trn.msg('htk_gitclient_repomanager_commit_author')).grid(row=row + 3, column=0, sticky='e')
+        self._w_mng_author = tk.Entry(self._w_mng_frame_right, width=40)
+        self._w_mng_author.grid(row=row + 3, column=1, padx=3, pady=3, sticky='w')
 
-        push = tk.BooleanVar(value=True)
-        tk.Checkbutton(self._frame_right, text=self.trn.msg('htk_gitclient_repomanager_commit_push'), variable=push).grid(row=row + 3, column=2, sticky='e')
+        self._w_mng_push = tk.BooleanVar(value=True)
+        tk.Checkbutton(self._w_mng_frame_right, text=self.trn.msg('htk_gitclient_repomanager_commit_push'), variable=self._w_mng_push).grid(row=row + 3, column=2, sticky='e')
 
-        error = tk.Label(self._frame_right, text='', foreground='#FF0000')
+        error = tk.Label(self._w_mng_frame_right, text='', foreground='#FF0000')
         error.grid(row=row + 4, column=1, sticky='w')
-        btn = tk.Button(self._frame_right, text=self.trn.msg('htk_gitclient_repomanager_commit_commit'),
-                        command=lambda: self._commit(self._msg.get('1.0', 'end-1c'), self._author.get(), [], push.get(), error))
-        btn.grid(row=row + 4, column=2, padx=3, pady=3, sticky='e')
+        self._w_mng_btn_commit = tk.Button(self._w_mng_frame_right, text=self.trn.msg('htk_gitclient_repomanager_commit_commit'),
+                                           command=lambda: self._commit(self._w_mng_msg.get('1.0', 'end-1c'), self._w_mng_author.get(), [], self._w_mng_push.get(), error))
+        self._w_mng_btn_commit.grid(row=row + 4, column=2, padx=3, pady=3, sticky='e')
 
-        tk.Label(self._frame_right, text=self.trn.msg('htk_gitclient_repomanager_commit_files'), font=font).grid(row=row + 5, column=0, sticky='w')
+        tk.Label(self._w_mng_frame_right, text=self.trn.msg('htk_gitclient_repomanager_commit_files'), font=font).grid(row=row + 5, column=0, sticky='w')
 
-        select_all = tk.BooleanVar(value=False)
-        tk.Checkbutton(self._frame_right, text=self.trn.msg('htk_gitclient_repomanager_commit_select_all'), variable=select_all, 
-                       command=lambda: self._select_all_files(select_all.get())).grid(row=row + 6, column=1, sticky='w')
+        self._w_mng_select_all = tk.BooleanVar(value=False)
+        tk.Checkbutton(self._w_mng_frame_right, text=self.trn.msg('htk_gitclient_repomanager_commit_select_all'), variable=self._w_mng_select_all,
+                       command=lambda: self._select_all_files(self._w_mng_select_all.get())).grid(row=row + 6, column=1, sticky='w')
 
-        self._files_bar = ttk.Scrollbar(self._frame_right, orient=tk.VERTICAL)
-        self._files = ttk.Treeview(self._frame_right, columns=('operation', 'file'), show='tree', displaycolumns=('operation', 'file'), height=10, selectmode='browse',
-                                   yscrollcommand=self._files_bar.set)
-        self._files_bar.configure(command=self._files.yview)
-        self._files.grid(row=row + 7, column=1, sticky=tk.NSEW)
-        self._files_bar.grid(row=row + 7, column=2, sticky='nsw')
+        self._w_mng_files_bar = ttk.Scrollbar(self._w_mng_frame_right, orient=tk.VERTICAL)
+        self._w_mng_files = ttk.Treeview(self._w_mng_frame_right, columns=('operation', 'file'), show='tree', displaycolumns=('operation', 'file'), height=10, selectmode='browse',
+                                         yscrollcommand=self._w_mng_files_bar.set)
+        self._w_mng_files_bar.configure(command=self._w_mng_files.yview)
+        self._w_mng_files.grid(row=row + 7, column=1, sticky=tk.NSEW)
+        self._w_mng_files_bar.grid(row=row + 7, column=2, sticky='nsw')
 
-        self._files.column('#0', stretch=False, width=40)
-        self._files.column('operation', stretch=False, width=50)
-        self._files.column('file', stretch=True, width=200)
+        self._w_mng_files.column('#0', stretch=False, width=40)
+        self._w_mng_files.column('operation', stretch=False, width=50)
+        self._w_mng_files.column('file', stretch=True, width=200)
 
-        self._files.bind('<ButtonRelease-1>', self._select_file)
-        self._files.bind('<Any-KeyRelease>', self._select_file)
+        self._w_mng_files.bind('<ButtonRelease-1>', self._select_file)
+        self._w_mng_files.bind('<Any-KeyRelease>', self._select_file)
 
     def _set_dirpath(self, entry):
         """Method sets dirpath
@@ -312,7 +330,7 @@ class Plugin(plugin.Plugin):
         entry.delete(0, tk.END)
         entry.insert(tk.END, tkfd.askdirectory())
 
-    def _clone_repo(self, url, dirpath, user='', passw='', error=None, win=None):
+    def _clone_repo(self, url, dirpath, user='', passw='', error=None):
         """Method clones repository
 
         Args:
@@ -321,7 +339,6 @@ class Plugin(plugin.Plugin):
            user (str): username
            pass (str): password
            error (obj): error label reference
-           win (obj): window reference
 
         Returns:
            void
@@ -343,8 +360,8 @@ class Plugin(plugin.Plugin):
 
         repo = None
         try:
-            if (win is not None):
-                win.destroy()
+            if (self._w_clone is not None):
+                self._w_clone.destroy()
 
             url_auth = self._prepare_url(url, user, passw)
             self.logger.info(self.trn.msg('htk_gitclient_clone_start', url))
@@ -395,30 +412,30 @@ class Plugin(plugin.Plugin):
 
         """
 
-        item = self._tree.selection()
+        item = self._w_mng_tree.selection()
         if (len(item) == 0):
             return
 
-        project = self._tree.item(item)['text']
+        project = self._w_mng_tree.item(item)['text']
         cfg = self.config.data['Projects'][project]
         repo_path = cfg['path']
         cfg = cfg['git']
 
-        self._url.delete(0, tk.END)
-        self._url.insert(tk.END, cfg['url'])
-        self._user.delete(0, tk.END)
-        self._user.insert(tk.END, cfg['username'])
-        self._passw.delete(0, tk.END)
-        self._passw.insert(tk.END, cfg['password'])
-        self._name.delete(0, tk.END)
-        self._name.insert(tk.END, cfg['name'])
-        self._email.delete(0, tk.END)
-        self._email.insert(tk.END, cfg['email'])
+        self._w_mng_url.delete(0, tk.END)
+        self._w_mng_url.insert(tk.END, cfg['url'])
+        self._w_mng_user.delete(0, tk.END)
+        self._w_mng_user.insert(tk.END, cfg['username'])
+        self._w_mng_passw.delete(0, tk.END)
+        self._w_mng_passw.insert(tk.END, cfg['password'])
+        self._w_mng_name.delete(0, tk.END)
+        self._w_mng_name.insert(tk.END, cfg['name'])
+        self._w_mng_email.delete(0, tk.END)
+        self._w_mng_email.insert(tk.END, cfg['email'])
 
-        self._author.delete(0, tk.END)
+        self._w_mng_author.delete(0, tk.END)
         author = '{0} <{1}>'.format(cfg['name'], cfg['email']) if (cfg['email'] != '') else ''
-        self._author.insert(tk.END, author)
-        self._msg.delete('1.0', 'end')
+        self._w_mng_author.insert(tk.END, author)
+        self._w_mng_msg.delete('1.0', 'end')
 
         self._fill_changed_files(repo_path)
 
@@ -438,7 +455,7 @@ class Plugin(plugin.Plugin):
 
         """
 
-        item = self._tree.selection()
+        item = self._w_mng_tree.selection()
         if (len(item) == 0):
             return
 
@@ -448,7 +465,7 @@ class Plugin(plugin.Plugin):
                 error.config(text=self.trn.msg('htk_gitclient_mandatory_field', self.trn.msg('htk_gitclient_repomanager_config_url')))
                 return
 
-        project = self._tree.item(item)['text']
+        project = self._w_mng_tree.item(item)['text']
         repo_path = self.config.data['Projects'][project]['path']
         cfg = self.config.data['Projects'][project]['git']
 
@@ -489,7 +506,7 @@ class Plugin(plugin.Plugin):
 
         """
 
-        item = self._tree.selection()
+        item = self._w_mng_tree.selection()
         if (len(item) == 0):
             return
 
@@ -503,8 +520,8 @@ class Plugin(plugin.Plugin):
                 return
 
         cnt, files = 0, []
-        for i in self._files.get_children():
-            item = self._files.item(i)
+        for i in self._w_mng_files.get_children():
+            item = self._w_mng_files.item(i)
             if (item['text'] != ''):
                 cnt += 1
                 files.append(item['values'][1])
@@ -515,7 +532,7 @@ class Plugin(plugin.Plugin):
 
         repo = None
         try:
-            project = self._tree.item(self._tree.selection())['text']
+            project = self._w_mng_tree.item(self._w_mng_tree.selection())['text']
             repo_path = self.config.data['Projects'][project]['path']
             repo = Repo(repo_path)
             repo.git.add('--all', files)
@@ -542,13 +559,13 @@ class Plugin(plugin.Plugin):
 
         """
 
-        item = self._tree.selection()
+        item = self._w_mng_tree.selection()
         if (len(item) == 0):
             return
 
         repo = None
         try:
-            project = self._tree.item(item)['text']
+            project = self._w_mng_tree.item(item)['text']
             repo_path = self.config.data['Projects'][project]['path']
             self.logger.info(self.trn.msg('htk_gitclient_repomanager_push_start', project))
 
@@ -573,13 +590,13 @@ class Plugin(plugin.Plugin):
 
         """
 
-        item = self._tree.selection()
+        item = self._w_mng_tree.selection()
         if (len(item) == 0):
             return
 
         repo = None
         try:
-            project = self._tree.item(item)['text']
+            project = self._w_mng_tree.item(item)['text']
             repo_path = self.config.data['Projects'][project]['path']
             self.logger.info(self.trn.msg('htk_gitclient_repomanager_pull_start', project))
 
@@ -605,12 +622,12 @@ class Plugin(plugin.Plugin):
 
         """
 
-        self._files.delete(*self._files.get_children())
+        self._w_mng_files.delete(*self._w_mng_files.get_children())
         changes = self._get_changed_files(repo_path)
         
         for operation, files in changes.items():
             for f in files:
-                self._files.insert('', 'end', text='', values=(operation, f))
+                self._w_mng_files.insert('', 'end', text='', values=(operation, f))
 
     def _get_changed_files(self, repo_path):
         """Method gets changed files available for commit
@@ -663,12 +680,12 @@ class Plugin(plugin.Plugin):
 
         """
 
-        sel = self._files.selection()
+        sel = self._w_mng_files.selection()
         if (len(sel) == 0):
             return
 
-        item = self._files.item(sel)
-        self._files.item(sel, text='X' if item['text'] == '' else '')
+        item = self._w_mng_files.item(sel)
+        self._w_mng_files.item(sel, text='X' if item['text'] == '' else '')
         
     def _select_all_files(self, value):
         """Method selects or deselects all files for commit
@@ -682,8 +699,8 @@ class Plugin(plugin.Plugin):
         """
 
         value = 'X' if (value) else ''
-        for i in self._files.get_children():
-            self._files.item(i, text=value)
+        for i in self._w_mng_files.get_children():
+            self._w_mng_files.item(i, text=value)
 
     def _prepare_url(self, url, user=None, passw=None):
         """Method prepares url with authentication

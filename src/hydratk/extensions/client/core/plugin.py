@@ -52,10 +52,11 @@ class Plugin(object):
         self._editor = self.root.editor
         self._logger = self.root.logger
 
-        self._init_plugin()
-        self._cfg = self.config.data['Plugins'][self.plugin_name]
-        self._import_messages()
-        self._import_images()
+        if hasattr(self.__class__, '_init_plugin') and callable(getattr(self.__class__, '_init_plugin')):
+            self._init_plugin()
+            self._cfg = self.config.data['Plugins'][self.plugin_name]
+            self._import_messages()
+            self._import_images()
 
         if hasattr(self.__class__, '_setup') and callable(getattr(self.__class__, '_setup')):
             self._setup()

@@ -17,6 +17,9 @@ Class for plugin manager.
 * _root - Gui instance reference
 * _trn - Translator instance reference
 * _config - Config instance reference
+* _win - window plugin manager
+* _states - plugin states
+* _btn - button save
 
 **Properties (Getters)** :
 

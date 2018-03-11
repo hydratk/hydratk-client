@@ -286,7 +286,7 @@ class Explorer(tk.LabelFrame):
         """Method populates project tree
 
         It displays directory and file name, path is hidden
-        Directory is can be expanded/collapsed
+        Directory can be expanded/collapsed
 
         Args:
             node (obj): tree node
@@ -353,7 +353,7 @@ class Explorer(tk.LabelFrame):
 
         self.editor.new_file()
 
-    def new_project(self):
+    def new_project(self, path=None):
         """Method creates new project
 
         File dialog is displayed, choose existing directory or create new one
@@ -362,39 +362,41 @@ class Explorer(tk.LabelFrame):
         Project is stored to configuration
 
         Args:
-            none
+            path (str): project path (dialog not displayed)
 
         Returns:
             void
 
         """
         
-        dirpath = tkfd.askdirectory()
-        proj_name = os.path.split(dirpath)[1]
+        if (path == None):
+            path = tkfd.askdirectory()
+
+        proj_name = os.path.split(path)[1]
         if (len(proj_name) == 0 or proj_name in self._projects):
             return
 
-        if (not os.path.exists(dirpath)):
-            os.makedirs(dirpath)
+        if (not os.path.exists(path)):
+            os.makedirs(path)
 
         # initial directory structure
-        if (len(os.listdir(dirpath)) == 0):
+        if (len(os.listdir(path)) == 0):
             for d in tmpl.proj_dir_struct:
-                os.makedirs(d.format(proj_root=dirpath))
+                os.makedirs(d.format(proj_root=path))
                 
             for f in tmpl.proj_files:
-                with open(f.format(proj_root=dirpath), 'w') as fl:
+                with open(f.format(proj_root=path), 'w') as fl:
                     fl.write(tmpl.init_content)
 
-        self._projects[proj_name] = {'path': dirpath, 'pythonpath': [dirpath + '/lib/yodalib', dirpath + '/helpers/yodahelpers']}
-        node = self._tree.insert('', 'end', text=proj_name, values=(dirpath, 'directory'))
+        self._projects[proj_name] = {'path': path, 'pythonpath': [path + '/lib/yodalib', path + '/helpers/yodahelpers']}
+        node = self._tree.insert('', 'end', text=proj_name, values=(path, 'directory'))
         self._populate_tree(node)
         self.logger.info(self.trn.msg('htk_core_project_created', proj_name))
         self.config.data['Projects'] = self._projects
         self.autocompleter.update_pythonpath()
         self.config.save()
         
-    def new_directory(self):
+    def new_directory(self, path=None):
         """Method creates new directory
 
         File dialog is displayed
@@ -402,7 +404,7 @@ class Explorer(tk.LabelFrame):
         Linux: append path with directory name
 
         Args:
-            none
+            path (str): directory path (dialog not displayed)
 
         Returns:
             void
@@ -415,7 +417,8 @@ class Explorer(tk.LabelFrame):
             item = self._tree.item(item)
             initialdir = item['values'][0] if (item['values'][1] == 'directory') else os.path.split(item['values'][0])[0]
 
-        path = tkfd.askdirectory(initialdir=initialdir)
+        if (path == None):
+            path = tkfd.askdirectory(initialdir=initialdir)
         if (len(path) == 0):
             return
 
@@ -424,7 +427,7 @@ class Explorer(tk.LabelFrame):
         self.logger.debug(self.trn.msg('htk_core_directory_created', path))
         self.refresh(path=path)
 
-    def _new_template_file(self, filetype, extension, template, langtext):
+    def _new_template_file(self, filetype, extension, template, langtext, path=None):
         """Method creates new file from template
 
         Args:
@@ -432,6 +435,7 @@ class Explorer(tk.LabelFrame):
             extension (str): file extension
             template (str): content template
             langtext (str): langtext for logger
+            path (str): file path (dialog not displayed)
 
         Returns:
             void
@@ -444,7 +448,8 @@ class Explorer(tk.LabelFrame):
             item = self._tree.item(item)
             initialdir = item['values'][0] if (item['values'][1] == 'directory') else os.path.split(item['values'][0])[0]
 
-        path = tkfd.asksaveasfilename(initialdir=initialdir, filetypes=[(filetype, '*' + extension)])
+        if (path == None):
+            path = tkfd.asksaveasfilename(initialdir=initialdir, filetypes=[(filetype, '*' + extension)])
         if (len(path) == 0):
             return
 
@@ -462,70 +467,70 @@ class Explorer(tk.LabelFrame):
         self.logger.debug(self.trn.msg(langtext, path))
         self.refresh(path=path)
 
-    def new_helper(self):
+    def new_helper(self, path=None):
         """Method creates new helper
 
         Args:
-            none
+            path (str): file path
 
         Returns:
             void
 
         """
 
-        self._new_template_file('Python', '.py', tmpl.helper_content, 'htk_core_helper_created')
+        self._new_template_file('Python', '.py', tmpl.helper_content, 'htk_core_helper_created', path)
 
-    def new_library(self):
+    def new_library(self, path=None):
         """Method creates new library
 
         Args:
-            none
+            path (str): file path
 
         Returns:
             void
 
         """
 
-        self._new_template_file('Python', '.py', tmpl.library_content, 'htk_core_library_created')
+        self._new_template_file('Python', '.py', tmpl.library_content, 'htk_core_library_created', path)
 
-    def new_test(self):
+    def new_test(self, path=None):
         """Method creates new test
 
         Args:
-            none
+            path (str): file path
 
         Returns:
             void
 
         """
 
-        self._new_template_file('Jedi', '.jedi', tmpl.test_content, 'htk_core_test_created')
+        self._new_template_file('Jedi', '.jedi', tmpl.test_content, 'htk_core_test_created', path)
 
-    def new_archive(self):
+    def new_archive(self, path=None):
         """Method creates new archive
 
         Args:
-            none
+            path (str): file path
 
         Returns:
             void
 
         """
 
-        self._new_template_file('Yoda', '.yoda', tmpl.archive_content, 'htk_core_archive_created')
+        self._new_template_file('Yoda', '.yoda', tmpl.archive_content, 'htk_core_archive_created', path)
 
-    def new_draft(self):
+    def new_draft(self, path=None):
         """Method creates new draft
 
         Args:
-            none
+            path (str): file path
 
         Returns:
             void
 
         """
 
-        self._new_template_file('Padawan', '.padawan', tmpl.draft_content, 'htk_core_draft_created')
+        self._new_template_file('Padawan', '.padawan', tmpl.draft_content, 'htk_core_draft_created', path)
 
     def _open(self, event=None):
         """Method opens file from explorer tree
@@ -589,7 +594,7 @@ class Explorer(tk.LabelFrame):
                 self.logger.debug(self.trn.msg('htk_core_copied', src, path))
                 self.refresh(path=path)
 
-    def _delete(self, event=None):
+    def _delete(self, event=None, force=False):
         """Method deletes file or directory from explorer tree
 
         Deletion must be confirmed via popup window
@@ -597,6 +602,7 @@ class Explorer(tk.LabelFrame):
 
         Args:
             event (obj): event
+            force (bool): force delete (confirmation not displayed)
 
         Returns:
             void
@@ -621,7 +627,7 @@ class Explorer(tk.LabelFrame):
                 i += 1
             question = 'htk_gui_explorer_delete_project' if (is_project) else 'htk_gui_explorer_delete_directory'
         
-        res = tkmsg.askyesno(self.trn.msg('htk_gui_explorer_delete'), self.trn.msg(question, path))
+        res = tkmsg.askyesno(self.trn.msg('htk_gui_explorer_delete'), self.trn.msg(question, path)) if (not force) else True
         if (res):
             if (item_type == 'file'):
                 os.remove(path)
