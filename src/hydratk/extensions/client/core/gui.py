@@ -22,6 +22,7 @@ from hydratk.extensions.client.core.logger import Logger
 from hydratk.extensions.client.core.pluginmanager import PluginManager
 from hydratk.extensions.client.core.help import Help
 from hydratk.extensions.client.core.tooltip import ToolTip
+from hydratk.extensions.client.core.msgqueue import MsgQueue
 from hydratk.extensions.client.core.testhandler import TestHandler
 
 class Gui(tk.Tk):
@@ -59,6 +60,7 @@ class Gui(tk.Tk):
     _images = {}
     _imgdir = None
 
+    _msgqueue = None
     _test_mode = False
     _test_handler = None
 
@@ -203,6 +205,12 @@ class Gui(tk.Tk):
         return self._pane_right
     
     @property
+    def msgqueue(self):
+        """ msgqueue property getter """
+
+        return self._msgqueue
+
+    @property
     def test_handler(self):
         """ test_handler property getter """
 
@@ -224,6 +232,7 @@ class Gui(tk.Tk):
         self._set_pane_right()
         self._set_menu()
         self._set_toolbar()
+        self._set_msgqueue()
         self._load_plugins()
 
         self.logger.info(self.trn.msg('htk_core_started'))
@@ -573,6 +582,34 @@ class Gui(tk.Tk):
                     plugin = mod.Plugin(self)
                     self._plugins[plugin.plugin_id] = plugin
 
+    def _set_msgqueue(self):
+        """Method sets message queue
+
+        Args:
+            none
+
+        Returns:
+            void
+
+        """
+
+        self._msgqueue = MsgQueue.get_instance(self)
+
+    def _set_test_mode(self):
+        """Method sets test mode if enabled by option --test
+
+        Args:
+            none
+
+        Returns:
+            void
+
+        """
+
+        if (c_os != 'Windows' and '--test' in argv):
+            self._test_mode = True
+            self._test_handler = TestHandler.get_instance(self)
+
     def _exit(self, event=None):
         """Method stops application
 
@@ -594,21 +631,6 @@ class Gui(tk.Tk):
                 self._test_handler.clean()
             
             self.destroy()
-
-    def _set_test_mode(self):
-        """Method sets test mode if enabled by option --test
-
-        Args:
-            none
-
-        Returns:
-            void
-
-        """
-        
-        if (c_os != 'Windows' and '--test' in argv):
-            self._test_mode = True
-            self._test_handler = TestHandler.get_instance(self)
 
 class ExceptionHandler:
     """Class ExceptionHandler

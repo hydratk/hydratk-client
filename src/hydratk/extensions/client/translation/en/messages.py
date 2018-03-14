@@ -31,6 +31,8 @@ msg = {
     'htk_core_copied' : "{0} copied to {1}",
     'htk_core_invalid_yaml' : "File {0} has invalid YAML content",
     'htk_core_test_mode' : "Test mode enabled",
+    'htk_core_msg_received' : "Thread {0}: Message received {1}",
+    'htk_core_msg_processed' : "Thread {0}: Message {1} processed",
 
     'htk_gui_menu_file' : "File",
     'htk_gui_menu_file_new' : "New",

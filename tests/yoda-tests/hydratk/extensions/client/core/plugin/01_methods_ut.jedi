@@ -185,4 +185,17 @@ Test-Scenario-1:
       Validate: |  
         prop, attr = c.read_msg('prop', 'attr')
         this.test_result = prop
-        assert (prop == attr), 'prop != {0}'.format(attr)                                                                                                  
+        assert (prop == attr), 'prop != {0}'.format(attr)
+        
+    Test-Condition-14: 
+      Id: tco_14
+      Name: tco_msgqueue
+      Desc: Getter msgqueue
+      
+      Test: |
+        c.write_msg(code, [get_instance, get_property], input={'name': 'msgqueue'}, output=['prop', 'attr']) 
+      
+      Validate: |  
+        prop, attr = c.read_msg('prop', 'attr')
+        this.test_result = prop
+        assert (prop == attr), 'prop != {0}'.format(attr)                                                                                                             

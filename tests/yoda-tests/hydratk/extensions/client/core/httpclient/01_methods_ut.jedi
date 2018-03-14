@@ -1,0 +1,286 @@
+Test-Scenario-1:
+  Id: ts_01
+  Path: hydratk/extensions/client/core/httpclient/01_methods_ut.jedi
+  Name: ts_props
+  Desc: Test property methods
+  Author: Petr Rasek <bowman@hydratk.org>
+  Version: 0.1
+  
+  Pre-Req: |
+    from hydratk.extensions.client.core.httpclient import HTTPClient
+  
+  Test-Case-1:
+    Id: tc_01
+    Name: tc_getters
+    Desc: Getter methods
+    
+    Test-Condition-1: 
+      Id: tco_01
+      Name: tco_res_status
+      Desc: Getter status
+      
+      Test: |
+        c = HTTPClient()
+        c.send_request('http://google.com')     
+        res = c.res_status
+      
+      Validate: |        
+        this.test_result = res
+        exp = c._res_status
+        assert (res == exp), 'res_status != {0}'.format(exp) 
+        
+    Test-Condition-2: 
+      Id: tco_02
+      Name: tco_req_header
+      Desc: Getter req_header
+      
+      Test: |
+        res = c.req_header
+      
+      Validate: |        
+        this.test_result = str(res)
+        exp = c._req_header
+        assert (res == exp), 'req_header != {0}'.format(exp)
+        
+    Test-Condition-3: 
+      Id: tco_03
+      Name: tco_req_body
+      Desc: Getter req_body
+      
+      Test: |
+        res = c.req_body
+      
+      Validate: |        
+        this.test_result = (res)
+        exp = c._req_body
+        assert (res == exp), 'req_body != {0}'.format(exp)         
+        
+    Test-Condition-4: 
+      Id: tco_04
+      Name: tco_res_header
+      Desc: Getter res_header
+      
+      Test: |
+        res = c.res_header
+      
+      Validate: |        
+        this.test_result = str(res)
+        exp = c._res_header
+        assert (res == exp), 'res_header != {0}'.format(exp)         
+        
+    Test-Condition-5: 
+      Id: tco_05
+      Name: tco_res_body
+      Desc: Getter res_body
+      
+      Test: |
+        res = c.res_body
+      
+      Validate: |        
+        this.test_result = (res)
+        exp = c._res_body
+        assert (res == exp), 'res_body != {0}'.format(exp)
+        
+    Test-Condition-6: 
+      Id: tco_06
+      Name: tco_cookies
+      Desc: Getter cookies
+      
+      Test: |
+        res = c.cookies
+      
+      Validate: |        
+        this.test_result = (res)
+        exp = c._cookies
+        assert (res == exp), 'cookies != {0}'.format(exp)
+        
+    Test-Condition-6: 
+      Id: tco_06
+      Name: tco_url
+      Desc: Getter url
+      
+      Test: |
+        res = c.url
+      
+      Validate: |        
+        this.test_result = (res)
+        exp = c._url
+        assert (res == exp), 'url != {0}'.format(exp)
+        
+    Test-Condition-7: 
+      Id: tco_07
+      Name: tco_proxies
+      Desc: Getter proxies
+      
+      Test: |
+        res = c.proxies
+      
+      Validate: |        
+        this.test_result = (res)
+        exp = c._proxies
+        assert (res == exp), 'proxies != {0}'.format(exp)
+        
+    Test-Condition-8: 
+      Id: tco_08
+      Name: tco_cert
+      Desc: Getter cert
+      
+      Test: |
+        res = c.cert
+      
+      Validate: |        
+        this.test_result = (res)
+        exp = c._cert
+        assert (res == exp), 'cert != {0}'.format(exp)
+        
+Test-Scenario-2:
+  Id: ts_02
+  Path: hydratk/extensions/client/core/httpclient/01_methods_ut.jedi
+  Name: ts_get_header
+  Desc: Test get_header
+  Author: Petr Rasek <bowman@hydratk.org>
+  Version: 0.1
+  
+  Pre-Req: |
+    from hydratk.extensions.client.core.httpclient import HTTPClient
+    
+  Test-Case-1:
+    Id: tc_01
+    Name: tc_get_header
+    Desc: Get header    
+  
+    Test-Condition-1: 
+      Id: tco_01
+      Name: tco_header
+      Desc: Get header
+      
+      Test: |
+        
+        c = HTTPClient()
+        c.send_request('http://google.com')
+        res = c.get_header('content-type')
+      
+      Validate: |        
+        this.test_result = res
+        exp = 'text/html'
+        assert (exp in res), 'get_header does not contain {0}'.format(exp)        
+        
+    Test-Condition-2: 
+      Id: tco_02
+      Name: tco_invalid
+      Desc: Invalid header
+      
+      Test: |
+        res = c.get_header('xx')
+      
+      Validate: |        
+        this.test_result = res
+        assert (res == None), 'get_header != None'
+        
+Test-Scenario-3:
+  Id: ts_03
+  Path: hydratk/extensions/client/core/httpclient/01_methods_ut.jedi
+  Name: ts_send_request
+  Desc: Test send_request
+  Author: Petr Rasek <bowman@hydratk.org>
+  Version: 0.1
+  
+  Pre-Req: |
+    from hydratk.extensions.client.core.httpclient import HTTPClient
+    from json import dumps, loads
+    from xml.dom.minidom import parseString
+    
+  Test-Case-1:
+    Id: tc_01
+    Name: tc_rest
+    Desc: REST request    
+  
+    Test-Condition-1: 
+      Id: tco_01
+      Name: tco_write
+      Desc: Write operation
+      
+      Test: |        
+        c = HTTPClient()
+        url = 'http://localhost:8888/rs/customer'
+        headers = {'Content-Type': 'application/json'}
+        data = {'name': 'test', 'status': 'active', 'segment': 2, 'birth_no': '700101/0001', 'reg_no': '12345', 'tax_no': 'CZ12345'}
+        status, body = c.send_request(url, method='POST', headers=headers, body=dumps(data))
+      
+      Validate: |        
+        this.test_result = status
+        assert (status == 200), 'status != {0}'.format(status)
+        this.test_result = id = int(body)
+        assert (id > 0), 'id not returned'
+        
+    Test-Condition-2: 
+      Id: tco_02
+      Name: tco_read
+      Desc: Read operation
+      
+      Test: |        
+        status, body = c.send_request(url, method='GET', headers=headers, params={'id': id})
+      
+      Validate: |        
+        this.test_result = status
+        assert (status == 200), 'status != {0}'.format(status)
+        this.test_result = str(body)
+        body = loads(body)
+        data['id'] = id
+        assert (body == data), 'body != {0}'.format(data)
+        
+  Test-Case-2:
+    Id: tc_02
+    Name: tc_soap
+    Desc: SOAP request    
+  
+    Test-Condition-1: 
+      Id: tco_01
+      Name: tco_write
+      Desc: Write operation
+      
+      Test: |        
+        c = HTTPClient()
+        url = 'http://localhost:8888/ws/crm'
+        headers = {'Content-Type': 'application/xml', 'SOAPAction': 'create_customer'}
+        data = {'name': 'test', 'status': 'active', 'segment': '2', 'birth_no': '700101/0001', 'reg_no': '12345', 'tax_no': 'CZ12345'}
+        tmpl = """<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:ns0="http://hydratk.org/">
+        <soapenv:Header/><soapenv:Body><ns0:create_customer><name>{name}</name><status>{status}</status><segment>{segment}</segment>
+        <birth_no>{birth_no}</birth_no><reg_no>{reg_no}</reg_no><tax_no>{tax_no}</tax_no></ns0:create_customer></soapenv:Body></soapenv:Envelope>"""
+        tmpl = tmpl.format(name=data['name'], status=data['status'], segment=data['segment'], birth_no=data['birth_no'], reg_no=data['reg_no'], tax_no=data['tax_no'])
+        status, body = c.send_request(url, method='POST', headers=headers, body=tmpl)
+      
+      Validate: |        
+        this.test_result = status
+        assert (status == 200), 'status != {0}'.format(status)
+        this.test_result = body
+        body = parseString(body)
+        id = int((body.getElementsByTagName('id')[0]).firstChild.data)
+        assert (id > 0), 'id not returned'
+        
+    Test-Condition-2: 
+      Id: tco_02
+      Name: tco_read
+      Desc: Read operation
+      
+      Test: |                
+        headers['SOAPAction'] = 'read_customer'
+        tmpl = """<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:ns0="http://hydratk.org/">
+        <soapenv:Header/><soapenv:Body><ns0:read_customer><id>{id}</id></ns0:read_customer></soapenv:Body></soapenv:Envelope>"""
+        tmpl = tmpl.format(id=id)
+        status, body = c.send_request(url, method='POST', headers=headers, body=tmpl)
+        
+      Validate: |        
+        this.test_result = status
+        assert (status == 200), 'status != {0}'.format(status)
+        this.test_result = str(body)
+        body = parseString(body)
+        data['id'] = id
+        out = {'id': int((body.getElementsByTagName('id')[0]).firstChild.data),
+               'name': (body.getElementsByTagName('name')[0]).firstChild.data,
+               'status': (body.getElementsByTagName('status')[0]).firstChild.data, 
+               'segment': (body.getElementsByTagName('segment')[0]).firstChild.data,
+               'birth_no': (body.getElementsByTagName('birth_no')[0]).firstChild.data,
+               'reg_no': (body.getElementsByTagName('reg_no')[0]).firstChild.data,
+               'tax_no': (body.getElementsByTagName('tax_no')[0]).firstChild.data,}
+        assert (out == data), 'out != {0}'.format(data)                                                                                                   

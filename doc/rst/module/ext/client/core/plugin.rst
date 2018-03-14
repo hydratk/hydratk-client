@@ -24,6 +24,7 @@ Class for plugin manager.
 * _yoda_tree - YodaTree instance reference
 * _editor - Editor instance reference
 * _logger - Logger instance reference
+* _msgqueue - MsgQueue instance reference
 * _cfg - plugin configuration
 
 **Properties (Getters)** :
@@ -40,6 +41,7 @@ Class for plugin manager.
 * yoda_tree - returns _yoda_tree
 * editor - returns _editor
 * logger - returns _logger
+* msgqueue - returns _msgqueue
 * cfg - returns _cfg
 
 **Methods** :

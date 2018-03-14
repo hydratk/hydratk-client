@@ -358,13 +358,29 @@ class Plugin(plugin.Plugin):
                 error.config(text=self.trn.msg('htk_gitclient_clone_project_exist', proj_name))
                 return
 
+        if (self._w_clone is not None):
+            self._w_clone.destroy()
+
+        self.logger.info(self.trn.msg('htk_gitclient_clone_start', url))
+        self.msgqueue.write_msg(self._task_clone_repo, [url, dirpath, user, passw])
+
+    def _task_clone_repo(self, url, dirpath, user, passw):
+        """Method clones repository as task
+
+        Args:
+           url (str): repository url
+           dirpath (str): directory path
+           user (str): username
+           pass (str): password
+
+        Returns:
+           void
+
+        """
+
         repo = None
         try:
-            if (self._w_clone is not None):
-                self._w_clone.destroy()
-
             url_auth = self._prepare_url(url, user, passw)
-            self.logger.info(self.trn.msg('htk_gitclient_clone_start', url))
             repo = Repo.clone_from(url_auth, dirpath)
             self.logger.info(self.trn.msg('htk_gitclient_clone_finish'))
             self._create_project(url, dirpath, user, passw)
@@ -489,7 +505,7 @@ class Plugin(plugin.Plugin):
             self.logger.error(ex)
         finally:
             if (repo is not None):
-                repo.close() 
+                repo.close()
 
     def _commit(self, msg, author, files, push=False, error=None):
         """Method performs commit to local repository
@@ -563,12 +579,24 @@ class Plugin(plugin.Plugin):
         if (len(item) == 0):
             return
 
+        project = self._w_mng_tree.item(item)['text']
+        repo_path = self.config.data['Projects'][project]['path']
+        self.logger.info(self.trn.msg('htk_gitclient_repomanager_push_start', project))
+        self.msgqueue.write_msg(self._task_push, [repo_path])
+
+    def _task_push(self, repo_path):
+        """Method performs push to remote repository as task
+
+        Args:
+           repo_path (str): repository path
+
+        Returns:
+           void
+
+        """
+
         repo = None
         try:
-            project = self._w_mng_tree.item(item)['text']
-            repo_path = self.config.data['Projects'][project]['path']
-            self.logger.info(self.trn.msg('htk_gitclient_repomanager_push_start', project))
-
             repo = Repo(repo_path)
             repo.git.push('origin')
             self.logger.info(self.trn.msg('htk_gitclient_repomanager_push_finish'))
@@ -594,12 +622,24 @@ class Plugin(plugin.Plugin):
         if (len(item) == 0):
             return
 
+        project = self._w_mng_tree.item(item)['text']
+        repo_path = self.config.data['Projects'][project]['path']
+        self.logger.info(self.trn.msg('htk_gitclient_repomanager_pull_start', project))
+        self.msgqueue.write_msg(self._task_pull, [repo_path])
+
+    def _task_pull(self, repo_path):
+        """Method performs pull from remote repository as task
+
+        Args:
+           repo_path (str): repository path
+
+        Returns:
+           void
+
+        """
+
         repo = None
         try:
-            project = self._w_mng_tree.item(item)['text']
-            repo_path = self.config.data['Projects'][project]['path']
-            self.logger.info(self.trn.msg('htk_gitclient_repomanager_pull_start', project))
-
             repo = Repo(repo_path)
             repo.git.pull('origin')
             self.explorer.refresh(path=repo_path)

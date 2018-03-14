@@ -41,6 +41,8 @@ def clone_repo(url, user, passw, dirpath):
     obj._w_clone_dirpath.insert('end', dirpath)
     obj._w_clone_btn.invoke()
 
+def get_config(dirpath):
+
     proj_name = dirpath.split('/')[-1]
     config = self.root.explorer._projects[proj_name]
 

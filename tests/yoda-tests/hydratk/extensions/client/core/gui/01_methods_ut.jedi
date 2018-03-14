@@ -228,6 +228,19 @@ Test-Scenario-1:
         
     Test-Condition-17: 
       Id: tco_17
+      Name: tco_msgqueue
+      Desc: Getter msgqueue
+      
+      Test: |
+        c.write_msg(code, [get_property], input={'name': 'msgqueue'}, output=['prop', 'attr'])     
+      
+      Validate: |  
+        prop, attr = c.read_msg('prop', 'attr')
+        this.test_result = prop
+        assert (prop == attr), 'prop != {0}'.format(attr)        
+        
+    Test-Condition-18: 
+      Id: tco_18
       Name: tco_test_handler
       Desc: Getter test_handler
       

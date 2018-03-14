@@ -34,6 +34,7 @@ Main class which implements tk GUI application.
 * _tooltips dict, ToolTip references
 * _images - dict, PhotoImage references
 * _imgdir - directory with images
+* _msgqueue - message queue
 * _test_mode - bool, True if test mode set
 * _test_handler - TestHandler reference
 
@@ -56,6 +57,7 @@ Main class which implements tk GUI application.
 * images - retutns _images
 * pane_left - returns _pane_left
 * pane_right - returns _pane_right
+* msgqueue - returns _msgqueue
 * test_handler - returns _test_handler
 
 **Methods** :

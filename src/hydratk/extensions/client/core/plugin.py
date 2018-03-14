@@ -31,6 +31,7 @@ class Plugin(object):
     _yoda_tree = None
     _editor = None
     _logger = None
+    _msgqueue = None
 
     _cfg = None
 
@@ -51,6 +52,7 @@ class Plugin(object):
         self._yoda_tree = self.root.yoda_tree
         self._editor = self.root.editor
         self._logger = self.root.logger
+        self._msgqueue = self.root.msgqueue
 
         if hasattr(self.__class__, '_init_plugin') and callable(getattr(self.__class__, '_init_plugin')):
             self._init_plugin()
@@ -138,6 +140,12 @@ class Plugin(object):
         """ logger property getter """
 
         return self._logger
+
+    @property
+    def msgqueue(self):
+        """ msgqueue property getter """
+
+        return self._msgqueue
 
     def _import_messages(self):
         """Methods imports langtexts

@@ -14,4 +14,4 @@ README for HydraTK GUI client
 OS and Python versions support
 ==============================
 
-| Currently the Windows and Linux platform with CPython 2.6, 2.7, 3.3, 3.4, 3.5, 3.6, PyPy 2.7 is supported.
+| Currently the Windows and Linux platform with CPython 2.6, 2.7, 3.3, 3.4, 3.5, 3.6 is supported.

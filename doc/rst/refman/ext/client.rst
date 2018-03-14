@@ -69,14 +69,28 @@ core
 * help
 
 .. automodule:: hydratk.extensions.client.core.help
-   :member-order: bysource   
+   :member-order: bysource
+   
+.. _refman_ext_client_core_httpclient:   
+   
+* httpclient
+
+.. automodule:: hydratk.extensions.client.core.httpclient
+   :member-order: bysource         
    
 .. _refman_ext_client_core_logger:   
    
 * logger
 
 .. automodule:: hydratk.extensions.client.core.logger
-   :member-order: bysource   
+   :member-order: bysource
+   
+.. _refman_ext_client_core_msgqueue:   
+  
+* msgqueue
+
+.. automodule:: hydratk.extensions.client.core.msgqueue
+   :member-order: bysource         
    
 .. _refman_ext_client_core_notebook:   
    

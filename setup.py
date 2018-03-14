@@ -33,8 +33,7 @@ classifiers = [
     "Programming Language :: Python :: 3.5",
     "Programming Language :: Python :: 3.6",
     "Programming Language :: Python :: Implementation",
-    "Programming Language :: Python :: Implementation :: CPython",
-    "Programming Language :: Python :: Implementation :: PyPy",
+    "Programming Language :: Python :: Implementation :: CPython"
     "Topic :: Software Development :: Libraries :: Application Frameworks",
     "Topic :: Utilities"
 ]
@@ -44,7 +43,8 @@ packages = st_find_packages('src')
 requires = [
     'pyyaml>=3.11',
     'jedi>=0.10.2',
-    'GitPython>=2.1.8'
+    'GitPython>=2.1.8',
+    'requests>=2.11.1'
 ]
 
 entry_points = {

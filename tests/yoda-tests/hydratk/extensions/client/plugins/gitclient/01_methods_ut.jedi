@@ -41,8 +41,9 @@ Test-Scenario-2:
   Pre-Req: |
     from yodalib.hydratk.extensions.client.gui_client import GuiClient
     from yodahelpers.hydratk.extensions.client.core.explorer import select, clean       
-    from yodahelpers.hydratk.extensions.client.plugins.gitclient import clone_repo
-    from os import path 
+    from yodahelpers.hydratk.extensions.client.plugins.gitclient import clone_repo, get_config
+    from os import path
+    from time import sleep 
   
   Test-Case-1:
     Id: tc_01
@@ -56,10 +57,23 @@ Test-Scenario-2:
       
       Test: |
         c = GuiClient.get_instance()
-        code = "config = clone_repo(url, user, passw, dirpath); sel = select(tree_path)"
+        code = "clone_repo(url, user, passw, dirpath)"
         url, user, passw, dirpath = 'https://git-retail.hydratk.org/test-camp.git', 'test', 'test1234', '/tmp/test-camp'
-        tree_path = ['test-camp', 'py', '01_linux', '01_shell_basic.py']
-        c.write_msg(code, [clone_repo, select], input={'url': url, 'user': user, 'passw': passw, 'dirpath': dirpath, 'tree_path': tree_path}, output=['config', 'sel']) 
+        c.write_msg(code, [clone_repo], input={'url': url, 'user': user, 'passw': passw, 'dirpath': dirpath}) 
+      
+      Validate: |
+        c.read_msg()
+        
+    Test-Condition-2: 
+      Id: tco_02
+      Name: tco_check
+      Desc: Check clone
+      
+      Test: |
+        sleep(10)
+        tree_path = ['test-camp', 'py', '01_linux', '01_shell_basic.py']        
+        code = "config = get_config(dirpath); sel = select(tree_path)"
+        c.write_msg(code, [get_config, select], input={'dirpath': dirpath, 'tree_path': tree_path}, output=['config', 'sel']) 
       
       Validate: |
         config, sel = c.read_msg('config', 'sel')
@@ -67,10 +81,10 @@ Test-Scenario-2:
         exp = {'path': dirpath, 'pythonpath': [dirpath+'/lib/yodalib', dirpath+'/helpers/yodahelpers'],
                'git': {'url': url, 'username': user, 'password': passw, 'name': '', 'email': ''}}
         assert(config == exp), 'config != {0}'.format(exp)
-        assert (sel), 'item not selected'
+        assert (sel), 'item not selected'        
         
-    Test-Condition-2: 
-      Id: tco_02
+    Test-Condition-3: 
+      Id: tco_03
       Name: tco_clean
       Desc: Clean 
       
@@ -93,8 +107,9 @@ Test-Scenario-3:
   Pre-Req: |
     from yodalib.hydratk.extensions.client.gui_client import GuiClient
     from yodahelpers.hydratk.extensions.client.core.explorer import select, clean       
-    from yodahelpers.hydratk.extensions.client.plugins.gitclient import clone_repo, select_repo, save_config
-    from os import path 
+    from yodahelpers.hydratk.extensions.client.plugins.gitclient import clone_repo, get_config, select_repo, save_config
+    from os import path
+    from time import sleep 
   
   Test-Case-1:
     Id: tc_01
@@ -108,10 +123,23 @@ Test-Scenario-3:
       
       Test: |
         c = GuiClient.get_instance()
-        code = "config = clone_repo(url, user, passw, dirpath); sel = select(tree_path)"
+        code = "clone_repo(url, user, passw, dirpath)"
         url, user, passw, dirpath = 'https://git-retail.hydratk.org/test-camp.git', 'test', 'test1234', '/tmp/test-camp'
-        tree_path = ['test-camp', 'py', '01_linux', '01_shell_basic.py']
-        c.write_msg(code, [clone_repo, select], input={'url': url, 'user': user, 'passw': passw, 'dirpath': dirpath, 'tree_path': tree_path}, output=['config', 'sel']) 
+        c.write_msg(code, [clone_repo], input={'url': url, 'user': user, 'passw': passw, 'dirpath': dirpath}) 
+      
+      Validate: |
+        c.read_msg()
+        
+    Test-Condition-2: 
+      Id: tco_02
+      Name: tco_check
+      Desc: Check clone
+      
+      Test: |
+        sleep(10)
+        tree_path = ['test-camp', 'py', '01_linux', '01_shell_basic.py']        
+        code = "config = get_config(dirpath); sel = select(tree_path)"
+        c.write_msg(code, [get_config, select], input={'dirpath': dirpath, 'tree_path': tree_path}, output=['config', 'sel']) 
       
       Validate: |
         config, sel = c.read_msg('config', 'sel')
@@ -119,10 +147,10 @@ Test-Scenario-3:
         exp = {'path': dirpath, 'pythonpath': [dirpath+'/lib/yodalib', dirpath+'/helpers/yodahelpers'],
                'git': {'url': url, 'username': user, 'password': passw, 'name': '', 'email': ''}}
         assert(config == exp), 'config != {0}'.format(exp)
-        assert (sel), 'item not selected'
+        assert (sel), 'item not selected'  
         
-    Test-Condition-2: 
-      Id: tco_02
+    Test-Condition-3: 
+      Id: tco_03
       Name: tco_save_config
       Desc: Save configuration
       
@@ -139,8 +167,8 @@ Test-Scenario-3:
         exp = {'url': url, 'username': user, 'password': passw, 'name': name, 'email': email}
         assert(config['git'] == exp), 'config != {0}'.format(exp)                
         
-    Test-Condition-3: 
-      Id: tco_03
+    Test-Condition-4: 
+      Id: tco_04
       Name: tco_clean
       Desc: Clean 
       
@@ -164,7 +192,8 @@ Test-Scenario-4:
     from yodalib.hydratk.extensions.client.gui_client import GuiClient
     from yodahelpers.hydratk.extensions.client.core.explorer import select, clean       
     from yodahelpers.hydratk.extensions.client.plugins.gitclient import clone_repo, select_repo, click_context_menu
-    from os import path 
+    from os import path
+    from time import sleep  
   
   Test-Case-1:
     Id: tc_01
@@ -178,24 +207,36 @@ Test-Scenario-4:
       
       Test: |
         c = GuiClient.get_instance()
-        code = "clone_repo(url, user, passw, dirpath); sel = select(tree_path)"
+        code = "clone_repo(url, user, passw, dirpath)"
         url, user, passw, dirpath = 'https://git-retail.hydratk.org/test-camp.git', 'test', 'test1234', '/tmp/test-camp'
-        tree_path = ['test-camp', 'py', '01_linux', '01_shell_basic.py']
-        c.write_msg(code, [clone_repo, select], input={'url': url, 'user': user, 'passw': passw, 'dirpath': dirpath, 'tree_path': tree_path}, output=['sel']) 
+        c.write_msg(code, [clone_repo], input={'url': url, 'user': user, 'passw': passw, 'dirpath': dirpath}) 
+      
+      Validate: |
+        c.read_msg()
+        
+    Test-Condition-2: 
+      Id: tco_02
+      Name: tco_check
+      Desc: Check clone
+      
+      Test: |
+        sleep(10)
+        tree_path = ['test-camp', 'py', '01_linux', '01_shell_basic.py']        
+        code = "sel = select(tree_path)"
+        c.write_msg(code, [select], input={'tree_path': tree_path}, output=['sel']) 
       
       Validate: |
         sel = c.read_msg('sel')
         this.test_result = sel
         assert (sel), 'item not selected'
         
-    Test-Condition-2: 
-      Id: tco_02
+    Test-Condition-3: 
+      Id: tco_03
       Name: tco_push
       Desc: Push repository
       
       Test: |
         code = "sel = select_repo(idx); click_context_menu(item)"
-        url, user, passw, name, email = 'https://git-retail.hydratk.org/test-camp2.git', 'test2', 'test12342', 'Petr Rasek', '<bowman@hydratk.org>'
         c.write_msg(code, [select_repo, click_context_menu], input={'idx': 0, 'item': 'Push'}, output=['sel']) 
       
       Validate: |
@@ -203,8 +244,8 @@ Test-Scenario-4:
         this.test_result = sel
         assert (sel), 'item not selected'                
         
-    Test-Condition-3: 
-      Id: tco_03
+    Test-Condition-4: 
+      Id: tco_04
       Name: tco_clean
       Desc: Clean 
       
@@ -228,7 +269,8 @@ Test-Scenario-5:
     from yodalib.hydratk.extensions.client.gui_client import GuiClient
     from yodahelpers.hydratk.extensions.client.core.explorer import select, clean       
     from yodahelpers.hydratk.extensions.client.plugins.gitclient import clone_repo, select_repo, click_context_menu
-    from os import path 
+    from os import path
+    from time import sleep  
   
   Test-Case-1:
     Id: tc_01
@@ -242,24 +284,36 @@ Test-Scenario-5:
       
       Test: |
         c = GuiClient.get_instance()
-        code = "clone_repo(url, user, passw, dirpath); sel = select(tree_path)"
+        code = "clone_repo(url, user, passw, dirpath)"
         url, user, passw, dirpath = 'https://git-retail.hydratk.org/test-camp.git', 'test', 'test1234', '/tmp/test-camp'
-        tree_path = ['test-camp', 'py', '01_linux', '01_shell_basic.py']
-        c.write_msg(code, [clone_repo, select], input={'url': url, 'user': user, 'passw': passw, 'dirpath': dirpath, 'tree_path': tree_path}, output=['sel']) 
+        c.write_msg(code, [clone_repo], input={'url': url, 'user': user, 'passw': passw, 'dirpath': dirpath}) 
+      
+      Validate: |
+        c.read_msg()
+        
+    Test-Condition-2: 
+      Id: tco_02
+      Name: tco_check
+      Desc: Check clone
+      
+      Test: |
+        sleep(10)
+        tree_path = ['test-camp', 'py', '01_linux', '01_shell_basic.py']        
+        code = "sel = select(tree_path)"
+        c.write_msg(code, [select], input={'tree_path': tree_path}, output=['sel']) 
       
       Validate: |
         sel = c.read_msg('sel')
         this.test_result = sel
         assert (sel), 'item not selected'
         
-    Test-Condition-2: 
-      Id: tco_02
+    Test-Condition-3: 
+      Id: tco_03
       Name: tco_pull
       Desc: Pull repository
       
       Test: |
         code = "sel = select_repo(idx); click_context_menu(item)"
-        url, user, passw, name, email = 'https://git-retail.hydratk.org/test-camp2.git', 'test2', 'test12342', 'Petr Rasek', '<bowman@hydratk.org>'
         c.write_msg(code, [select_repo, click_context_menu], input={'idx': 0, 'item': 'Pull'}, output=['sel']) 
       
       Validate: |
@@ -267,8 +321,8 @@ Test-Scenario-5:
         this.test_result = sel
         assert (sel), 'item not selected'                
         
-    Test-Condition-3: 
-      Id: tco_03
+    Test-Condition-4: 
+      Id: tco_04
       Name: tco_clean
       Desc: Clean 
       
@@ -292,7 +346,8 @@ Test-Scenario-6:
     from yodalib.hydratk.extensions.client.gui_client import GuiClient
     from yodahelpers.hydratk.extensions.client.core.explorer import select, clean       
     from yodahelpers.hydratk.extensions.client.plugins.gitclient import clone_repo, select_repo, save_config, commit
-    from os import path, remove 
+    from os import path, remove
+    from time import sleep  
   
   Test-Case-1:
     Id: tc_01
@@ -306,18 +361,31 @@ Test-Scenario-6:
       
       Test: |
         c = GuiClient.get_instance()
-        code = "clone_repo(url, user, passw, dirpath); sel = select(tree_path)"
+        code = "clone_repo(url, user, passw, dirpath)"
         url, user, passw, dirpath = 'https://git-retail.hydratk.org/test-camp.git', 'test', 'test1234', '/tmp/test-camp'
-        tree_path = ['test-camp', 'py', '01_linux', '01_shell_basic.py']
-        c.write_msg(code, [clone_repo, select], input={'url': url, 'user': user, 'passw': passw, 'dirpath': dirpath, 'tree_path': tree_path}, output=['sel']) 
+        c.write_msg(code, [clone_repo], input={'url': url, 'user': user, 'passw': passw, 'dirpath': dirpath}) 
+      
+      Validate: |
+        c.read_msg()
+        
+    Test-Condition-2: 
+      Id: tco_02
+      Name: tco_check
+      Desc: Check clone
+      
+      Test: |
+        sleep(10)
+        tree_path = ['test-camp', 'py', '01_linux', '01_shell_basic.py']        
+        code = "sel = select(tree_path)"
+        c.write_msg(code, [select], input={'tree_path': tree_path}, output=['sel']) 
       
       Validate: |
         sel = c.read_msg('sel')
         this.test_result = sel
         assert (sel), 'item not selected'
         
-    Test-Condition-2: 
-      Id: tco_02
+    Test-Condition-3: 
+      Id: tco_03
       Name: tco_save_config
       Desc: Save configuration
       
@@ -334,8 +402,8 @@ Test-Scenario-6:
         exp = {'url': url, 'username': user, 'password': passw, 'name': name, 'email': email}
         assert(config['git'] == exp), 'config != {0}'.format(exp)               
         
-    Test-Condition-3: 
-      Id: tco_03
+    Test-Condition-4: 
+      Id: tco_04
       Name: tco_add
       Desc: Add file
       
@@ -356,8 +424,8 @@ Test-Scenario-6:
         exp = {'add': [fname], 'modify': [], 'delete': []}
         assert (files == exp), 'files != {0}'.format(exp)
         
-    Test-Condition-4: 
-      Id: tco_04
+    Test-Condition-5: 
+      Id: tco_05
       Name: tco_modify
       Desc: Modify file
       
@@ -375,8 +443,8 @@ Test-Scenario-6:
         exp = {'add': [], 'modify': [fname], 'delete': []}
         assert (files == exp), 'files != {0}'.format(exp)        
         
-    Test-Condition-5: 
-      Id: tco_05
+    Test-Condition-6: 
+      Id: tco_06
       Name: tco_delete
       Desc: Delete file
       
@@ -392,8 +460,8 @@ Test-Scenario-6:
         exp = {'add': [], 'modify': [], 'delete': [fname]}
         assert (files == exp), 'files != {0}'.format(exp)                           
         
-    Test-Condition-6: 
-      Id: tco_06
+    Test-Condition-7: 
+      Id: tco_07
       Name: tco_clean
       Desc: Clean 
       
