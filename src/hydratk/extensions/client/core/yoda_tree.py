@@ -279,6 +279,21 @@ class YodaTree(tk.LabelFrame):
         if (path in self._tests):
             del self._tests[path]
 
+    def move_test(self, src, dst):
+        """Method moves test
+
+        Args:
+            src (str): source path
+            dst (str): destination path
+
+        Returns:
+            void
+
+        """
+
+        self._tests[dst] = self._tests[src]
+        del self._tests[src]
+
     def refresh(self, path, content):
         """Method refreshes tree
 

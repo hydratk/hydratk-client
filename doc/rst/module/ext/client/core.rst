@@ -18,6 +18,7 @@ This section contains module documentation of Client core modules.
    core/gui
    core/help
    core/httpclient
+   core/imagetab
    core/logger
    core/msgqueue
    core/notebook

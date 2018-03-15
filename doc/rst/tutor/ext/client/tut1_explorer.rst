@@ -72,8 +72,13 @@ Standard functions
 
 Explorer supports standard functions accessible from context menu.
 
-* Open - file content is displayed in tab, also available by doubleclick.
+* Open - file content is displayed in tab, also available by doubleclick. Images with GIF format are displayed in canvas.
 * Copy - filepath is copied to clipboard. Directory copy is not supported.
 * Paste - paste file from clipboard.
 * Delete - delete file, directory or project.
 * Refresh - refresh tree, useful when directory content is changed outside of client.
+
+Explorer supports some drag 'n' drop functions.
+
+* Open - move file to editor area to open it.
+* Move - move file or directory to another directory.

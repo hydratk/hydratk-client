@@ -80,6 +80,7 @@ Method open new empty tab.
 
 Methods read file chosen in dialog, opens new tab with file content and registers file in yoda tree.
 If file is already open, the tab is only selected.
+Image files with GIF format are displayed in image tab.
 
 * save_as_file
 

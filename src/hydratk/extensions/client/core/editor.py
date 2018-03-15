@@ -240,13 +240,17 @@ class Editor(tk.LabelFrame):
 
         path = fix_path(path)
         name = os.path.split(path)[1]
+        suffix = name.split('.')[-1]
         res, idx = self.nb.is_tab_present(path)
         if (not res):
-            with open(path, 'r') as f:
-                content = f.read()
-                self.nb.add_tab(path=path, content=content, text=name)
-                self.yoda_tree.add_test(path, content)
-                self.logger.debug(self.trn.msg('htk_core_file_opened', path))
+            if (suffix != 'gif'):
+                with open(path, 'r') as f:
+                    content = f.read()
+                    self.nb.add_tab(path=path, content=content, text=name)
+                    self.yoda_tree.add_test(path, content)
+            else:
+                self.nb.add_tab(path=path, tab_type='image', text=name)
+            self.logger.debug(self.trn.msg('htk_core_file_opened', path))
         else:
             self.nb.select(idx)
 
@@ -262,6 +266,9 @@ class Editor(tk.LabelFrame):
             void
 
         """
+
+        if (not self.nb.is_filetab()):
+            return
 
         path = tkfd.asksaveasfilename(filetypes=[(self.trn.msg('htk_gui_editor_filetypes'), '*.*')])
         if (len(path) == 0):
@@ -292,7 +299,7 @@ class Editor(tk.LabelFrame):
         """
 
         tab = self.nb.get_current_tab()
-        if (tab is not None):
+        if (tab is not None and self.nb.is_filetab(tab)):
             if (path is None):
                 path = tab.path
             if (path is None):
@@ -317,7 +324,7 @@ class Editor(tk.LabelFrame):
 
         try:
             tab = self.nb.get_current_tab()
-            if (tab is not None):
+            if (tab is not None and self.nb.is_filetab(tab)):
                 tab.text.edit_undo()
                 tab.update_line_numbers()
                 tab.colorize()
@@ -338,7 +345,7 @@ class Editor(tk.LabelFrame):
 
         try:
             tab = self.nb.get_current_tab()
-            if (tab is not None):
+            if (tab is not None and self.nb.is_filetab(tab)):
                 tab.text.edit_redo()
                 tab.update_line_numbers()
                 tab.colorize()
@@ -394,7 +401,7 @@ class Editor(tk.LabelFrame):
         """
 
         tab = self.nb.get_current_tab()
-        if (tab is not None):
+        if (tab is not None and self.nb.is_filetab(tab)):
             content = self.root.clipboard_get()
             start = tab.text.index(tk.INSERT)
             stop = '{0}+{1}c'.format(start, len(content))
@@ -433,7 +440,7 @@ class Editor(tk.LabelFrame):
         """
 
         tab = self.nb.get_current_tab()
-        if (tab is not None):
+        if (tab is not None and self.nb.is_filetab(tab)):
             tab.text.tag_add(tk.SEL, '1.0', 'end')
 
     def save_tabs(self):
@@ -451,7 +458,7 @@ class Editor(tk.LabelFrame):
 
         for i in range(0, len(self.nb.tab_refs)):
             tab = self.nb.tab_refs[i]
-            if (tab.text.edit_modified()):
+            if (self.nb.is_filetab(tab) and tab.text.edit_modified()):
                 res = tkmsg.askyesno(self.trn.msg('htk_gui_editor_close_save_title'),
                                      self.trn.msg('htk_gui_editor_close_save_question', tab.name))
                 if (res):
@@ -469,7 +476,8 @@ class Editor(tk.LabelFrame):
         """
 
         for tab in self.nb.tab_refs:
-            tab.update_line_numbers()
+            if (self.nb.is_filetab(tab)):
+                tab.update_line_numbers()
 
         self.config.data['Core']['editor']['view']['show_line_number'] = 1 if (self._var_show_line_number.get()) else 0
 
@@ -485,7 +493,8 @@ class Editor(tk.LabelFrame):
         """
         
         for tab in self.nb.tab_refs:
-            tab.update_info_bar()
+            if (self.nb.is_filetab(tab)):
+                tab.update_info_bar()
 
         self.config.data['Core']['editor']['view']['show_info_bar'] = 1 if (self._var_show_info_bar.get()) else 0
         
@@ -501,7 +510,7 @@ class Editor(tk.LabelFrame):
         """
 
         tab = self.nb.get_current_tab()
-        if (tab is not None):
+        if (tab is not None and self.nb.is_filetab(tab)):
             self._win_goto = tk.Toplevel(self.root)
             self._win_goto.title(self.trn.msg('htk_gui_editor_goto_title'))
             self._win_goto.transient(self.root)
@@ -531,7 +540,8 @@ class Editor(tk.LabelFrame):
 
         if (len(line) > 0):
             tab = self.nb.get_current_tab()
-            tab.goto(line)
+            if (self.nb.is_filetab(tab)):
+                tab.goto(line)
 
         if (self._win_goto is not None):
             self._win_goto.destroy()
@@ -548,7 +558,7 @@ class Editor(tk.LabelFrame):
         """
 
         tab = self.nb.get_current_tab()
-        if (tab is not None):
+        if (tab is not None and self.nb.is_filetab(tab)):
             self._win_find = tk.Toplevel(self.root)
             self._win_find.title(self.trn.msg('htk_gui_editor_find_title'))
             self._win_find.transient(self.root)
@@ -590,7 +600,8 @@ class Editor(tk.LabelFrame):
 
         if (len(find_str) > 0):
             tab = self.nb.get_current_tab()
-            tab.find(find_str=find_str, find_all=find_all, ignore_case=ignore_case, regexp=regexp)
+            if (self.nb.is_filetab(tab)):
+                tab.find(find_str=find_str, find_all=find_all, ignore_case=ignore_case, regexp=regexp)
 
         if (self._win_find is not None):
             self._win_find.destroy()
@@ -607,7 +618,7 @@ class Editor(tk.LabelFrame):
         """
 
         tab = self.nb.get_current_tab()
-        if (tab is not None):
+        if (tab is not None and self.nb.is_filetab(tab)):
             self._win_replace = tk.Toplevel(self.root)
             self._win_replace.title(self.trn.msg('htk_gui_editor_replace_title'))
             self._win_replace.transient(self.root)
@@ -654,8 +665,9 @@ class Editor(tk.LabelFrame):
 
         if (len(find_str) > 0):
             tab = self.nb.get_current_tab()
-            tab.replace(find_str, replace_str, replace_all, ignore_case, regexp)
-            self.refresh_yoda_tree(tab)
+            if (self.nb.is_filetab(tab)):
+                tab.replace(find_str, replace_str, replace_all, ignore_case, regexp)
+                self.refresh_yoda_tree(tab)
 
         if (self._win_replace is not None):
             self._win_replace.destroy()
@@ -674,7 +686,8 @@ class Editor(tk.LabelFrame):
         if (self._font['size'] < 50):
             self._font['size'] += 1
             for tab in self.nb.tab_refs:
-                tab.set_font(self._font['family'], self._font['size'], self._font['style'])
+                if (self.nb.is_filetab(tab)):
+                    tab.set_font(self._font['family'], self._font['size'], self._font['style'])
         
     def decrease_font(self):
         """Method decreases font size
@@ -690,7 +703,8 @@ class Editor(tk.LabelFrame):
         if (self._font['size'] > 1.0):
             self._font['size'] -= 1
             for tab in self.nb.tab_refs:
-                tab.set_font(self._font['family'], self._font['size'], self._font['style'])
+                if (self.nb.is_filetab(tab)):
+                    tab.set_font(self._font['family'], self._font['size'], self._font['style'])
 
     def on_tab_changed(self, event=None):
         """Method handles tab changed event
@@ -704,9 +718,11 @@ class Editor(tk.LabelFrame):
         """
 
         tab = self.nb.get_current_tab()
-        if (tab != None):
+        if (tab != None and self.nb.is_filetab(tab)):
             self.yoda_tree.add_test(tab.path)
         else:
+            if (tab.__class__.__name__ == 'ImageTab'):
+                tab._canvas.focus_set()
             self.yoda_tree.clear_tree()
 
     def refresh_yoda_tree(self, tab=None):
@@ -722,4 +738,5 @@ class Editor(tk.LabelFrame):
         
         if (tab == None):
             tab = self.nb.get_current_tab()
-        self.yoda_tree.refresh(tab.path, tab.text.get('1.0', 'end-1c'))
+        if (self.nb.is_filetab(tab)):
+            self.yoda_tree.refresh(tab.path, tab.text.get('1.0', 'end-1c'))

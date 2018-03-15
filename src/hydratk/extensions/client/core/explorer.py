@@ -9,7 +9,7 @@
 """
 
 import os
-from shutil import rmtree, copy
+from shutil import rmtree, copy, move, Error
 
 from hydratk.extensions.client.core.tkimport import tk, ttk, tkmsg, tkfd
 from hydratk.extensions.client.core.autocompleter import AutoCompleter
@@ -43,6 +43,8 @@ class Explorer(tk.LabelFrame):
 
     _menu = None
     _menu_new = None
+
+    _drag_item = None
 
     def __init__(self, root):
         """Class constructor
@@ -197,6 +199,10 @@ class Explorer(tk.LabelFrame):
         self._tree.bind('<Control-v>', self._paste)
         self._tree.bind('<Delete>', self._delete)
         self._tree.bind('<F5>', self.refresh)
+
+        self._tree.bind('<ButtonPress-1>', self._on_drag)
+        self._tree.bind('<ButtonRelease-1>', self._on_drop)
+        self._tree.bind('<B1-Motion>', self._on_move)
 
         self._set_menu()
 
@@ -676,3 +682,93 @@ class Explorer(tk.LabelFrame):
                 self._populate_tree(node)
                 break
             i += 1
+
+    def _on_drag(self, event=None):
+        """Method handles mouse drag event
+
+        Store dragged item (file or directory)
+
+        Args:
+            event (obj): event
+
+        Returns:
+            void
+
+        """
+
+        self._drag_item = None
+        item = self._tree.identify_row(event.y)
+        if (len(item) == 0 or self._tree.parent(item) == ''):
+            return
+
+        self._drag_item = self._tree.item(item)
+
+    def _on_drop(self, event=None):
+        """Method handles mouse drop event
+
+        Move file or directory to requested directory or open file in editor
+
+        Args:
+            event (obj): event
+
+        Returns:
+            void
+
+        """
+
+        # open
+        try:
+            if (self.root.winfo_containing(event.x, event.y).__class__.__name__ in ['CustomNotebook', 'Text'] and
+                self._drag_item != None and self._drag_item['values'][1] == 'file'):
+                self.editor.open_file(path=self._drag_item['values'][0])
+                return
+        except KeyError:
+            return
+
+        # move
+        item = self._tree.identify_row(event.y)
+        if (len(item) == 0 or self._drag_item == None):
+            return
+
+        item = self._tree.item(item)
+        if (self._drag_item['values'][0] in item['values'][0]):
+            return
+        elif (item['values'][1] == 'directory'):
+            try:
+                src = self._drag_item['values'][0]
+                dst = item['values'][0]
+                move(src, dst)
+                self.logger.debug(self.trn.msg('htk_core_moved', src, dst))
+                self.refresh(path=src)
+
+                # update path if moved file is open
+                res, idx = self.editor.nb.is_tab_present(src)
+                if (res):
+                    tab = self.editor.nb.tab_refs[idx]
+                    tab._path = '{0}/{1}'.format(dst, tab.name)
+                    self.yoda_tree.move_test(src, tab._path)
+            except Error:
+                pass
+
+    def _on_move(self, event=None):
+        """Method handles mouse drag move event
+
+        Highlight item if drop is allowed
+
+        Args:
+            event (obj): event
+
+        Returns:
+            void
+
+        """
+        
+        item = self._tree.identify_row(event.y)
+        if (len(item) == 0 or self._drag_item == None):
+            return
+
+        item_cont = self._tree.item(item)
+        if (self._drag_item['values'][0] in item_cont['values'][0]):
+            return
+        elif (item_cont['values'][1] == 'directory'):
+            self._tree.selection_set(item)

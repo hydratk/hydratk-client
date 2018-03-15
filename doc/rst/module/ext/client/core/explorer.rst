@@ -27,6 +27,7 @@ Class for Explorer frame.
 * _hsb - HorizontalBar
 * _menu - context menu
 * _menu_new - context submenu
+* _drag_item - dragged item
 
 **Properties (Getters)** :
 
@@ -140,3 +141,15 @@ If file is open it closes appropriate tab.
 * refresh
 
 Method refreshes requested part of tree.
+
+* _on_drag
+
+Method handles mouse drag event. Dragged file or directory is stored.
+
+* _on_drop
+
+Method handles mouse drop event. Dragged directory is moved. Dragged file is moved or opened in editor.
+
+* _on_move
+
+Method handles mouse drag move event. Item is highlighted if drop is allowed.

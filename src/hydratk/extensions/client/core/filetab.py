@@ -2,8 +2,8 @@
 """FileTab
 
 .. module:: client.core.filetab
-   :platform: Windows
-   :synopsis: FileTab, Unix
+   :platform: Windows, Unix
+   :synopsis: FileTab
 .. moduleauthor:: Petr Rašek <bowman@hydratk.org>
 
 """

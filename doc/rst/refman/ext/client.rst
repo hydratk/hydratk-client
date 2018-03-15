@@ -76,7 +76,14 @@ core
 * httpclient
 
 .. automodule:: hydratk.extensions.client.core.httpclient
-   :member-order: bysource         
+   :member-order: bysource
+   
+.. _refman_ext_client_core_imagetab:   
+   
+* imagetab
+
+.. automodule:: hydratk.extensions.client.core.imagetab
+   :member-order: bysource              
    
 .. _refman_ext_client_core_logger:   
    

@@ -74,6 +74,10 @@ Method returns requested test configuration.
 
 Method deletes requested test.
 
+* move_test
+
+Method moves test.
+
 * refresh
 
 Method refreshes tree content, content is reparsed.

@@ -29,6 +29,7 @@ msg = {
     'htk_core_directory_created' : "Directory {0} created",
     'htk_core_directory_deleted' : "Directory {0} deleted",
     'htk_core_copied' : "{0} copied to {1}",
+    'htk_core_moved' : "{0} moved to {1}",
     'htk_core_invalid_yaml' : "File {0} has invalid YAML content",
     'htk_core_test_mode' : "Test mode enabled",
     'htk_core_msg_received' : "Thread {0}: Message received {1}",

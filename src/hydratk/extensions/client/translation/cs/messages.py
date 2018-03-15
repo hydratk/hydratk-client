@@ -29,6 +29,7 @@ msg = {
     'htk_core_directory_created' : "Adresář {0} vytvořen",
     'htk_core_directory_deleted' : "Adresář {0} smazán",
     'htk_core_copied' : "{0} zkopírováno do {1}",
+    'htk_core_moved' : "{0} přesunuto do {1}",
     'htk_core_invalid_yaml' : "Soubor {0} má nevalidní YAML obsah",
     'htk_core_test_mode' : "Testovací mód povolen",
     'htk_core_msg_received' : "Thread {0}: Zpráva přijata {1}",

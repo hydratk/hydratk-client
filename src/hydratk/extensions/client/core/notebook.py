@@ -12,6 +12,7 @@ import os
 
 from hydratk.extensions.client.core.tkimport import tk, ttk, tkmsg
 from hydratk.extensions.client.core.filetab import FileTab
+from hydratk.extensions.client.core.imagetab import ImageTab
 
 class CustomNotebook(ttk.Notebook):
     """Class CustomNotebook
@@ -23,6 +24,8 @@ class CustomNotebook(ttk.Notebook):
     # tabs
     _tab_refs = []
     _new_cnt = 0
+
+    _drag_tab = None
 
     def __init__(self, editor, *args, **kwargs):
         """Class constructor
@@ -115,9 +118,11 @@ class CustomNotebook(ttk.Notebook):
         """
 
         self.enable_traversal()
-        self.bind('<ButtonRelease-1>', self._on_release)
         self.bind('<Control-F4>', self.close_tab)
         self.bind('<<NotebookTabChanged>>', self.editor.on_tab_changed)
+
+        self.bind('<ButtonPress-1>', self._on_drag)
+        self.bind('<ButtonRelease-1>', self._on_drop)
 
     def is_tab_present(self, path):
         """Method checks if tab with given file path is present
@@ -137,12 +142,29 @@ class CustomNotebook(ttk.Notebook):
 
         return res, idx
 
-    def add_tab(self, path=None, content=None, **kwargs):
+    def is_filetab(self, tab=None):
+        """Method checks if tab is FileTab
+
+        Args:
+            tab (obj): tab reference
+
+        Returns:
+            bool
+
+        """
+
+        if (tab == None):
+            tab = self.get_current_tab()
+
+        return isinstance(tab, FileTab)
+
+    def add_tab(self, path=None, content=None, tab_type='file', **kwargs):
         """Method adds file tab
 
         Args:
             path (str): file path
             content (str): file content
+            tab_type (str): tab type, file|image
             kwargs (dict): key values arguments
 
         Returns:
@@ -150,13 +172,24 @@ class CustomNotebook(ttk.Notebook):
 
         """
 
-        tab = FileTab(self, kwargs['text'], path, content)
+        if (tab_type == 'file'):
+            filetab_found = False
+            for tab in self._tab_refs:
+                if (self.is_filetab(tab)):
+                    filetab_found = True
+
+            if (not filetab_found):
+                self._set_tab_related_controls(True)
+
+            tab = FileTab(self, kwargs['text'], path, content)
+        elif (tab_type == 'image'):
+            tab = ImageTab(self, kwargs['text'], path)
+        else:
+            return
+
         self._tab_refs.append(tab)
         self.add(tab, **kwargs)
         self.select(len(self._tab_refs) - 1)
-
-        if (len(self._tab_refs) == 1):
-            self._set_tab_related_controls(True)
 
     def _get_current_index(self):
         """Method gets index of current tab
@@ -200,7 +233,7 @@ class CustomNotebook(ttk.Notebook):
         """
 
         tab = self.get_current_tab()
-        return tab.text.get('1.0', 'end-1c') if (tab is not None) else None
+        return tab.text.get('1.0', 'end-1c') if (tab is not None and self.is_filetab(tab)) else None
 
     def get_content(self, idx):
         """Method gets content of given tab
@@ -213,7 +246,7 @@ class CustomNotebook(ttk.Notebook):
 
         """
 
-        return self._tab_refs[idx].text.get('1.0', 'end-1c')
+        return self._tab_refs[idx].text.get('1.0', 'end-1c') if (self.is_filetab(self._tab_refs[idx])) else None
 
     def get_marked_content(self):
         """Method gets marked content
@@ -228,11 +261,11 @@ class CustomNotebook(ttk.Notebook):
 
         try:
             tab = self.get_current_tab()
-            return tab.text.get(tk.SEL_FIRST, tk.SEL_LAST) if (tab is not None) else None
+            return tab.text.get(tk.SEL_FIRST, tk.SEL_LAST) if (tab is not None and self.is_filetab(tab)) else None
         except tk.TclError:
             return None
 
-    def set_current_tab(self, name, path, modified):
+    def set_current_tab(self, name, path=None, modified=None):
         """Method sets various tab parameters
 
         Args:
@@ -247,9 +280,12 @@ class CustomNotebook(ttk.Notebook):
 
         idx = self._get_current_index()
         self.tab(idx, text=name)
-        self._tab_refs[idx]._name = name
-        self._tab_refs[idx]._path = path
-        self._tab_refs[idx]._text.edit_modified(modified)
+        tab = self._tab_refs[idx]
+        tab._name = name
+        
+        if (self.is_filetab(tab)):
+            tab._path = path
+            tab._text.edit_modified(modified)
 
     def _set_tab_related_controls(self, enable):
         """Method sets controls enabled by tab presence
@@ -294,21 +330,6 @@ class CustomNotebook(ttk.Notebook):
         tools['delete'].config(state=state)
         tools['find'].config(state=state)
 
-    def _on_release(self, event=None):
-        """Method handles tab close button
-
-        Args:
-            event (obj): event
-
-        Returns:
-            void
-
-        """
-
-        if (event.widget.identify(event.x, event.y) == 'close'):
-            index = self.index('@%d,%d' % (event.x, event.y))
-            self.close_tab(index=index)
-
     def close_tab(self, event=None, index=None, force=False):
         """Method closes tab
 
@@ -329,16 +350,67 @@ class CustomNotebook(ttk.Notebook):
 
         if (index is not None):
             tab = self._tab_refs[index]
-            if (tab.text.edit_modified() and not force):
-                res = tkmsg.askyesno(self.editor.trn.msg('htk_gui_editor_close_save_title'),
-                                     self.editor.trn.msg('htk_gui_editor_close_save_question', tab.name))
-                if (res):
-                    self.editor.save_file(path=tab.path)
+            if (self.is_filetab(tab)):
+                if (tab.text.edit_modified() and not force):
+                    res = tkmsg.askyesno(self.editor.trn.msg('htk_gui_editor_close_save_title'),
+                                         self.editor.trn.msg('htk_gui_editor_close_save_question', tab.name))
+                    if (res):
+                        self.editor.save_file(path=tab.path)
+
+                self.editor.yoda_tree.delete_test(tab.path)
 
             self.forget(index)
-            self.editor.yoda_tree.delete_test(tab.path)
             del self._tab_refs[index]
 
-        if (len(self._tab_refs) == 0 or index is None):
+        filetab_found = False
+        for tab in self._tab_refs:
+            if (self.is_filetab(tab)):
+                filetab_found = True
+                break
+
+        if (len(self._tab_refs) == 0 or index is None or not filetab_found):
             self._set_tab_related_controls(False)
             self.editor.yoda_tree.clear_tree()
+
+    def _on_drag(self, event=None):
+        """Method handles mouse drag event
+
+        Store dragged tab index
+
+        Args:
+            event (obj): event
+
+        Returns:
+            void
+
+        """
+
+        self._drag_tab = None
+        idx = self.tk.call(self._w, 'identify', 'tab', event.x, event.y)
+        if (idx != ''):
+            self._drag_tab = idx
+
+    def _on_drop(self, event=None):
+        """Method handles mouse drop event
+
+        Close tab or swap tabs
+
+        Args:
+            event (obj): event
+
+        Returns:
+            void
+
+        """
+
+        if (event.widget.identify(event.x, event.y) == 'close'):
+            index = self.index('@%d,%d' % (event.x, event.y))
+            self.close_tab(index=index)
+
+        else:
+            idx = self.tk.call(self._w, 'identify', 'tab', event.x, event.y)
+            if (idx != '' and self._drag_tab != None and idx != self._drag_tab):
+                tab1, tab2 = self._tab_refs[self._drag_tab], self._tab_refs[idx]
+                self._tab_refs[idx], self._tab_refs[self._drag_tab] = tab1, tab2
+                self.insert(idx, tab1)
+                self.insert(self._drag_tab, tab2)
