@@ -108,12 +108,12 @@ class Help(object):
         self._text.focus_set()
         content = """Client for HydraTK
 
-Version: 0.1.0
+Version: 0.1.1
 Web: http://hydratk.org
 
 Copyright (c) 2017-2018
-Petr Rašek (bowman@hydratk.org)
-HydraTK team (team@hydratk.org)
+Petr Rašek <bowman@hydratk.org>
+HydraTK team <team@hydratk.org>
 All rights reserved."""
         self._text.insert(tk.END, content)
         self._text.configure(state=tk.DISABLED)

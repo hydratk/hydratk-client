@@ -130,7 +130,7 @@ class Plugin(plugin.Plugin):
         try:
             content = safe_load(content)
         except (ScannerError, ParserError):
-            return False, 'Invalid YAML structure'
+            return False, self.trn.msg('htk_syntaxchecker_invalid_yaml')
 
         test = self._reformat_test(content)
 
@@ -140,7 +140,7 @@ class Plugin(plugin.Plugin):
             if (tsc_id in test):
                 error += self._check_scenario(tsc_id, test[tsc_id])
             else:
-                error += '\nMissing tag {0}'.format(tsc_id)
+                error += self.trn.msg('htk_syntaxchecker_missing_tag', tsc_id)
 
         result = True if (error == '') else False
 
@@ -181,7 +181,7 @@ class Plugin(plugin.Plugin):
         keys = content.keys()
         for tag in ['id', 'name']:
             if (tag not in keys):
-                error += '\n{0}: Missing tag {1}'.format(id, tag)
+                error += self.trn.msg('htk_syntaxchecker_missing_tag_inner', id, tag)
 
         for tag in ['pre-req', 'post-req']:
             if (tag in keys):
@@ -201,7 +201,7 @@ class Plugin(plugin.Plugin):
             if (tca_id in tca_ids):
                 error += self._check_case([id, tca_id], content[tca_id])
             else:
-                error += '\n{0}: Missing tag {1}'.format(id, tca_id)
+                error += self.trn.msg('htk_syntaxchecker_missing_tag_inner', id, tca_id)
 
         return error
 
@@ -221,7 +221,7 @@ class Plugin(plugin.Plugin):
         keys = content.keys()
         for tag in ['id', 'name']:
             if (tag not in keys):
-                error += '\n{0}: Missing tag {1}'.format(':'.join(ids), tag)
+                error += self.trn.msg('htk_syntaxchecker_missing_tag_inner', ':'.join(ids), tag)
 
         if ('events' in keys):
             for key, value in content['events'].items():
@@ -237,7 +237,7 @@ class Plugin(plugin.Plugin):
             if (tco_id in tco_ids):
                 error += self._check_condition(ids + [tco_id], content[tco_id])
             else:
-                error += '\n{0}: Missing tag {1}'.format(':'.join(ids), tco_id)
+                error += self.trn.msg('htk_syntaxchecker_missing_tag_inner', ':'.join(ids), tco_id)
 
         return error
 
@@ -257,7 +257,7 @@ class Plugin(plugin.Plugin):
         keys = content.keys()
         for tag in ['id', 'name', 'test', 'validate']:
             if (tag not in keys):
-                error += '\n{0}: Missing tag {1}'.format(':'.join(ids), tag)
+                error += self.trn.msg('htk_syntaxchecker_missing_tag_inner', ':'.join(ids), tag)
 
         if ('events' in keys):
             for key, value in content['events'].items():
@@ -268,7 +268,7 @@ class Plugin(plugin.Plugin):
                 error += self._check_python_block(ids + [tag], content[tag])
 
         if ('validate' in keys and 'assert' not in content['validate']):
-            error += '\n{0}: Missing assertion'.format(':'.join(ids + ['validate']))
+            error += self.trn.msg('htk_syntaxchecker_missing_assert', ':'.join(ids + ['validate']))
 
         return error
 

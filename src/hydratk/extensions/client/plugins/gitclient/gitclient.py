@@ -96,7 +96,7 @@ class Plugin(plugin.Plugin):
             self._set_menu_item('gitclient', 'htk_gitclient_menu_repomanager', self._win_repomanager)
 
         except ImportError:
-            self.logger.error('Plugin {0} could not be loaded, git executable is not installed.'.format(self._plugin_name))
+            self.logger.error(self.trn.msg('htk_gitclient_not_installed'))
 
     def _win_clone(self):
         """Method displays clone window

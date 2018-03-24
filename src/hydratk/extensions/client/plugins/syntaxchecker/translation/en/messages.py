@@ -17,5 +17,9 @@ msg = {
     'htk_syntaxchecker_menu' : "Syntax check",
     'htk_syntaxchecker_start' : "Checking syntax of {0}",
     'htk_syntaxchecker_success' : "Syntax check successful",
-    'htk_syntaxchecker_error' : "Error found within syntax check: {0}"
+    'htk_syntaxchecker_error' : "Error found within syntax check: {0}",
+    'htk_syntaxchecker_invalid_yaml': "Invalid YAML format",
+    'htk_syntaxchecker_missing_tag': "\nMissing tag {0}",
+    'htk_syntaxchecker_missing_tag_inner': "\n{0}: Missing tag {1}",
+    'htk_syntaxchecker_missing_assert': "\n{0}: Missing assert"
 }

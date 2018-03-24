@@ -14,6 +14,7 @@ language = {
 }
 
 msg = {
+    'htk_gitclient_not_installed': "Nebylo moné nahrát plugin GitClient, git není nainstalován.",
     'htk_gitclient_menu' : "Git klient",
     'htk_gitclient_menu_clone' : "Klonovat repozitář",
     'htk_gitclient_menu_repomanager' : "Správce repozitářů",

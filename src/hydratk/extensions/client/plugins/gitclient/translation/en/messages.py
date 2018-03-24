@@ -14,6 +14,7 @@ language = {
 }
 
 msg = {
+    'htk_gitclient_not_installed': "Plugin GitClient could not be loaded, git executable is not installed.",
     'htk_gitclient_menu' : "Git client",
     'htk_gitclient_menu_clone' : "Clone repository",
     'htk_gitclient_menu_repomanager' : "Repository manager",

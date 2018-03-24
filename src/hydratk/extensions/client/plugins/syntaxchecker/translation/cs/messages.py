@@ -17,5 +17,9 @@ msg = {
     'htk_syntaxchecker_menu' : "Kontrola syntaxe",
     'htk_syntaxchecker_start' : "Kontroluji syntaxi {0}",
     'htk_syntaxchecker_success' : "Kontrola syntaxe byla úspěšná",
-    'htk_syntaxchecker_error' : "Při kontrole syntaxe se vyskytla chyba: {0}"
+    'htk_syntaxchecker_error' : "Při kontrole syntaxe se vyskytla chyba: {0}",
+    'htk_syntaxchecker_invalid_yaml': "Neplatný YAML formát",
+    'htk_syntaxchecker_missing_tag': "\nChybí tag {0}",
+    'htk_syntaxchecker_missing_tag_inner': "\n{0}: Chybí tag {1}",
+    'htk_syntaxchecker_missing_assert': "\n{0}: Chybí assert"
 }
